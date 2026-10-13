@@ -14,6 +14,7 @@ on:
       - "scripts/import_translation_zip.py"
       - "scripts/import_workshop_ptbr.py"
       - "scripts/audit_catalogs.py"
+      - "scripts/audit_terminology.py"
       - "scripts/extract_offline.py"
       - "scripts/extract_workshop_mods.py"
       - "scripts/curate_offline.py"
@@ -54,6 +55,9 @@ jobs:
 
       - name: Audit every translation JSON and module identity
         run: python3 scripts/audit_catalogs.py
+
+      - name: Audit every PT-BR translation for terminology and game-variable integrity
+        run: python3 scripts/audit_terminology.py
 
       - name: Validate shell scripts and ModAssets staging
         run: |
