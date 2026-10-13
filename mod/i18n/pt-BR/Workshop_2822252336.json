@@ -66,7 +66,8 @@
     "（对方距离境界突破尚有一段距离。）": "（O outro personagem ainda está longe de avançar para o próximo reino.）",
     "（指点失败，先遗忘技能试试看？）": "（A orientação falhou. Tente esquecer a habilidade primeiro.）",
     "（这个位置并没有技能。）": "（Não há nenhuma habilidade nesta posição.）",
-    "（遗忘失败？那就怪了。。）": "（Não conseguiu esquecer a habilidade? Que estranho...）"
+    "（遗忘失败？那就怪了。。）": "（Não conseguiu esquecer a habilidade? Que estranho...）",
+    "指点": "Orientar"
   },
   "keys": {}
 }
