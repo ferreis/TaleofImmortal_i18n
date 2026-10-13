@@ -11,6 +11,9 @@
 *.dll
 !*.dll.config
 *.cache
+# Metadados essenciais exportados pelo criador nativo
+!/ModProject_DQKLF9/ModProject/ModData.cache
+!/ModProject_DQKLF9/ModProject/ModProject.cache
 *.log
 
 # Distribution

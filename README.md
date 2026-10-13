@@ -16,7 +16,7 @@ bash scripts/build.sh
 ```
 
 Saída: `ModProject_DQKLF9/ModProject/ModCode/ModMain/bin/Release/MOD_DQKLF9.dll`.
-O script prepara também `ModProject_DQKLF9/debug/Mod_DQKLF9/` e `dist/TalesOfMortal_i18N/`, copiando a DLL e os JSON. Os arquivos `.cache` de exportação do editor não estão versionados. Leia [as instruções atualizadas](docs/BUILD.md).
+O script prepara também `ModProject_DQKLF9/debug/Mod_DQKLF9/` e `dist/TalesOfMortal_i18N/`, copiando a DLL, os JSON e os dois arquivos `.cache`. Os arquivos originais `ModProject.cache` e `ModData.cache` agora estão versionados e sincronizados; o segundo foi ajustado para `MOD_DQKLF9`. Leia [as instruções atualizadas](docs/BUILD.md).
 
 ## Como as traduções ficam organizadas
 
@@ -74,7 +74,7 @@ O idioma é escolhido em `i18n/config.json`, por exemplo: `{"language":"pt-BR"}`
 
 Este projeto usa o formato **ModCode do Mod Creator nativo** do Tale of Immortal. O jogo carrega uma classe pública `ModMain` com os métodos `Init()` e `Destroy()`, e o mod aplica patches Harmony. O próprio jogo usa MelonLoader para executar ModCode. **A compilação utiliza somente Mono/.NET Framework 4.7.2; as APIs do jogo são resolvidas por reflexão na execução.**
 
-1. Abra o projeto existente `ModProject_DQKLF9` no Mod Creator do jogo. **Preserve o namespace `MOD_DQKLF9`** que o próprio editor gerou.
+1. Abra o projeto existente em `ModProject_DQKLF9/ModProject` no Mod Creator do jogo. Os dois arquivos `.cache` estão incluídos. O namespace foi alinhado para **`MOD_DQKLF9`** (o cache recebido originalmente dizia `Mod_i18N`).
 2. Compile sem o jogo instalado usando `bash scripts/build.sh` e Mono (veja [compilação](docs/BUILD.md)). A DLL terá o namespace e nome exigidos pelo editor.
 3. Compile `MOD_DQKLF9.dll` com `bash scripts/build.sh`; o projeto nativo já está integrado, então exporte-o pelo Mod Creator.
 4. Copie a pasta `i18n` fornecida em `mod/i18n` para a raiz **do mod exportado**. Se a DLL tiver sido movida para outra pasta pelo jogo, o carregador também tenta localizar a pasta do mod abaixo de `Mods/TalesOfMortal_i18N`.

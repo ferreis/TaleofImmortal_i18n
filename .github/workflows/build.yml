@@ -6,6 +6,7 @@ on:
     paths:
       - "src/**"
       - "ModProject_DQKLF9/ModProject/ModCode/**"
+      - "ModProject_DQKLF9/ModProject/*.cache"
       - "mod/i18n/**"
       - "scripts/build.sh"
       - ".github/workflows/build.yml"

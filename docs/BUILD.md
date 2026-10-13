@@ -1,6 +1,8 @@
 # Compilação do projeto DQKLF9
 
-A identidade do projeto criada pelo jogo é `MOD_DQKLF9`. **Não modifique esse namespace no editor.**
+A identidade do projeto é `DQKLF9` (`soleID`) e o namespace de ModCode é `MOD_DQKLF9`. O `ModData.cache` enviado originalmente tinha `Mod_i18N`; corrigimos somente esse campo para coincidir com a DLL e com `MOD_DQKLF9.ModMain`. Os demais metadados originais foram preservados.
+
+Os arquivos reais `ModProject.cache` e `ModData.cache` estão versionados em `ModProject_DQKLF9/ModProject/`. Não é necessário recriar o projeto no editor.
 
 ## Build offline (Ubuntu/Pop!_OS)
 
@@ -24,6 +26,8 @@ O script também copia a DLL e os JSON de `mod/i18n` para as seguintes pastas:
 ```text
 ModProject_DQKLF9/ModProject/i18n/             # arquivos-fonte do mod criado
 ModProject_DQKLF9/debug/Mod_DQKLF9/
+  ├── ModProject.cache
+  ├── ModData.cache
   ├── ModCode/dll/MOD_DQKLF9.dll
   └── i18n/pt-BR/*.json
 dist/TalesOfMortal_i18N/
@@ -31,11 +35,11 @@ dist/TalesOfMortal_i18N/
   └── i18n/pt-BR/*.json
 ```
 
-Os JSON continuam editáveis, sem recompilar a DLL. O script só prepara arquivos locais. A pasta `dist` é um **staging**, não um mod completo, pois precisa dos arquivos de metadados que o editor nativo exporta.
+Os JSON continuam editáveis, sem recompilar a DLL. O script só prepara arquivos locais. A pasta `dist` é um **staging** com DLL, JSON e os dois arquivos `.cache`. Ainda não equivale, por si só, a um pacote exportado e instalado pelo Mod Creator: podem existir metadados e etapas adicionais geradas pelo jogo.
 
 ## Instalação
 
-O projeto do mod foi adicionado em `ModProject_DQKLF9/ModProject`. Abra-o no editor do Tale of Immortal e faça a exportação normal. Os arquivos `.cache` e os metadados não foram enviados ao GitHub, então a cópia do repositório por si só pode **não conter um projeto importável completo** no editor.
+O projeto original está em `ModProject_DQKLF9/ModProject`, incluindo agora ambos os `.cache`. Abra ou atualize o projeto no Mod Creator e faça a exportação nativa. Não edite `soleID` ou `modNamespace` no editor; estão sincronizados com o código.
 
 Não renomeie o `MOD_DQKLF9.dll` nem tente carregar como mod MelonLoader independente. O tipo de entrada exportado é `MOD_DQKLF9.ModMain` com métodos `Init()` e `Destroy()`.
 

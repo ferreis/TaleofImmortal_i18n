@@ -8,6 +8,18 @@ OUTPUT="$NATIVE/bin/Release/MOD_DQKLF9.dll"
 DEBUG="$ROOT/ModProject_DQKLF9/debug/Mod_DQKLF9"
 DIST="$ROOT/dist/TalesOfMortal_i18N"
 
+# The cached native mod identity must match our exported entry point.
+METADATA="$ROOT/ModProject_DQKLF9/ModProject"
+if [[ ! -f "$METADATA/ModProject.cache" || ! -f "$METADATA/ModData.cache" ]]; then
+  echo "ERRO: metadados do Mod Creator ausentes em $METADATA" >&2
+  exit 1
+fi
+if ! grep -Eq '"soleID"[[:space:]]*:[[:space:]]*"DQKLF9"' "$METADATA/ModProject.cache" ||
+   ! grep -Eq '"modNamespace"[[:space:]]*:[[:space:]]*"MOD_DQKLF9"' "$METADATA/ModData.cache"; then
+  echo "ERRO: identidades DQKLF9 / MOD_DQKLF9 inconsistentes nos arquivos .cache" >&2
+  exit 1
+fi
+
 # No Unity, Harmony, Steam or game installation required to build.
 if command -v mcs >/dev/null 2>&1; then
   echo "Compilando MOD_DQKLF9.dll offline com Mono..."
@@ -40,11 +52,15 @@ cp -a "$ROOT/mod/i18n/." "$ROOT/ModProject_DQKLF9/ModProject/i18n/"
 mkdir -p "$DEBUG/ModCode/dll" "$DEBUG/i18n"
 cp "$OUTPUT" "$DEBUG/ModCode/dll/MOD_DQKLF9.dll"
 cp -a "$ROOT/mod/i18n/." "$DEBUG/i18n/"
+cp "$METADATA/ModProject.cache" "$DEBUG/ModProject.cache"
+cp "$METADATA/ModData.cache" "$DEBUG/ModData.cache"
 
 # Portable staging directory (not a substitute for Mod Creator metadata/export).
 mkdir -p "$DIST/ModCode/dll" "$DIST/i18n"
 cp "$OUTPUT" "$DIST/ModCode/dll/MOD_DQKLF9.dll"
 cp -a "$ROOT/mod/i18n/." "$DIST/i18n/"
+cp "$METADATA/ModProject.cache" "$DIST/ModProject.cache"
+cp "$METADATA/ModData.cache" "$DIST/ModData.cache"
 
 echo
 echo "BUILD OK: $OUTPUT"
