@@ -212,12 +212,9 @@ namespace TalesOfMortalI18N
             if (byText.TryGetValue(original, out result))
                 return result;
 
-            // Se não houver correspondência para o bloco todo, traduzir apenas
-            // linhas/trechos completos entre tags; nunca fazer Replace global.
-            result = TranslateSeparatedSegments(original);
-            if (result != null)
-                return result;
-
+            // First match full dynamic patterns, including numbers in repair
+            // summaries. Fragment translation would otherwise translate just
+            // one line, prevent the full pattern and leave mixed languages.
             foreach (PatternRule rule in patternRules)
             {
                 if (rule.Disabled)
@@ -234,6 +231,11 @@ namespace TalesOfMortalI18N
                     ModLog.Warning("Regex desativada por timeout: " + rule.Regex);
                 }
             }
+            // Only after full-text patterns have failed, translate complete
+            // independent lines and Unity-rich-text segments.
+            result = TranslateSeparatedSegments(original);
+            if (result != null)
+                return result;
             return original;
         }
 
