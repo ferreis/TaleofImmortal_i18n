@@ -21,7 +21,7 @@ public static class CatalogSmoke
             return 1;
         }
         var parsed = JsonTextParser.ParseObject(
-            "{\\"translations\\":{\\"\\\\u52a0\\\\u8f7d\\":\\"teste\\",\\"a\\":\\"linha\\\\n2\\"}}");
+            @"{""translations"":{""\u52a0\u8f7d"":""teste"",""a"":""linha\n2""}}");
         var values = (System.Collections.Generic.Dictionary<string, object>)parsed["translations"];
         if ((string)values["加载"] != "teste" || (string)values["a"] != "linha\n2")
         {
