@@ -1,5 +1,21 @@
 # Compilação e empacotamento
 
+## Compilação simplificada no Ubuntu
+
+Na branch `Dev`, instale o Mono se necessário (`sudo apt install mono-devel mono-xbuild`) e execute na raiz do repositório:
+
+```bash
+bash scripts/build.sh
+```
+
+O script tenta localizar a instalação do Tale of Immortal em pastas conhecidas da Steam. Caso esteja em outra biblioteca Steam, informe o caminho da pasta raiz do jogo, a que contém `MelonLoader`:
+
+```bash
+bash scripts/build.sh "/caminho/da/SteamLibrary/steamapps/common/TOI"
+```
+
+O script verifica as DLLs, usa `msbuild` ou `xbuild` e aponta o local da DLL compilada. Não instala mods, não altera o jogo e não substitui o empacotamento nativo descrito abaixo.
+
 Requisitos: código C# compilado para **.NET Framework 4.7.2**, com as bibliotecas do Tale of Immortal e do MelonLoader já geradas na sua instalação (versões anteriores à migração do MelonLoader para .NET 6). O jogo precisa ter sido executado ao menos uma vez para gerar as referências.
 
 O projeto usa `Newtonsoft.Json` incluído nas DLLs da instalação conhecida do jogo. Nenhuma dependência é baixada durante o jogo.
