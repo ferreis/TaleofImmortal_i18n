@@ -13,6 +13,7 @@ on:
       - "scripts/test.sh"
       - "scripts/import_translation_zip.py"
       - "scripts/audit_catalogs.py"
+      - "scripts/extract_offline.py"
       - "scripts/check-xunity.sh"
       - "scripts/install-local.sh"
       - "scripts/disable-xunity.sh"
@@ -38,6 +39,9 @@ jobs:
 
       - name: Test JSON catalogs without game files
         run: bash scripts/test.sh
+
+      - name: Test offline file extractor
+        run: python3 -m unittest discover -s tests -p "test_*.py"
 
       - name: Audit every translation JSON and module identity
         run: python3 scripts/audit_catalogs.py
