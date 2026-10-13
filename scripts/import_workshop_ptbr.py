@@ -21,6 +21,20 @@ ROOT = Path(__file__).resolve().parents[1]
 SOURCE_MOD = "steam:2990310797"
 HAN = re.compile(r"[\u3400-\u9fff\uf900-\ufaff]")
 PLACEHOLDER = re.compile(r"\{[^{}]+\}")
+INTERNAL_VAR = re.compile(r"\$s_[A-Za-z0-9_]+\$|&[A-Za-z0-9_|]+&")
+RICH_TAG = re.compile(r"<(?:color|size|b|i|u|link|sprite)\\b", re.I)
+
+
+def structural_problem(source, translated):
+    if (collections.Counter(PLACEHOLDER.findall(source)) !=
+            collections.Counter(PLACEHOLDER.findall(translated))):
+        return "placeholderMismatch"
+    if (collections.Counter(INTERNAL_VAR.findall(source)) !=
+            collections.Counter(INTERNAL_VAR.findall(translated))):
+        return "internalVariableMismatch"
+    if RICH_TAG.search(source) and not RICH_TAG.search(translated):
+        return "richTextLost"
+    return None
 
 
 def existing_catalogs(folder, output):
@@ -63,6 +77,10 @@ def prepare(source, catalog_dir, output):
     available = collections.defaultdict(set)
     keyed = {}
     counts = collections.Counter()
+    source_by_key = {}
+    for row in rows:
+        if isinstance(row, dict) and isinstance(row.get("key"), str):
+            source_by_key.setdefault(row["key"], row.get("ch", ""))
     for row in rows:
         counts["sourceRows"] += 1
         if not isinstance(row, dict):
@@ -87,9 +105,9 @@ def prepare(source, catalog_dir, output):
         if "\ufffd" in pt or any(ord(c) < 32 and c not in "\r\n\t" for c in pt):
             counts["invalidCharacters"] += 1
             continue
-        if (collections.Counter(PLACEHOLDER.findall(zh)) !=
-                collections.Counter(PLACEHOLDER.findall(pt))):
-            counts["placeholderMismatch"] += 1
+        problem = structural_problem(zh, pt)
+        if problem:
+            counts[problem] += 1
             continue
         # Corrigir somente rótulos EXATOS, nunca nomes de skills ou texto livre.
         pt = CANONICAL.get(zh, pt)
@@ -101,8 +119,22 @@ def prepare(source, catalog_dir, output):
         keyed[key] = pt
 
     ambiguous = {zh for zh, values in available.items() if len(values) > 1}
-    translations = dict(saved_text)
-    keys = dict(saved_keys)
+    # Não perpetuar traduções estruturalmente perigosas de uma importação
+    # anterior. Preserva revisões humanas que já corrigiram as variáveis.
+    translations = {}
+    for zh, pt in saved_text.items():
+        if structural_problem(zh, pt):
+            counts["removedUnsafeSavedText"] += 1
+        else:
+            translations[zh] = pt
+
+    keys = {}
+    for key, pt in saved_keys.items():
+        source = source_by_key.get(key)
+        if isinstance(source, str) and structural_problem(source, pt):
+            counts["removedUnsafeSavedKeys"] += 1
+        else:
+            keys[key] = pt
     for key, pt in sorted(keyed.items()):
         if key not in keys and key not in excluded_keys and key not in names:
             keys[key] = pt
