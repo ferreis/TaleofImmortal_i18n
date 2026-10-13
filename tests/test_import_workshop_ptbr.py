@@ -84,6 +84,51 @@ class WorkshopPtBrImportTests(unittest.TestCase):
                                "Dano &321_spell|/321_one|x321_two&"),
             None)
 
+    def test_reimport_removes_previously_saved_protected_and_ambiguous_values(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            source = root / "2990310797.json"
+            source.write_text(json.dumps({
+                "format": "talesofmortal-workshop-extraction-v1",
+                "module": {"id": "steam:2990310797"},
+                "localizations": [
+                    {"key": "protect", "ch": "龙儿", "en": "Dragon"},
+                    {"key": "a", "ch": "你好", "en": "Olá"},
+                    {"key": "b", "ch": "你好", "en": "Saudações"},
+                    {"key": "dup", "ch": "修炼", "en": "Cultivar"},
+                    {"key": "dup", "ch": "检查", "en": "Inspecionar"},
+                    {"key": "manual", "ch": "欢迎来到宗门", "en": "Bem-vindo à seita"},
+                ],
+            }, ensure_ascii=False), encoding="utf-8")
+            folder = root / "catalog"
+            folder.mkdir()
+            (folder / "names.json").write_text(json.dumps({
+                "module": {"kind": "names", "id": "names"},
+                "names": ["龙儿"]
+            }, ensure_ascii=False), encoding="utf-8")
+            output = folder / "Workshop_2990310797.json"
+            output.write_text(json.dumps({
+                "module": {"id": "steam:2990310797", "kind": "fallback"},
+                "translations": {"龙儿": "Dragon", "你好": "Oi",
+                                 "欢迎来到宗门": "Bem-vindo à seita!"},
+                "keys": {"protect": "Dragon", "dup": "Cultivar",
+                         "manual": "Seja bem-vindo à seita!"}
+            }, ensure_ascii=False), encoding="utf-8")
+            result = prepare(source, folder, output)
+            current = json.loads(output.read_text(encoding="utf-8"))
+            self.assertNotIn("龙儿", current["translations"])
+            self.assertNotIn("你好", current["translations"])
+            self.assertNotIn("protect", current["keys"])
+            self.assertNotIn("dup", current["keys"])
+            # Preserve manually improved, structurally valid translations.
+            self.assertEqual(current["translations"]["欢迎来到宗门"],
+                             "Bem-vindo à seita!")
+            self.assertEqual(current["keys"]["manual"],
+                             "Seja bem-vindo à seita!")
+            self.assertGreaterEqual(result["removedProtectedOrAmbiguousSavedText"], 2)
+            self.assertGreaterEqual(result["removedProtectedOrConflictingSavedKeys"], 2)
+            self.assertGreaterEqual(result["conflictingSourceKeys"], 2)
+
     def test_rejects_wrong_workshop_id(self):
         with tempfile.TemporaryDirectory() as folder:
             path = Path(folder) / "source.json"
