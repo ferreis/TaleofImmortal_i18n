@@ -17,6 +17,8 @@ namespace TalesOfMortalI18N
             internal int Observations;
             internal readonly HashSet<string> Sources =
                 new HashSet<string>(StringComparer.Ordinal);
+            internal readonly HashSet<string> Keys =
+                new HashSet<string>(StringComparer.Ordinal);
         }
 
         private static readonly object Gate = new object();
@@ -27,7 +29,7 @@ namespace TalesOfMortalI18N
         private static bool includeEnglish;
         private static bool includeChinese;
         private static int maxEntries;
-        private static int lastSavedEntries;
+        private static int revision;
         private static bool dirty;
         private static Timer timer;
 
@@ -79,7 +81,7 @@ namespace TalesOfMortalI18N
                     Entries.Clear();
                     LoadExisting();
                     dirty = false;
-                    lastSavedEntries = Entries.Count;
+                    revision = 0;
                     enabled = true;
                     timer = new Timer(FlushTimer, null, seconds * 1000, seconds * 1000);
                 }
@@ -106,7 +108,7 @@ namespace TalesOfMortalI18N
             Flush(true);
         }
 
-        internal static void Observe(string text, string source)
+        internal static void Observe(string text, string source, string localizationKey = null)
         {
             if (!enabled || string.IsNullOrWhiteSpace(text) ||
                 text.Length > 8000 || text.Length < 2 ||
@@ -128,7 +130,9 @@ namespace TalesOfMortalI18N
                     // Limita writes e operações quando a mesma tela atualiza por frame.
                     if (entry.Observations < 999999) entry.Observations++;
                     entry.Sources.Add(source);
+                    if (!string.IsNullOrEmpty(localizationKey)) entry.Keys.Add(localizationKey);
                     dirty = true;
+                    revision++;
                 }
                 else if (Entries.Count < maxEntries)
                 {
@@ -139,8 +143,10 @@ namespace TalesOfMortalI18N
                         Observations = 1
                     };
                     entry.Sources.Add(source);
+                    if (!string.IsNullOrEmpty(localizationKey)) entry.Keys.Add(localizationKey);
                     Entries.Add(text, entry);
                     dirty = true;
+                    revision++;
                 }
             }
         }
@@ -156,10 +162,12 @@ namespace TalesOfMortalI18N
             try
             {
                 string json;
+                int snapshotRevision;
                 lock (Gate)
                 {
                     if (!dirty) return;
                     json = Serialize();
+                    snapshotRevision = revision;
                 }
 
                 string temp = outputPath + ".tmp";
@@ -176,9 +184,8 @@ namespace TalesOfMortalI18N
                 {
                     // Snapshot pode ficar defasado se uma UI mudou durante a gravação.
                     // Nesse caso a próxima execução de Flush escreverá o conjunto novo.
-                    if (Entries.Count == lastSavedEntries || force)
+                    if (revision == snapshotRevision)
                         dirty = false;
-                    lastSavedEntries = Entries.Count;
                 }
             }
             catch (Exception error)
@@ -203,7 +210,7 @@ namespace TalesOfMortalI18N
                     if (Entries.Count >= maxEntries) break;
                     var raw = value as Dictionary<string, object>;
                     if (raw == null) continue;
-                    object textValue, langValue, countValue, sourcesValue;
+                    object textValue, langValue, countValue, sourcesValue, keysValue;
                     string text = raw.TryGetValue("text", out textValue) ? textValue as string : null;
                     if (string.IsNullOrEmpty(text) || Entries.ContainsKey(text)) continue;
                     var e = new Entry
@@ -220,6 +227,13 @@ namespace TalesOfMortalI18N
                         if (arr != null)
                             foreach (object item in arr)
                                 if (item is string) e.Sources.Add((string)item);
+                    }
+                    if (raw.TryGetValue("localizationKeys", out keysValue))
+                    {
+                        var arr = keysValue as List<object>;
+                        if (arr != null)
+                            foreach (object item in arr)
+                                if (item is string) e.Keys.Add((string)item);
                     }
                     Entries.Add(text, e);
                 }
@@ -257,6 +271,14 @@ namespace TalesOfMortalI18N
                     if (!sourceFirst) builder.Append(", ");
                     sourceFirst = false;
                     AppendJson(builder, source);
+                }
+                builder.Append("], \"localizationKeys\": [");
+                bool keyFirst = true;
+                foreach (string key in entry.Keys)
+                {
+                    if (!keyFirst) builder.Append(", ");
+                    keyFirst = false;
+                    AppendJson(builder, key);
                 }
                 builder.Append("]}");
             }
