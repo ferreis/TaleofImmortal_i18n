@@ -26,20 +26,27 @@ RICH_TAG = re.compile(r"<(color|size|b|i|u|link|sprite)\b", re.I)
 SPRITE = re.compile(r'<sprite\s+name="([^"]+)"', re.I)
 
 
+def preserve_initial_capital(match, replacement):
+    return replacement[:1].upper() + replacement[1:] if match.group()[:1].isupper() else replacement
+
+
 def normalize_from_source(source, translated):
     if not isinstance(source, str):
         return translated
     result = CANONICAL.get(source, translated)
     if "移动速度" in source:
-        result = re.sub(r"(?i)\bagilidade\b", "velocidade de movimento", result)
+        result = re.sub(r"(?i)\bagilidade\b",
+                        lambda match: preserve_initial_capital(match, "velocidade de movimento"), result)
     if "技能范围" in source:
-        result = re.sub(r"(?i)\bfaixa de habilidade\b", "alcance da habilidade", result)
+        result = re.sub(r"(?i)\bfaixa de habilidade\b",
+                        lambda match: preserve_initial_capital(match, "alcance da habilidade"), result)
     if "幸运" in source:
         result = re.sub(r"\bTipo(?=\s*[+-]\s*\d)", "Sorte", result)
     if "暮仙" in source:
         result = result.replace("Em Xian", "Mu Xian")
     if "雷属性" in source:
-        result = re.sub(r"(?i)\brelâmpagos?\b", "raio", result)
+        result = re.sub(r"(?i)\brelâmpagos?\b",
+                        lambda match: preserve_initial_capital(match, "raio"), result)
     return result
 
 
