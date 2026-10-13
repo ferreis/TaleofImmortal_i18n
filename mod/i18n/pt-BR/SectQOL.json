@@ -1,4 +1,10 @@
 {
+  "module": {
+    "kind": "mod",
+    "id": "local:sectqol",
+    "name": "SectQOL",
+    "sourceAlias": "SectQOL"
+  },
   "translations": {},
   "keys": {}
 }

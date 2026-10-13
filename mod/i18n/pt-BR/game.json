@@ -1,4 +1,9 @@
 {
+  "module": {
+    "kind": "game",
+    "id": "game:tale-of-immortal",
+    "name": "Tale of Immortal"
+  },
   "translations": {
     "3000": "3.000",
     "7000": "7.000",

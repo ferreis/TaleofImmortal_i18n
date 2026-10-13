@@ -1,4 +1,9 @@
 {
+  "module": {
+    "kind": "fallback",
+    "id": "legacy:xunity-auto",
+    "name": "Traduções importadas do legado XUnity"
+  },
   "translations": {
     "13500": "13.500",
     "如果苦于八荒世界中没有灵气用于修炼，可以试试与他人双修，但请在两情相悦的情况下这么做。": "Se você está sofrendo com a falta de energia espiritual para o cultivo no mundo Bahuang, você pode tentar praticar o cultivo duplo com outras pessoas, mas faça-o quando ambos estiverem em amor mútuo.",

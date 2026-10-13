@@ -1,4 +1,10 @@
 {
+  "module": {
+    "kind": "mod",
+    "id": "steam:2990310797",
+    "name": "Workshop 2990310797",
+    "workshopId": "2990310797"
+  },
   "translations": {},
   "keys": {}
 }

@@ -1,4 +1,9 @@
 {
+  "module": {
+    "kind": "names",
+    "id": "system:protected-names",
+    "name": "Nomes próprios protegidos"
+  },
   "names": [
     "Quan Chengshuang",
     "Cheng Chengyun",
