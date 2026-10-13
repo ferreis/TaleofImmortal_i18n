@@ -36,6 +36,10 @@ public static class CatalogSmoke
         AssertTranslation("加载中...", "carregando...");
         AssertTranslation("Vingativo(a)", "Vingativo(a)");
         AssertTranslation("__texto_inexistente_i18n_1234__", "__texto_inexistente_i18n_1234__");
+        AssertTranslation("加载中...\n__unknown__", "carregando...\n__unknown__");
+        AssertTranslation("<color=red>lightning</color>", "<color=red>Raio</color>");
+        AssertTranslation("Obsidian's Signing Firebolt", "Obsidian's Signing Firebolt");
+        AssertTranslation("Yong Ning", "Yong Ning");
         ExtractorSmoke.Run();
         AdaptiveTextSmoke.Run();
         Console.WriteLine("CatalogSmoke OK: dicionários reais carregados com sucesso.");
