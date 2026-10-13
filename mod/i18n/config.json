@@ -1,3 +1,10 @@
 {
-  "language": "pt-BR"
+  "language": "pt-BR",
+  "extractor": {
+    "enabled": true,
+    "includeEnglish": true,
+    "includeChinese": true,
+    "flushSeconds": 30,
+    "maxEntries": 50000
+  }
 }

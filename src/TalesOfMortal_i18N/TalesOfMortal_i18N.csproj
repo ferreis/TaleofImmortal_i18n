@@ -31,6 +31,7 @@
     <Compile Include="ModMain.cs" />
     <Compile Include="TranslationCatalog.cs" />
     <Compile Include="JsonTextParser.cs" />
+    <Compile Include="RuntimeTextExtractor.cs" />
     <Compile Include="TranslationPatches.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -14,6 +14,7 @@ namespace TalesOfMortalI18N
             try
             {
                 TranslationCatalog.Load();
+                RuntimeTextExtractor.Start();
                 patcher = new ReflectionPatcher(HarmonyId);
                 int installed = patcher.Install();
                 ModLog.Info("Iniciado. Hooks instalados: " + installed + ".");
@@ -26,6 +27,7 @@ namespace TalesOfMortalI18N
 
         public void Destroy()
         {
+            RuntimeTextExtractor.Stop();
             if (patcher != null)
             {
                 patcher.Unpatch();

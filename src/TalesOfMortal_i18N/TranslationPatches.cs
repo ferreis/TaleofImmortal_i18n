@@ -184,11 +184,13 @@ namespace TalesOfMortalI18N
 
         private static void BeforeSetText(ref string __0)
         {
+            RuntimeTextExtractor.Observe(__0, "ui.text");
             __0 = TranslationCatalog.TranslateText(__0);
         }
 
         private static void AfterGameToolLs(string __0, ref string __result)
         {
+            RuntimeTextExtractor.Observe(__result, "GameTool.LS");
             string value;
             __result = TranslationCatalog.TryKey(__0, out value)
                 ? FormatText(value, 1)
@@ -197,6 +199,7 @@ namespace TalesOfMortalI18N
 
         private static void AfterGameToolLsWithBackground(string __0, int __1, ref string __result)
         {
+            RuntimeTextExtractor.Observe(__result, "GameTool.LS");
             string value;
             __result = TranslationCatalog.TryKey(__0, out value)
                 ? FormatText(value, __1)
@@ -207,6 +210,7 @@ namespace TalesOfMortalI18N
         {
             try
             {
+                RuntimeTextExtractor.Observe(__result, "ConfLocalTextEx.text");
                 string key = ReadKey(__0) as string;
                 string value;
                 __result = TranslationCatalog.TryKey(key, out value)

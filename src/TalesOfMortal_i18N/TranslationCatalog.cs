@@ -25,6 +25,18 @@ namespace TalesOfMortalI18N
         internal static int PatternCount { get { return patternRules.Count; } }
         internal static int LoadedFileCount { get; private set; }
 
+        internal static string I18nDirectory { get; private set; }
+        private static HashSet<string> translatedValues =
+            new HashSet<string>(StringComparer.Ordinal);
+        internal static bool IsProtectedName(string text)
+        {
+            return !string.IsNullOrEmpty(text) && protectedNames.Contains(text);
+        }
+        internal static bool IsKnownTranslation(string text)
+        {
+            return !string.IsNullOrEmpty(text) && translatedValues.Contains(text);
+        }
+
         private sealed class CatalogFile
         {
             internal string Path;
@@ -48,6 +60,7 @@ namespace TalesOfMortalI18N
             var patterns = new List<PatternRule>();
 
             string root = FindI18nFolder();
+            I18nDirectory = root;
             if (root == null)
             {
                 ModLog.Warning("Diretório i18n não encontrado.");
@@ -144,6 +157,7 @@ namespace TalesOfMortalI18N
             }
 
             byText = texts;
+            translatedValues = new HashSet<string>(texts.Values, StringComparer.Ordinal);
             byKey = keys;
             protectedNames = names;
             patternRules = patterns;
@@ -157,6 +171,8 @@ namespace TalesOfMortalI18N
         internal static void Clear()
         {
             byText = new Dictionary<string, string>(StringComparer.Ordinal);
+            translatedValues = new HashSet<string>(StringComparer.Ordinal);
+            I18nDirectory = null;
             byKey = new Dictionary<string, string>(StringComparer.Ordinal);
             protectedNames = new HashSet<string>(StringComparer.Ordinal);
             patternRules = new List<PatternRule>();

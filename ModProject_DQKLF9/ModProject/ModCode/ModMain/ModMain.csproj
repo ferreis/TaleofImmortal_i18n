@@ -31,6 +31,7 @@
     <Compile Include="../../../../src/TalesOfMortal_i18N/ModMain.cs" />
     <Compile Include="../../../../src/TalesOfMortal_i18N/TranslationCatalog.cs" />
     <Compile Include="../../../../src/TalesOfMortal_i18N/JsonTextParser.cs" />
+    <Compile Include="../../../../src/TalesOfMortal_i18N/RuntimeTextExtractor.cs" />
     <Compile Include="../../../../src/TalesOfMortal_i18N/TranslationPatches.cs" />
   </ItemGroup>
   <ItemGroup>
