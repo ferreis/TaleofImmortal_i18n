@@ -12,12 +12,19 @@ import argparse
 import json
 import os
 import re
+import csv
+import xml.etree.ElementTree as ET
 from collections import Counter
 from pathlib import Path
 
-from extract_offline import (
-    CJK, EXTENSIONS, SKIP_DIRS, iter_source_strings, language, read_content,
-)
+if __package__:
+    from .extract_offline import (
+        EXTENSIONS, SKIP_DIRS, iter_source_strings, language, read_content,
+    )
+else:
+    from extract_offline import (
+        EXTENSIONS, SKIP_DIRS, iter_source_strings, language, read_content,
+    )
 
 APP_ID = "1468810"
 MAX_LOCATIONS = 5
@@ -178,7 +185,7 @@ def extract_mod(mod_id, mod_dir, known, protected, max_file_bytes, max_entries):
                                      known, protected, max_entries):
                             stats["texts_seen"] += 1
 
-            except (OSError, ValueError, UnicodeError) as error:
+            except (OSError, ValueError, UnicodeError, ET.ParseError, csv.Error) as error:
                 stats["files_skipped"] += 1
                 if len(skipped) < 100:
                     skipped.append({"file": relative, "reason": str(error)[:200]})
