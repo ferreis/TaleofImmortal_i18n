@@ -2,7 +2,7 @@
 
 Traduções comunitárias de **Tale of Immortal** (鬼谷八荒) e de seus mods em arquivos JSON externos. Não usa XUnity.AutoTranslator, serviços online nem tradução automática em execução.
 
-> **Estado:** implementação inicial, ainda sem DLL validada dentro do jogo. Os pontos de interceptação foram selecionados com base nas APIs conhecidas do Tale of Immortal, mas precisam de validação na instalação real.
+> **Estado:** implementação inicial. O projeto compila sem o jogo instalado, mas a DLL ainda precisa ser validada dentro do Tale of Immortal.
 
 ## Como as traduções ficam organizadas
 
@@ -58,15 +58,15 @@ O idioma é escolhido em `i18n/config.json`, por exemplo: `{"language":"pt-BR"}`
 
 ## Integração e instalação
 
-Este projeto usa o formato **ModCode do Mod Creator nativo** do Tale of Immortal. O jogo carrega uma classe pública `ModMain` com os métodos `Init()` e `Destroy()`, e o mod aplica patches Harmony. O próprio jogo já usa MelonLoader para executar ModCode.
+Este projeto usa o formato **ModCode do Mod Creator nativo** do Tale of Immortal. O jogo carrega uma classe pública `ModMain` com os métodos `Init()` e `Destroy()`, e o mod aplica patches Harmony. O próprio jogo usa MelonLoader para executar ModCode. **A compilação utiliza somente Mono/.NET Framework 4.7.2; as APIs do jogo são resolvidas por reflexão na execução.**
 
 1. Abra o criador de mods do Tale of Immortal e crie um mod com código. Configure o **namespace do ModCode** como `TalesOfMortalI18N` (o mesmo namespace do código e nome da assembly do projeto). Esse procedimento gera os metadados e a estrutura exigidos pela versão do jogo. Não substitua esses arquivos por um ZIP que contenha apenas DLL.
-2. Compile o projeto em `src/TalesOfMortal_i18N` com as bibliotecas da **sua instalação do jogo** (veja [compilação](docs/BUILD.md)). O namespace configurado no editor deve coincidir com o do código.
-3. Adicione a DLL compilada à estrutura ModCode do mod criado e exporte-o pelo Mod Creator.
+2. Compile o projeto sem o jogo instalado usando `bash scripts/build.sh` e Mono (veja [compilação](docs/BUILD.md)). O namespace do ModCode deve coincidir com o namespace C#.
+3. Adicione `TalesOfMortalI18N.dll` compilada à estrutura ModCode do mod criado e exporte-o pelo Mod Creator.
 4. Copie a pasta `i18n` fornecida em `mod/i18n` para a raiz **do mod exportado**. Se a DLL tiver sido movida para outra pasta pelo jogo, o carregador também tenta localizar a pasta do mod abaixo de `Mods/TalesOfMortal_i18N`.
 5. Ative o mod e inicie o jogo. O log Unity/MelonLoader apresentará `[Tales of Mortal i18N]` e as quantidades carregadas.
 
-**Não** instale `TalesOfMortal_i18N.dll` isoladamente em `<jogo>/Mods/`: esta versão possui entrada `ModMain` para o ModCode do jogo, não o atributo `MelonInfo` de um mod MelonLoader autônomo.
+**Não** instale `TalesOfMortalI18N.dll` isoladamente em `<jogo>/Mods/`: esta versão possui entrada `ModMain` para o ModCode do jogo, não o atributo `MelonInfo` de um mod MelonLoader autônomo.
 
 ## O que esta versão intercepta
 
