@@ -85,6 +85,10 @@ class WorkshopPtBrImportTests(unittest.TestCase):
                                '<sprite name="zm_other">'),
             "spriteMismatch")
         self.assertEqual(
+            structural_problem("<color=red>消息</color>",
+                               "<color=red>Mensagem"),
+            "richTextMismatch")
+        self.assertEqual(
             structural_problem("伤害&15112_hdsx%1&", "Dano &15112_other%1&"),
             "internalVariableMismatch")
         self.assertEqual(
