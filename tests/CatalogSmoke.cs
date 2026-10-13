@@ -40,6 +40,22 @@ public static class CatalogSmoke
         AssertTranslation("<color=red>lightning</color>", "<color=red>Raio</color>");
         AssertTranslation("Obsidian's Signing Firebolt", "Obsidian's Signing Firebolt");
         AssertTranslation("Yong Ning", "Yong Ning");
+
+        // Captured FixData modal: dynamically rendered values, buttons and status.
+        AssertTranslation("大鬼修复存档MOD", "Reparo de saves do Bahuang Dagui");
+        AssertTranslation("前往大鬼首页", "Página do Dagui");
+        AssertTranslation("加入大鬼QQ群", "Grupo QQ");
+        AssertTranslation("充电支持大鬼", "Apoiar");
+        AssertTranslation("展开修复详情", "Ver detalhes");
+        AssertTranslation("存档修复完成，总共修补了166处错误。", "Reparo do save concluído. 166 erros corrigidos.");
+        AssertTranslation("本次修复存档耗时43.48秒。", "Tempo do reparo: 43.48 segundos.");
+        AssertTranslation("八荒大鬼为你的存档保驾护航！", "Bahuang Dagui ajuda a proteger seus saves!");
+        AssertTranslation("删除166个无效月结日志", "166 registros mensais inválidos removidos");
+        AssertTranslation("\n删除166个无效月结日志", "166 registros mensais inválidos removidos");
+        AssertTranslation("存档修复完成，总共修补了166处错误。\n本次修复存档耗时43.48秒。\n八荒大鬼为你的存档保驾护航！", "Reparo do save concluído. 166 erros corrigidos.\nTempo do reparo: 43.48 segundos.\nBahuang Dagui ajuda a proteger seus saves!");
+        AssertTranslation("存档修复完成，总共修补了204处错误。\r\n本次修复存档耗时12.50秒。\r\n八荒大鬼为你的存档保驾护航！", "Reparo do save concluído. 204 erros corrigidos.\nTempo do reparo: 12.50 segundos.\nBahuang Dagui ajuda a proteger seus saves!");
+        AssertTranslation("存档修复完成，总共修补了{0}处错误。\n本次修复存档耗时{1}秒。\n八荒大鬼为你的存档保驾护航！", "Reparo do save concluído. {0} erros corrigidos.\nTempo do reparo: {1} segundos.\nBahuang Dagui ajuda a proteger seus saves!");
+
         ExtractorSmoke.Run();
         AdaptiveTextSmoke.Run();
         Console.WriteLine("CatalogSmoke OK: dicionários reais carregados com sucesso.");
