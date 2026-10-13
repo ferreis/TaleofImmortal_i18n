@@ -155,5 +155,30 @@
     "默認排序": "Ordem padrão",
     "默认排序": "Ordem padrão"
   },
-  "keys": {}
+  "keys": {
+    "schoolAdmin_modName": "Administrador da seita",
+    "schoolAdmin_zhaohuanguanjia": "Chamar administrador",
+    "schoolAdmin_showNpcNoDemand": "Mostrar NPCs sem necessidades",
+    "schoolAdmin_showAllNpc": "Mostrar NPCs que não atendem aos requisitos de ingresso",
+    "schoolAdmin_defaultSort": "Ordem padrão",
+    "schoolAdmin_nameSort": "Ordenar por nome",
+    "schoolAdmin_genderSort": "Ordenar por gênero",
+    "schoolAdmin_levelSort": "Ordenar por estágio de cultivo",
+    "schoolAdmin_giveDramaConnect": "Era exatamente disso que eu precisava! Seu presente veio na hora certa. De agora em diante, faço parte de {0}. Conto com sua orientação, líder!",
+    "schoolAdmin_dontNeed": "Não preciso de {0} no momento.",
+    "schoolAdmin_npcFound": "Descobri que {0} está em {1}.",
+    "schoolAdmin_found": "Rastrear",
+    "schoolAdmin_noDemand": "Nenhuma necessidade",
+    "schoolAdmin_needBadly": "Precisa com urgência:",
+    "schoolAdmin_condition": "Requisitos",
+    "schoolAdmin_marriage": "Relacionamentos",
+    "schoolAdmin_surname": "Sobrenome",
+    "schoolAdmin_tips1": "Marque para permitir que NPCs deste gênero ingressem na seita.",
+    "schoolAdmin_tips2": "Marque para permitir que NPCs deste nível de carisma ingressem na seita.",
+    "schoolAdmin_tips3": "Marque para exigir que o NPC tenha pelo menos um dos interesses selecionados para ingressar na seita.",
+    "schoolAdmin_tips4": "Marque para permitir que NPCs deste nível de reputação ingressem na seita.",
+    "schoolAdmin_tips5": "Marque para exigir que o NPC tenha pelo menos um dos traços de personalidade selecionados para ingressar na seita.",
+    "schoolAdmin_tips6": "Marque para permitir que NPCs deste estágio de cultivo ingressem na seita.",
+    "schoolAdmin_tips7": "Marque para exigir que o NPC esteja nesta condição para ingressar na seita."
+  }
 }
