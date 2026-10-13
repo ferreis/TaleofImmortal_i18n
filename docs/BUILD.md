@@ -45,6 +45,30 @@ Não renomeie o `MOD_DQKLF9.dll` nem tente carregar como mod MelonLoader indepen
 
 Depois de exportar e instalar o mod pelo editor, garanta que a pasta `i18n` fique junto à raiz do mod exportado, ao lado de `ModCode`. Desative o XUnity.AutoTranslator para evitar tradução duplicada.
 
+
+## Estado verificado e limites funcionais
+
+A DLL não embute traduções. Os JSON são copiados para `ModProject_DQKLF9/ModProject/ModAssets/i18n`, e o código os procura em `ModAssets/i18n` (com compatibilidade para `i18n` na raiz). Este caminho segue a convenção de arquivos adicionais do Mod Creator.
+
+**Não existe tradução automática de textos novos em tempo real** nesta versão. O código apenas traduz textos conhecidos nos JSON ou cobertos pelas 5 regras regex existentes. Um texto ausente continua original.
+
+O pacote `SectAdmin.json` tem zero traduções porque a fonte `SectAdmin_PTBR.txt` do ZIP continha apenas comentários. `SchoolAdmin.json` tem 147 entradas, mas é outra camada. O TXT original possui a entrada `Vingativo(a)=Vingativo(a)`, que mantém a palavra como já aparecia e não comprova que nosso mod a tenha traduzido.
+
+Para testar os dados **sem o jogo**:
+
+```bash
+bash scripts/test.sh
+```
+
+Para diagnosticar cópias possivelmente ativas do XUnity e conferir o último log:
+
+```bash
+bash scripts/check-xunity.sh
+```
+
+Ambos os scripts são não destrutivos. Para investigar o mod em execução, envie o log atual do MelonLoader; o sucesso no GitHub Actions comprova apenas build e leitura do dicionário, não o funcionamento dos hooks IL2CPP no jogo.
+
+
 ## Limites
 
 O build sem o jogo foi configurado, mas a execução real ainda precisa de validação no Tale of Immortal. A implementação resolve Harmony e os métodos de Unity via reflexão na execução e registra avisos se algum hook não estiver disponível.
