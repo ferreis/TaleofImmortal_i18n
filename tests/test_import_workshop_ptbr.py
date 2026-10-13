@@ -77,6 +77,14 @@ class WorkshopPtBrImportTests(unittest.TestCase):
         self.assertEqual(normalize_from_source("敏捷增加", "Agilidade aumenta"),
                          "Agilidade aumenta")
         self.assertEqual(
+            structural_problem('<sprite name=\\\"zm_lingshi\\\">：{0}',
+                               '<sprite name="zm_lingshi">: {0}'),
+            None)
+        self.assertEqual(
+            structural_problem('<sprite name=\\\"zm_lingshi\\\">',
+                               '<sprite name="zm_other">'),
+            "spriteMismatch")
+        self.assertEqual(
             structural_problem("伤害&15112_hdsx%1&", "Dano &15112_other%1&"),
             "internalVariableMismatch")
         self.assertEqual(

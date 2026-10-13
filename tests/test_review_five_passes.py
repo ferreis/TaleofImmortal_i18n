@@ -37,6 +37,19 @@ class FivePassReviewTests(unittest.TestCase):
             self.assertEqual(saved, f.read_bytes())
             self.assertTrue((directory.parent / "report.csv").is_file())
 
+    def test_escaped_unity_sprite_identifiers(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "catalog").mkdir()
+            (root / "catalog" / "source.json").write_text(json.dumps({
+                "module": {"kind": "game", "id": "game:test"},
+                "translations": {
+                    '<sprite name=\\\"zm_lingshi\\\">': '<sprite name="zm_lingshi">'
+                }
+            }, ensure_ascii=False), encoding="utf-8")
+            result = audit(root / "catalog")
+            self.assertNotIn("sprite-mismatch", result["pass_counts"]["1"])
+
     def test_source_keys_check_matches_source_originals(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

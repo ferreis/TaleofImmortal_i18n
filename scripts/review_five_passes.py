@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 HAN = re.compile(r"[\u3400-\u9fff\uf900-\ufaff]")
 PH = re.compile(r"\{[^{}\r\n]+\}")
 VAR = re.compile(r"\$s_[^$\r\n]{1,140}\$|&[A-Za-z0-9_/%+|.?:=-]{1,140}&")
-SPRITE = re.compile(r'<sprite\b[^>]*?\bname=["\x27]([^"\x27]+)["\x27]', re.I)
+SPRITE = re.compile(r"""<sprite\b[^>]*?\bname=\\?["']([^"\\']+)\\?["']""", re.I)
 TAG = re.compile(r"<(/?)(b|i|u|color|size|link|voffset)\b", re.I)
 EN = re.compile(r"\b(?:luck|looking|lightning|movement speed|skill range)\b", re.I)
 SKILL = re.compile(

@@ -23,7 +23,7 @@ HAN = re.compile(r"[\u3400-\u9fff\uf900-\ufaff]")
 PLACEHOLDER = re.compile(r"\{[^{}]+\}")
 INTERNAL_VAR = re.compile(r"\$s_[^$\r\n]{1,140}\$|&[A-Za-z0-9_/%+|.?:=-]{1,140}&")
 RICH_TAG = re.compile(r"<(color|size|b|i|u|link|sprite)\b", re.I)
-SPRITE = re.compile(r'<sprite\s+name="([^"]+)"', re.I)
+SPRITE = re.compile(r"""<sprite\b[^>]*?\bname=\\?["']([^"\\']+)\\?["']""", re.I)
 
 
 def preserve_initial_capital(match, replacement):
