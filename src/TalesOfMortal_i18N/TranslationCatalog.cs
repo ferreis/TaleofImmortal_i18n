@@ -282,10 +282,13 @@ namespace TalesOfMortalI18N
 
         private static string FindI18nFolder()
         {
-            string location = typeof(ModMain).Assembly.Location;
-            string current = string.IsNullOrEmpty(location) ? null : Path.GetDirectoryName(location);
+            // Normal case: the DLL is kept in ModCode/dll or its build directory.
+            string location = null;
+            try { location = typeof(ModMain).Assembly.Location; }
+            catch (Exception error) { ModLog.Warning("Localização da DLL indisponível: " + error.Message); }
 
-            for (int n = 0; n < 6 && !string.IsNullOrEmpty(current); n++)
+            string current = string.IsNullOrEmpty(location) ? null : Path.GetDirectoryName(location);
+            for (int n = 0; n < 8 && !string.IsNullOrEmpty(current); n++)
             {
                 string candidate = Path.Combine(current, "i18n");
                 if (Directory.Exists(candidate)) return candidate;
@@ -293,15 +296,64 @@ namespace TalesOfMortalI18N
                 current = parent == null ? null : parent.FullName;
             }
 
-            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
-            string[] candidates = {
-                Path.Combine(baseDir, "Mods", FolderName, "i18n"),
-                Path.Combine(baseDir, FolderName, "i18n")
+            // Some loaders copy assemblies to a managed cache. Search only
+            // actual MOD_DQKLF9 installations, never random mod translations.
+            string gameRoot = AppDomain.CurrentDomain.BaseDirectory;
+            string[] installationRoots =
+            {
+                Path.Combine(gameRoot, "ModExportData"),
+                Path.Combine(gameRoot, "Mods")
             };
-            foreach (string candidate in candidates)
-                if (Directory.Exists(candidate)) return candidate;
+
+            foreach (string installationRoot in installationRoots)
+            {
+                if (!Directory.Exists(installationRoot)) continue;
+
+                try
+                {
+                    foreach (string modFolder in Directory.GetDirectories(installationRoot))
+                    {
+                        string result = FindInstalledPackage(modFolder);
+                        if (result != null) return result;
+
+                        // Mod Creator and Workshop open-source projects can
+                        // have the playable files inside debug/Mod_DQKLF9.
+                        result = FindInstalledPackage(Path.Combine(modFolder, "debug", "Mod_DQKLF9"));
+                        if (result != null) return result;
+                    }
+                }
+                catch (IOException error)
+                {
+                    ModLog.Warning("Erro ao localizar o mod em " + installationRoot + ": " + error.Message);
+                }
+                catch (UnauthorizedAccessException error)
+                {
+                    ModLog.Warning("Sem acesso a " + installationRoot + ": " + error.Message);
+                }
+            }
+
+            string standalone = Path.Combine(gameRoot, FolderName, "i18n");
+            return Directory.Exists(standalone) ? standalone : null;
+        }
+
+        private static string FindInstalledPackage(string modFolder)
+        {
+            if (!Directory.Exists(modFolder)) return null;
+
+            string translations = Path.Combine(modFolder, "i18n");
+            if (!Directory.Exists(translations)) return null;
+
+            string[] dllCandidates =
+            {
+                Path.Combine(modFolder, "ModCode", "dll", "MOD_DQKLF9.dll"),
+                Path.Combine(modFolder, "ModCode", "MOD_DQKLF9.dll")
+            };
+
+            foreach (string dll in dllCandidates)
+                if (File.Exists(dll)) return translations;
 
             return null;
         }
+
     }
 }
