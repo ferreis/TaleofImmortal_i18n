@@ -2,7 +2,7 @@
 
 Traduções comunitárias de **Tale of Immortal** (鬼谷八荒) e de seus mods em arquivos JSON externos. Não usa XUnity.AutoTranslator nem fornece tradução automática de novos textos nesta versão.
 
-> **Estado:** implementação inicial: projeto nativo `MOD_DQKLF9` integrado e compilação offline; ainda sem validação de execução dentro do jogo.
+> **Estado:** carregamento de JSON e aplicação de traduções confirmado no Tale of Immortal em 13/10/2026. Build independente do jogo; cobertura de todos os métodos de interface e atualização sem reiniciar ainda não validada.
 
 ## Projeto nativo gerado pelo Tale of Immortal
 
@@ -20,7 +20,7 @@ O script prepara também `ModProject_DQKLF9/debug/Mod_DQKLF9/` e `dist/TalesOfMo
 
 ## Diagnóstico após importação
 
-A DLL atual **não implementa tradução automática de frases desconhecidas**. Ela aplica os JSON ao vivo nos pontos de UI interceptados. Esse funcionamento precisa ser confirmado no jogo.
+A DLL **não implementa tradução automática de frases desconhecidas**. Ela aplica traduções dos JSON aos textos interceptados, e o funcionamento foi confirmado em execução no jogo. Alterações nos JSON exigem reiniciar o jogo nesta versão.
 
 Se você já importou `Mod_DQKLF9` localmente e deseja aplicar a versão mais recente sem exportar novamente, **feche o jogo** e execute:
 
@@ -38,7 +38,41 @@ bash scripts/check-xunity.sh
 
 O novo build inclui `ModAssets/i18n`, o diretório apropriado para dados adicionais exportáveis. O leitor também reconhece `i18n` na raiz para compatibilidade. O teste offline `bash scripts/test.sh` valida a leitura de traduções dos JSON; não prova o funcionamento dos hooks de Unity no jogo.
 
-A fonte `SectAdmin_PTBR.txt` do ZIP fornecido contém somente comentários: por isso `SectAdmin.json` está vazio. `SchoolAdmin.json` tem 147 entradas e não deve ser confundido com ele. A palavra `Vingativo(a)` aparecia no TXT como `Vingativo(a)=Vingativo(a)`, sem transformação.
+O identificador `SchoolAdmin` no ZIP é um alias do **SectAdmin**, Workshop `2814722600`. As 147 traduções foram consolidadas em `SectAdmin.json`; o arquivo vazio antigo foi substituído. A fonte separada `SectAdmin_PTBR.txt` contém apenas comentários. A palavra `Vingativo(a)` aparecia no TXT como `Vingativo(a)=Vingativo(a)`, sem transformação.
+
+## Identificação dos módulos por metadados
+
+**O nome do arquivo JSON não determina a origem da tradução.** Cada catálogo inclui:
+
+```json
+{
+  "module": {
+    "kind": "mod",
+    "id": "steam:2814722600",
+    "name": "SectAdmin",
+    "workshopId": "2814722600",
+    "sourceAlias": "SchoolAdmin"
+  },
+  "translations": {
+    "Admin": "Chamar administrador"
+  },
+  "keys": {},
+  "patterns": []
+}
+```
+
+- `module.kind`: `game`, `mod`, `fallback` ou `names`.
+- `module.id`: identificador estável, único e obrigatório. Pode ser `steam:ID` para mods Workshop ou `local:meu-mod` para mods fora da Steam.
+- `module.name`: nome legível. Não precisa ser o nome da DLL.
+- `module.workshopId`: opcional, apenas para mods da Workshop.
+- `module.sourceAlias`: nome do pacote encontrado na importação; não comprova namespace nem DLL real.
+- `module.namespace` ou `module.assembly`: identificadores opcionais para informar o namespace e nome da DLL **quando forem conhecidos**, sem precisar da Steam.
+
+Os arquivos `SectAdmin.json`, `game.json`, `zzz-auto.json` e `protected-names.json` podem ser renomeados sem alterar a classificação, desde que o campo `module` seja preservado. Arquivos antigos sem `module` continuam usando a regra de compatibilidade por nome.
+
+`translations` traduz pelo texto original, `keys` traduz por chave de localização do jogo (por exemplo, argumento de `GameTool.LS`) e `patterns` aceita regex. Como o XUnity gerou pares de **textos**, os `keys` do acervo importado continuam vazios. São sensíveis a maiúsculas/minúsculas.
+
+A origem identificada serve para organizar, auditar e estabelecer prioridade (`names`, `game`, `mod`, `fallback`). **Ela ainda não restringe uma tradução apenas à DLL do mod correspondente**: o hook global de UI conhece o texto, não necessariamente qual mod o produziu. Textos originais iguais podem conflitar. O script `python3 scripts/audit_catalogs.py` identifica essas colisões e problemas de placeholders.
 
 ## Como as traduções ficam organizadas
 
@@ -54,7 +88,7 @@ TalesOfMortal_i18N/                 <- pasta do mod exportado pelo criador do jo
         └── protected-names.json     <- nomes que não devem ser modificados
 ```
 
-Cada idioma possui sua pasta, e cada mod pode possuir seu próprio JSON. Os nomes dos arquivos JSON são livres, exceto `protected-names.json`. Não é preciso alterar C# para acrescentar traduções.
+Cada idioma possui sua pasta, e cada mod pode possuir seu próprio JSON. Com `module` presente, até o JSON de nomes protegidos pode ser renomeado. Não é preciso alterar C# para acrescentar traduções.
 
 ## Formatos de JSON
 
@@ -88,7 +122,7 @@ O idioma é escolhido em `i18n/config.json`, por exemplo: `{"language":"pt-BR"}`
 
 - Correspondência exata, sensível a maiúsculas e espaços, para `translations` e `keys`. Regras opcionais `patterns` permitem expressões regulares com limite de tempo de 100 ms por operação.
 - A tradução por chave é consultada antes da tradução pelo texto retornado.
-- Precedência: `game.json` primeiro, JSON dos mods em ordem alfabética estável e `zzz-auto.json` por último. Em caso de conflito, o **primeiro** valor é preservado e registrado no log.
+- Precedência definida pelo `module.kind`: nomes protegidos, jogo, mods e legado/fallback. Mods são ordenados por `module.id`, sem depender do nome do arquivo. Em caso de conflito, o **primeiro** valor é preservado e registrado no log.
 - Arquivos inválidos são ignorados individualmente e a tradução original permanece intacta quando não houver correspondência.
 - Os JSON são carregados no início do mod. Reinicie o jogo para aplicar alterações.
 
