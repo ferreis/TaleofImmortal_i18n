@@ -166,5 +166,46 @@ class WorkshopExtractorTests(unittest.TestCase):
             self.assertIn("在代码中获取模组根目录：", texts)
 
 
+    def test_encrypted_modexcel_is_decrypted_automatically(self):
+        from scripts.toi_crypto import MAGIC, MOD_KEY, encode_mod_file_for_test, decode_mod_file
+        from scripts.extract_offline import read_content
+        with tempfile.TemporaryDirectory() as temp:
+            base = Path(temp)
+            steam = base / "steamapps/workshop/content/1468810"
+            mod_excel = steam / "3334313052/ModExcel"
+            mod_excel.mkdir(parents=True)
+
+            texts = [
+                {"key": "AutoBattleText_1", "en": "Trigger dialogues, stopping auto-battle",
+                 "ch": "触发剧情，已停止自动战斗", "tc": "觸發劇情，已停止自動戰鬥"},
+                {"key": "AutoBattleText_2", "en": "Auto movement",
+                 "ch": "自动走位", "tc": "自動走位"},
+            ]
+            raw = json.dumps(texts, ensure_ascii=False).encode("utf-8")
+            encrypted = encode_mod_file_for_test(raw)
+            self.assertEqual(MAGIC, b"1b8bg-/%ePe]P[-/921CG")
+            self.assertEqual(decode_mod_file(encrypted), raw)
+
+            localtext = mod_excel / "LocalText.json"
+            localtext.write_bytes(encrypted)
+            (mod_excel / "BattleEffect.json").write_bytes(
+                encode_mod_file_for_test(
+                    b'[{"id":"-1382759739","typeID":"6001","value1":"15"}]'))
+            self.assertEqual(read_content(localtext, 300000), raw.decode("utf-8"))
+            before = localtext.read_bytes()
+            out = base / "output"
+            summary = workshop.run([steam], out)
+            self.assertEqual(summary["mods_processed"], 1)
+            record = json.loads((out / "3334313052.json").read_text(encoding="utf-8"))
+            self.assertEqual(record["stats"]["files_skipped"], 0)
+            self.assertEqual(record["stats"]["files_scanned"], 2)
+            self.assertEqual(len(record["localizations"]), 2)
+            self.assertEqual(record["localizations"][0]["key"], "AutoBattleText_1")
+            self.assertEqual(record["localizations"][1]["key"], "AutoBattleText_2")
+            self.assertIn("自动走位", [e["text"] for e in record["entries"]])
+            self.assertEqual(localtext.read_bytes(), before)
+
+
+
 if __name__ == "__main__":
     unittest.main()
