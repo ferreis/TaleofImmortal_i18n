@@ -37,6 +37,26 @@ dist/TalesOfMortal_i18N/
 
 Os JSON continuam editáveis, sem recompilar a DLL. O script só prepara arquivos locais. A pasta `dist` é um **staging** com DLL, JSON e os dois arquivos `.cache`. Ainda não equivale, por si só, a um pacote exportado e instalado pelo Mod Creator: podem existir metadados e etapas adicionais geradas pelo jogo.
 
+## Atualizar o mod que já foi importado localmente
+
+Feche totalmente Tale of Immortal e execute na branch Dev:
+
+```bash
+git pull origin Dev
+bash scripts/install-local.sh
+```
+
+Esse script procura a instalação local existente em `TOI/ModExportData/Mod_DQKLF9`, exige `ModExportData.cache`, compila a DLL novamente, salva um backup da DLL anterior, copia o novo `MOD_DQKLF9.dll` e os JSON para `ModAssets/i18n`. Ele não remove nem modifica o XUnity.
+
+Depois de iniciar o jogo, consulte:
+
+```bash
+bash scripts/check-xunity.sh
+cat "$HOME/.steam/debian-installation/steamapps/common/TOI/TalesOfMortal_i18N.log"
+```
+
+Se o segundo arquivo não existir, os registros do MelonLoader devem ser verificados para investigar uma inicialização ausente ou falha de gravação.
+
 ## Instalação
 
 O projeto original está em `ModProject_DQKLF9/ModProject`, incluindo agora ambos os `.cache`. Abra ou atualize o projeto no Mod Creator e faça a exportação nativa. Não edite `soleID` ou `modNamespace` no editor; estão sincronizados com o código.
