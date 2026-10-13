@@ -22,7 +22,7 @@ SOURCE_MOD = "steam:2990310797"
 HAN = re.compile(r"[\u3400-\u9fff\uf900-\ufaff]")
 PLACEHOLDER = re.compile(r"\{[^{}]+\}")
 INTERNAL_VAR = re.compile(r"\$s_[A-Za-z0-9_]+\$|&[A-Za-z0-9_|]+&")
-RICH_TAG = re.compile(r"<(?:color|size|b|i|u|link|sprite)\\b", re.I)
+RICH_TAG = re.compile(r"<(?:color|size|b|i|u|link|sprite)\b", re.I)
 
 
 def structural_problem(source, translated):
