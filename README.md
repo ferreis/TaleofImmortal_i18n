@@ -37,6 +37,32 @@ jogo aberto novamente, na primeira instalação, ative o mod no menu
 
 Veja [os detalhes e limitações](docs/BUILD.md).
 
+## Padronização PT-BR e diagnóstico dos hooks
+
+A revisão de outubro/2026 acrescentou um [glossário de termos e regras para
+nomes próprios](docs/TERMINOLOGY.md): `Lightning` (elemento) = **Raio**;
+`Luck` (atributo) = **Sorte**; `Movement Speed` =
+**Velocidade de movimento**; `Skill Range` =
+**Alcance da habilidade**. Regiões e nomes ingleses de habilidades
+permanecem no idioma original; `Skill Rate` não é tratado como sinônimo
+de alcance sem contexto.
+
+O tradutor também tenta traduzir **linhas inteiras separadas por quebras de
+linha ou tags Unity** quando não existe uma tradução exata para o bloco;
+não substitui pedaços arbitrários de frases ou nomes.
+
+O script `python3 scripts/audit_terminology.py` verifica todos os JSON,
+incluindo o fallback comunitário se tiver sido gerado localmente. Com
+`--apply`, só corrige rótulos originais exatos e títulos completos de
+skills que estejam no padrão conhecido.
+
+**Correção de estabilidade:** o log de 13/10/2026 mostrou falhas repetidas
+de `UnityEngine.UI.Text.set_text`. Por segurança, o ajuste experimental de
+fonte foi retirado do setter e desativado por padrão. Tooltip ao passar
+o mouse **ainda não está implementado**. Os avisos separados
+`Fatury.ResLateLoadPatch.Postfix` pertencem a outro hook de mod e
+devem ser diagnosticados independentemente.
+
 ## Extrator de textos chineses e ingleses
 
 O mod também possui um **extrator de textos originais em tempo de execução**. Ele registra possíveis textos chineses e ingleses que passam pelos hooks de localização/UI do jogo, inclusive textos de mods, antes de traduzi-los. A captura é opcional e está ativada em `mod/i18n/config.json`.
