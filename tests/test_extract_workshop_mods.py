@@ -100,7 +100,7 @@ class WorkshopExtractorTests(unittest.TestCase):
             write_json(b / "654/ModAssets/data.json", {"text": "Second mod"})
             result = workshop.run([a, b], base / "out")
             self.assertEqual(result["mods_processed"], 2)
-            entries = json.loads((base / "out/321/texts.json").read_text())["entries"]
+            entries = json.loads((base / "out/321.json").read_text())["entries"]
             self.assertIn("First mod", [e["text"] for e in entries])
             self.assertNotIn("Duplicate", [e["text"] for e in entries])
 
