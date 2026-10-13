@@ -12,6 +12,7 @@ on:
       - "scripts/build.sh"
       - "scripts/test.sh"
       - "scripts/import_translation_zip.py"
+      - "scripts/import_workshop_ptbr.py"
       - "scripts/audit_catalogs.py"
       - "scripts/extract_offline.py"
       - "scripts/extract_workshop_mods.py"
