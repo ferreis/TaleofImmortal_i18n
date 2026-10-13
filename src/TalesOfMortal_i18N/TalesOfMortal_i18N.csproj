@@ -32,6 +32,7 @@
     <Compile Include="TranslationCatalog.cs" />
     <Compile Include="JsonTextParser.cs" />
     <Compile Include="RuntimeTextExtractor.cs" />
+    <Compile Include="AdaptiveText.cs" />
     <Compile Include="TranslationPatches.cs" />
   </ItemGroup>
   <ItemGroup>

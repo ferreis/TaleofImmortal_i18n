@@ -17,8 +17,10 @@ mcs -sdk:4.7.2 -langversion:7.2 -target:exe \
   "$ROOT/src/TalesOfMortal_i18N/TranslationCatalog.cs" \
   "$ROOT/src/TalesOfMortal_i18N/JsonTextParser.cs" \
   "$ROOT/src/TalesOfMortal_i18N/RuntimeTextExtractor.cs" \
+  "$ROOT/src/TalesOfMortal_i18N/AdaptiveText.cs" \
   "$ROOT/src/TalesOfMortal_i18N/TranslationPatches.cs" \
   "$ROOT/tests/CatalogSmoke.cs" \
+  "$ROOT/tests/AdaptiveTextSmoke.cs" \
   "$ROOT/tests/ExtractorSmoke.cs"
 mono "$WORK/CatalogSmoke.exe"
 echo "Validando que nomes de arquivos não determinam a identidade..."

@@ -182,10 +182,12 @@ namespace TalesOfMortalI18N
             return text;
         }
 
-        private static void BeforeSetText(ref string __0)
+        private static void BeforeSetText(object __instance, ref string __0)
         {
-            RuntimeTextExtractor.Observe(__0, "ui.text");
-            __0 = TranslationCatalog.TranslateText(__0);
+            string original = __0;
+            RuntimeTextExtractor.Observe(original, "ui.text");
+            __0 = TranslationCatalog.TranslateText(original);
+            AdaptiveText.TryFit(__instance, original, __0);
         }
 
         private static void AfterGameToolLs(string __0, ref string __result)

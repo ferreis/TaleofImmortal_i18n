@@ -14,6 +14,7 @@ namespace TalesOfMortalI18N
             try
             {
                 TranslationCatalog.Load();
+                AdaptiveText.Initialize();
                 RuntimeTextExtractor.Start();
                 patcher = new ReflectionPatcher(HarmonyId);
                 int installed = patcher.Install();
@@ -28,6 +29,7 @@ namespace TalesOfMortalI18N
         public void Destroy()
         {
             RuntimeTextExtractor.Stop();
+            AdaptiveText.Clear();
             if (patcher != null)
             {
                 patcher.Unpatch();
