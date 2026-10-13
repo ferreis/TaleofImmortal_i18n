@@ -32,6 +32,13 @@ Após identificar e decodificar o cabeçalho de criptografia nativo de ModExcel,
 
 **Importação da tradução comunitária existente:** o `workshop.zip` de outubro/2026 revelou 54.991 registros do mod `2990310797` com chinês e versões em português. O script `python3 scripts/import_workshop_ptbr.py` converte o JSON já extraído em um catálogo de fallback local com verificações de nomes protegidos, marcadores de variável e ambiguidades. Não sobrescreve traduções anteriores. Consulte [a revisão do ZIP e as instruções](docs/WORKSHOP_ZIP_IMPORT.md).
 
+**Fonte adaptativa em textos longos:** a DLL agora pode reduzir automaticamente
+a fonte de traduções extensas em `UnityEngine.UI.Text` e em
+`TextMeshProUGUI` quando o hook TMP estiver disponível. Configuração em
+`mod/i18n/config.json` → `adaptiveText`; componentes de entrada editável
+são preservados. O tooltip ao passar o mouse ainda está em estudo.
+Veja [configuração e limitações](docs/UI_AUTO_FIT.md).
+
 Veja [instruções e exemplos completos](docs/EXTRACTOR.md).
 
 ## Diagnóstico após importação
