@@ -2,7 +2,7 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
-from scripts.import_workshop_ptbr import prepare
+from scripts.import_workshop_ptbr import prepare, normalize_from_source, structural_problem
 
 
 class WorkshopPtBrImportTests(unittest.TestCase):
@@ -61,6 +61,28 @@ class WorkshopPtBrImportTests(unittest.TestCase):
             again = prepare(original, catalog, target)
             self.assertEqual(again["addedKeys"], 0)
             self.assertEqual(again["addedChineseTranslations"], 0)
+
+    def test_normalizes_source_grounded_terminology_and_keeps_proper_names(self):
+        self.assertEqual(
+            normalize_from_source("移动速度降低30%。", "Agilidade -30%"),
+            "Velocidade de movimento -30%")
+        self.assertEqual(
+            normalize_from_source("技能范围&30133_jnfwUp&%", "Faixa de habilidade &30133_jnfwUp&%"),
+            "Alcance da habilidade &30133_jnfwUp&%")
+        self.assertEqual(normalize_from_source("增加15%幸运", "Tipo +15%"), "Sorte +15%")
+        self.assertEqual(normalize_from_source("雷属性伤害", "Dano de Relâmpago"),
+                         "Dano de Raio")
+        self.assertEqual(normalize_from_source("暮仙第一刀修", "Em Xian No. 1 Cultivador"),
+                         "Mu Xian No. 1 Cultivador")
+        self.assertEqual(normalize_from_source("敏捷增加", "Agilidade aumenta"),
+                         "Agilidade aumenta")
+        self.assertEqual(
+            structural_problem("伤害&15112_hdsx%1&", "Dano &15112_other%1&"),
+            "internalVariableMismatch")
+        self.assertEqual(
+            structural_problem("伤害&321_spell|/321_one|x321_two&",
+                               "Dano &321_spell|/321_one|x321_two&"),
+            None)
 
     def test_rejects_wrong_workshop_id(self):
         with tempfile.TemporaryDirectory() as folder:
