@@ -15,6 +15,7 @@ on:
       - "scripts/import_workshop_ptbr.py"
       - "scripts/audit_catalogs.py"
       - "scripts/audit_terminology.py"
+      - "scripts/review_five_passes.py"
       - "scripts/extract_offline.py"
       - "scripts/extract_workshop_mods.py"
       - "scripts/curate_offline.py"
@@ -55,6 +56,9 @@ jobs:
 
       - name: Audit every translation JSON and module identity
         run: python3 scripts/audit_catalogs.py
+
+      - name: Five-pass audit of all versioned translation catalogs
+        run: python3 scripts/review_five_passes.py
 
       - name: Audit every PT-BR translation for terminology and game-variable integrity
         run: python3 scripts/audit_terminology.py
