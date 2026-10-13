@@ -111,7 +111,8 @@ def run(archive, root):
             existing = obj.get("module")
             if existing and existing.get("id") != module["id"]:
                 raise ValueError("Identidade conflitante em " + str(target))
-            obj["module"] = module
+            # Preservar nomes e identificadores revisados em reimportações.
+            obj["module"] = dict(module, **(existing or {}))
         translations = obj["translations"]
         if not isinstance(translations, dict): raise ValueError("translations inválido: " + str(target))
         patterns = obj.setdefault("patterns", [])
