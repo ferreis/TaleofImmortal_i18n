@@ -38,19 +38,46 @@ namespace TalesOfMortalI18N
 
     internal static class ModLog
     {
+        private static readonly object Sync = new object();
+
         internal static void Info(string message)
         {
-            Console.WriteLine("[Tales of Mortal i18N] " + message);
+            Write("INFO", message);
         }
 
         internal static void Warning(string message)
         {
-            Console.WriteLine("[Tales of Mortal i18N] AVISO: " + message);
+            Write("AVISO", message);
         }
 
         internal static void Error(string message)
         {
-            Console.Error.WriteLine("[Tales of Mortal i18N] ERRO: " + message);
+            Write("ERRO", message);
+        }
+
+        private static void Write(string level, string message)
+        {
+            string line = "[Tales of Mortal i18N] " + level + ": " + message;
+            try
+            {
+                if (level == "ERRO") Console.Error.WriteLine(line);
+                else Console.WriteLine(line);
+            }
+            catch { /* Sem console em alguns hosts IL2CPP */ }
+
+            // Log próprio para diagnosticar o mod independentemente do MelonLoader.
+            try
+            {
+                string path = System.IO.Path.Combine(
+                    AppDomain.CurrentDomain.BaseDirectory, "TalesOfMortal_i18N.log");
+                lock (Sync)
+                {
+                    System.IO.File.AppendAllText(
+                        path,
+                        DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + " " + line + Environment.NewLine);
+                }
+            }
+            catch { /* Permissões restritas não devem impedir o mod de inicializar */ }
         }
     }
 }
