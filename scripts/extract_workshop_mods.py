@@ -42,6 +42,10 @@ TEXT_FIELD = re.compile(
     r"caption|prompt|notice|hint|subtitle|ch|tc)(?:$|\[)", re.I
 )
 SKIP_FILES = {"moddata.cache", "modproject.cache", "modexportdata.cache"}
+DOCUMENTATION_FILES = {
+    "这个目录下的所有文件都会被一起导出（打开查看说明）.txt",
+    "配置修改指南.txt", "改动说明.txt",
+}
 IGNORED_DIRS = SKIP_DIRS | {
     "docs", "documentation", "readme", ".vs", "xunity", "temp", "tmp",
 }
@@ -151,53 +155,62 @@ def add_entry(entries, original, context, source_path, known, protected,
     return True
 
 
-def extract_mod(mod_id, mod_dir, known, protected, max_file_bytes, max_entries):
+def extract_mod(mod_id, mod_dir, known, protected, max_file_bytes, max_entries,
+                decrypted_dir=None, include_documentation=False):
     entries = {}
     localizations = []
     skipped = []
     stats = {"files_scanned": 0, "files_skipped": 0,
              "texts_seen": 0, "unique_texts": 0, "already_translated": 0}
 
-    for directory, subdirs, files in os.walk(mod_dir, followlinks=False):
-        subdirs[:] = sorted(
-            subdir for subdir in subdirs
-            if subdir.lower() not in IGNORED_DIRS and
-            not (Path(directory) / subdir).is_symlink()
-        )
-        for filename in sorted(files):
-            path = Path(directory) / filename
-            if path.is_symlink() or path.suffix.lower() not in EXTENSIONS:
-                continue
-            if filename.lower() in SKIP_FILES:
-                continue
-            relative = path.relative_to(mod_dir).as_posix()
-            try:
-                text = read_content(path, max_file_bytes)
-                stats["files_scanned"] += 1
+    scan_sources = [(mod_dir, "")]
+    if decrypted_dir is not None:
+        scan_sources.append((decrypted_dir, "decrypted/"))
 
-                if path.name.lower() == "localtext.json":
-                    document = json.loads(text)
-                    for row in extract_localtext(document, relative):
-                        # Do not save the internal localization ID as a translated text.
-                        localizations.append(row)
-                        for field in LOCALIZATION_FIELDS:
-                            original = row.get(field)
-                            if not isinstance(original, str):
-                                continue
-                            if add_entry(entries, original, row["row"] + "." + field,
-                                         relative, known, protected, max_entries,
-                                         key=row.get("key")):
+    for scan_root, source_prefix in scan_sources:
+        for directory, subdirs, files in os.walk(scan_root, followlinks=False):
+            subdirs[:] = sorted(
+                subdir for subdir in subdirs
+                if subdir.lower() not in IGNORED_DIRS and
+                not (Path(directory) / subdir).is_symlink()
+            )
+            for filename in sorted(files):
+                path = Path(directory) / filename
+                if path.is_symlink() or path.suffix.lower() not in EXTENSIONS:
+                    continue
+                if filename.lower() in SKIP_FILES:
+                    continue
+                if not include_documentation and filename in DOCUMENTATION_FILES:
+                    continue
+                relative = path.relative_to(scan_root).as_posix()
+                relative = source_prefix + relative
+                try:
+                    text = read_content(path, max_file_bytes)
+                    stats["files_scanned"] += 1
+
+                    if path.name.lower() == "localtext.json":
+                        document = json.loads(text)
+                        for row in extract_localtext(document, relative):
+                            # Do not save the internal localization ID as a translated text.
+                            localizations.append(row)
+                            for field in LOCALIZATION_FIELDS:
+                                original = row.get(field)
+                                if not isinstance(original, str):
+                                    continue
+                                if add_entry(entries, original, row["row"] + "." + field,
+                                             relative, known, protected, max_entries,
+                                             key=row.get("key")):
+                                    stats["texts_seen"] += 1
+                    else:
+                        for original, context in iter_source_strings(path, text):
+                            if add_entry(entries, original, context, relative,
+                                         known, protected, max_entries):
                                 stats["texts_seen"] += 1
-                else:
-                    for original, context in iter_source_strings(path, text):
-                        if add_entry(entries, original, context, relative,
-                                     known, protected, max_entries):
-                            stats["texts_seen"] += 1
 
-            except (OSError, ValueError, UnicodeError, ET.ParseError, csv.Error) as error:
-                stats["files_skipped"] += 1
-                if len(skipped) < 100:
-                    skipped.append({"file": relative, "reason": str(error)[:200]})
+                except (OSError, ValueError, UnicodeError, ET.ParseError, csv.Error) as error:
+                    stats["files_skipped"] += 1
+                    if len(skipped) < 100:
+                        skipped.append({"file": relative, "reason": str(error)[:200]})
 
     ordered = [entries[key] for key in sorted(entries)]
     stats["unique_texts"] = len(ordered)
@@ -279,7 +292,7 @@ def write_json_atomic(target, data):
 
 
 def run(workshop_dirs, output, known_folder=None, max_file_bytes=30_000_000,
-        max_entries=50000):
+        max_entries=50000, decrypted_dirs=None, include_documentation=False):
     roots = discover_workshop_dirs(workshop_dirs)
     output = output.expanduser().resolve()
     if any(output == root or root in output.parents for root in roots):
@@ -290,6 +303,12 @@ def run(workshop_dirs, output, known_folder=None, max_file_bytes=30_000_000,
     if known_folder is None:
         known_folder = Path(__file__).resolve().parents[1] / "mod/i18n/pt-BR"
     known, protected = known_strings(known_folder)
+    decrypted_dirs = decrypted_dirs or {}
+    for mod_id, directory in decrypted_dirs.items():
+        if not re.fullmatch(r"[0-9]+", mod_id):
+            raise ValueError("ID de mod inválido para --decrypted-mod: " + mod_id)
+        if not directory.is_dir():
+            raise ValueError("Diretório descriptografado inexistente: " + str(directory))
     seen_ids = set()
     results = []
 
@@ -302,13 +321,18 @@ def run(workshop_dirs, output, known_folder=None, max_file_bytes=30_000_000,
                 print(f"[IGNORADO] Steam Workshop duplicada: {mod_id}")
                 continue
             seen_ids.add(mod_id)
-            data = extract_mod(mod_id, mod_dir, known, protected, max_file_bytes, max_entries)
+            data = extract_mod(mod_id, mod_dir, known, protected, max_file_bytes,
+                               max_entries, decrypted_dirs.get(mod_id),
+                               include_documentation)
             path = output / (mod_id + ".json")
             write_json_atomic(path, data)
             results.append({"workshopId": mod_id, "file": f"{mod_id}.json",
                             "stats": data["stats"]})
+            encrypted = sum(1 for item in data["skipped"] if
+                            "Arquivo binário" in item["reason"] or
+                            "Codificação textual desconhecida" in item["reason"])
             print(f"[{mod_id}] {data['stats']['unique_texts']} textos; "
-                  f"{data['stats']['files_skipped']} arquivo(s) ignorado(s) -> {path}")
+                  f"{encrypted} arquivo(s) binário(s) ou ilegível(is) -> {path}")
 
     summary = {"format": "talesofmortal-workshop-index-v1",
                "appId": APP_ID, "mods_processed": len(results), "mods": results}
@@ -330,10 +354,24 @@ def main():
     parser.add_argument("--max-file-bytes", type=int, default=30_000_000)
     parser.add_argument("--max-entries", type=int, default=50000,
                         help="Máximo de textos únicos por mod.")
+    parser.add_argument("--decrypted-mod", action="append", metavar="ID=PASTA",
+                        help="Inclui arquivos já descriptografados de um mod específico. "
+                             "Exemplo: --decrypted-mod 2864011606=/caminho/do/mod")
+    parser.add_argument("--include-documentation", action="store_true",
+                        help="Também extrai textos de guias e exemplos técnicos dos mods.")
     args = parser.parse_args()
     try:
+        decrypted = {}
+        for item in args.decrypted_mod or []:
+            if "=" not in item:
+                raise ValueError("--decrypted-mod exige ID=PASTA")
+            mod_id, directory = item.split("=", 1)
+            if mod_id in decrypted:
+                raise ValueError("--decrypted-mod duplicado: " + mod_id)
+            decrypted[mod_id] = Path(directory).expanduser().resolve()
         run(args.workshop_dir, args.output, args.known,
-            args.max_file_bytes, args.max_entries)
+            args.max_file_bytes, args.max_entries, decrypted,
+            args.include_documentation)
     except (ValueError, OSError) as error:
         parser.error(str(error))
 
