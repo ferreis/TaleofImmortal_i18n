@@ -12,6 +12,11 @@ import re
 import shutil
 from pathlib import Path
 
+try:
+    from .audit_terminology import CANONICAL
+except ImportError:
+    from audit_terminology import CANONICAL
+
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE_MOD = "steam:2990310797"
 HAN = re.compile(r"[\u3400-\u9fff\uf900-\ufaff]")
@@ -86,6 +91,8 @@ def prepare(source, catalog_dir, output):
                 collections.Counter(PLACEHOLDER.findall(pt))):
             counts["placeholderMismatch"] += 1
             continue
+        # Corrigir somente rótulos EXATOS, nunca nomes de skills ou texto livre.
+        pt = CANONICAL.get(zh, pt)
         counts["acceptedRows"] += 1
         available[zh].add(pt)
         if key in keyed and keyed[key] != pt:
