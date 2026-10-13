@@ -36,6 +36,13 @@ jobs:
       - name: Test JSON catalogs without game files
         run: bash scripts/test.sh
 
+      - name: Validate shell scripts and ModAssets staging
+        run: |
+          bash -n scripts/*.sh
+          test -s ModProject_DQKLF9/ModProject/ModAssets/i18n/pt-BR/game.json
+          test -s dist/TalesOfMortal_i18N/ModAssets/i18n/pt-BR/game.json
+          test -s dist/TalesOfMortal_i18N/ModCode/dll/MOD_DQKLF9.dll
+
       - name: Confirm compiled output
         run: test -s ModProject_DQKLF9/ModProject/ModCode/ModMain/bin/Release/MOD_DQKLF9.dll
 
