@@ -1,0 +1,13 @@
+{
+  "translations": {
+    "\r\n<b><color=#6E0D38>在NPC的面板上，显示玩家与npc的彼此好感。</color></b>\r\n<b><color=#6E0D38>点击好感度的数值，可以主动改变你对npc的好感。</color></b>（玩家对npc的好感度应可由玩家自己决定，而不是只由系统决定）\r\n==========================\r\n当前版本：v1.8\n------------------------------\r\n【更多好玩的Mod，交流群】967997141 \r\n==================\r\nDisplay the mutual  Affinities On the NPC's panel.": "\r\n<b><color=#6E0D38>Mostra no painel do NPC a afinidade dele pelo jogador e a do jogador por ele.</color></b>\r\n<b><color=#6E0D38>Clique no valor de afinidade para alterar o que você sente pelo NPC.</color></b>A afinidade do jogador pelo NPC deve poder ser definida pelo próprio jogador, e não apenas pelo sistema.\r\n==========================\r\nVersão atual: v1.8\n------------------------------\r\n【Grupo de discussão e mais MODs divertidos】967997141 \r\n==================\r\nMostra as afinidades mútuas no painel do NPC.",
+    "2025-04-09\n[v1.8]\n1、修复好感变动时由于关闭NPC界面太快导致下次打开不显示双向好感的问题。\n2、玩家查看自己面板时不显示双向好感。": "2025-04-09\n[v1.8]\n1. Corrigido o problema que ocultava as afinidades mútuas na próxima abertura do painel quando ele era fechado rápido demais após uma mudança de afinidade.\n2. As afinidades mútuas não são exibidas quando o jogador consulta o próprio painel.",
+    "你对此人的好感\n点击可主动改变你对此人的好感": "Sua afinidade com este NPC\nClique para alterá-la",
+    "妳對此人的好感\n點擊可主動更改妳對此人的好感": "Sua afinidade com este NPC\nClique para alterá-la",
+    "改变你对此人的好感": "Alterar sua afinidade com este NPC",
+    "改變妳對此人的好感": "Alterar sua afinidade com este NPC",
+    "此人对你的好感": "Afinidade deste NPC com você",
+    "此人對妳的好感": "Afinidade deste NPC com você"
+  },
+  "keys": {}
+}

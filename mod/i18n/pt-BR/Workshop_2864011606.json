@@ -1,0 +1,22 @@
+{
+  "translations": {
+    "</color>与<color=#BC1717>": "</color> e <color=#BC1717>",
+    "</color>孕期性交导致早产, 生下了<color=#BC1717>": "</color> teve um parto prematuro após relações sexuais durante a gestação e deu à luz um filho de <color=#BC1717>",
+    "</color>孕期性交导致早产, 生下没有父亲的野种": "</color> teve um parto prematuro após relações sexuais durante a gestação e deu à luz um bastardo de pai desconhecido",
+    "</color>流产且不会再怀孕了": "</color> perdeu a gestação e não poderá mais engravidar",
+    "</color>流产了": "</color> perdeu a gestação",
+    "</color>的孩子": "</color>",
+    "不会再生孩子了": "Não poderá mais ter filhos",
+    "不好意思之前没有做详情测试，导致有的人生不出来，在这里向大家道歉了，这个版本已经经过详情测试，没有问题了\n\n更多功能版在3dm上有，叫人参版双修生子。\n也可以加群909437249来讨论": "Peço desculpas pela falta de testes detalhados na versão anterior, que impedia alguns personagens de terem filhos. Esta versão passou por testes detalhados e o problema foi corrigido.\n\nA versão com mais recursos está no 3dm, com o nome 人参版双修生子.\nVocê também pode entrar no grupo 909437249 para conversar.",
+    "不孕": "Infértil",
+    "只有生子功能，没有任何对话等修改\n\n完整版在3dm上有，人参牌双修生子MOD。里面有关于双修和npc交互处理的功能，欢迎大家来用。\n也可以加群909437249来讨论\n\n孕期时长可以设置，默认9个月\n双修有机率怀孕，机率可以配置，默认10%\r\n玩家有必定怀孕选项（除非npc当月流产或者不孕）\r\r\n怀孕第一个月双修不会导致流产或者早产\r\n怀孕最后三个月双修可能会导致早产，可以配置是否可能早产，及早产机率（默认5%）\r\n怀孕第二至三个月双修可能会导致流产，可以配置是否可能流产，及流产机率（默认5%）\r\n早产优先级大于流产\r，如果孕期设置的比较短，比如三个月，则只可能触发早产，不会触发流产\n\r\nnpc也会生子，会记录怀的是谁的孩子，除了玩家的私生子是随母姓，其它的都是随父姓。除了玩家的孩子，其它的父姓和子姓不一样的就是出轨了\n\n配置文件为mod目录的ModAssets中config.josn\n需要在关闭游戏时修改才能生效，打开游戏时就会读取，此时修改不会生效": "Inclui apenas o recurso de ter filhos, sem alterar diálogos ou outros elementos.\n\nA versão completa está no 3dm, com o nome 人参牌双修生子MOD. Ela também oferece recursos de cultivo duplo e interação com NPCs. Todos são bem-vindos a experimentar.\nVocê também pode entrar no grupo 909437249 para conversar.\n\nA duração da gestação é configurável; o padrão é 9 meses.\nO cultivo duplo pode resultar em gravidez. A chance é configurável; o padrão é 10%.\r\nO jogador dispõe de uma opção para garantir a gravidez, exceto se o NPC tiver abortado naquele mês ou for infértil.\r\r\nNo primeiro mês da gestação, o cultivo duplo não causa aborto nem parto prematuro.\r\nNos últimos três meses, o cultivo duplo pode causar parto prematuro. É possível ativar ou desativar essa possibilidade e configurar sua chance, de 5% por padrão.\r\nNo segundo e no terceiro mês, o cultivo duplo pode causar aborto. É possível ativar ou desativar essa possibilidade e configurar sua chance, de 5% por padrão.\r\nO parto prematuro tem prioridade sobre o aborto\r, então uma gestação curta, de três meses, por exemplo, só pode resultar em parto prematuro, sem aborto.\n\r\nOs NPCs também têm filhos, e o jogo registra quem é o pai. Os filhos fora do casamento do jogador recebem o sobrenome da mãe; todos os demais recebem o do pai. Fora os filhos do jogador, sobrenomes diferentes entre pai e filho indicam infidelidade.\n\nO arquivo de configuração é config.josn, na pasta ModAssets do diretório do MOD.\nAs alterações devem ser feitas com o jogo fechado. A configuração é lida ao iniciar o jogo, portanto alterações feitas durante a execução não entram em vigor.",
+    "将在不久后生下孩子": "Dará à luz em breve",
+    "当月无法怀孕，多次流产会导致不孕": "Não pode engravidar neste mês. Perdas de gestação repetidas podem causar infertilidade.",
+    "怀孕": "Grávida",
+    "正常双修": "Cultivo duplo normal",
+    "流产": "Perda da gestação",
+    "生个孩子": "Ter um filho",
+    "纯生子功能": "Apenas o recurso de ter filhos"
+  },
+  "keys": {}
+}
