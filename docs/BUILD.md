@@ -104,3 +104,36 @@ Agora `src/TalesOfMortal_i18N/JsonTextParser.cs` lê os objetos, arrays e string
 O GitHub Actions validou os **22 arquivos JSON**, incluindo **3.677 textos**, **1.759 nomes protegidos** e **5 regras regex**. Use `bash scripts/test.sh` para reproduzir esse teste offline. Em seguida, use `bash scripts/install-local.sh` com o jogo fechado para atualizar o mod exportado. A validação final precisa ser feita **no jogo**, verificando o log novo; compilação bem-sucedida não prova que todos os hooks de Unity funcionam.
 
 Os hooks de `TMPro` estavam indisponíveis no log de 13/10/2026; por isso a cobertura de textos da interface continua parcial até inspecionarmos a versão do runtime utilizada pelo jogo.
+
+## Identidade do módulo, sem dependência do nome do JSON
+
+Cada pacote carrega `module.kind`, `module.id` e `module.name`. A origem Workshop é dada por `module.workshopId`, quando houver. Fora da Steam, use um identificador estável, por exemplo:
+
+```json
+{
+  "module": {
+    "kind": "mod",
+    "id": "local:meu-mod",
+    "name": "Meu mod",
+    "namespace": "MOD_MeuMod",
+    "assembly": "MeuMod.dll"
+  },
+  "translations": {
+    "Original text": "Texto traduzido"
+  },
+  "keys": {},
+  "patterns": []
+}
+```
+
+Os campos `namespace` e `assembly` são dados opcionais para catalogação; **não são verificados automaticamente na execução**. Evite inventá-los quando não souber. Também não é feita detecção da presença do mod: todos os JSON são carregados em um dicionário global de traduções.
+
+`translations`: texto literal original → tradução.
+`keys`: chave interna do jogo → tradução. Os importados do XUnity não forneciam essas chaves.
+`patterns`: expressão regular → texto substituto.
+
+Para verificar o comportamento mesmo com nomes de arquivo trocados, rode `bash scripts/test.sh`. Ele renomeia temporariamente o JSON do jogo, do SectAdmin, do legado e dos nomes protegidos em uma cópia descartável e valida as mesmas 3.677 traduções efetivas e 1.759 nomes.
+
+O pacote identificado por `SchoolAdmin` em `Text.zip` corresponde ao **SectAdmin** (`steam:2814722600`). As 147 entradas foram migradas para `SectAdmin.json`, substituindo o arquivo vazio.
+
+A verificação de qualidade estrutural usa `python3 scripts/audit_catalogs.py` e gera `dist/TalesOfMortal_i18N/catalog-audit.json` com contagem de traduções, IDs, colisões entre mods, marcadores de formato e arquivos vazios. O relatório identifica potenciais problemas, mas não substitui a revisão linguística humana das traduções.
