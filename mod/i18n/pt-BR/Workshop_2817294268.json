@@ -1,4 +1,11 @@
 {
+  "module": {
+    "kind": "mod",
+    "id": "steam:2817294268",
+    "name": "Interação sem gasto de energia",
+    "workshopId": "2817294268",
+    "sourceAlias": "互动不消耗精力"
+  },
   "translations": {
     "招纳不消耗精力": "Recrutar não consome energia"
   },

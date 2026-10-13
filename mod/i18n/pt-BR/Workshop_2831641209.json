@@ -1,4 +1,11 @@
 {
+  "module": {
+    "kind": "mod",
+    "id": "steam:2831641209",
+    "name": "Workshop 2831641209",
+    "workshopId": "2831641209",
+    "sourceAlias": "MOD_a2OmCa"
+  },
   "translations": {
     "<color=#DD0000>【含羞草】小地图任意传送</color>": "<color=#DD0000>【含羞草】Teletransporte livre pelo minimapa</color>",
     "v1.0.1 新增：双击NPC图标也能传送啦\nv1.0.2 减少地图刷新时间": "v1.0.1 Novo: teletransporte com um clique duplo no ícone de um NPC\nv1.0.2 Reduzido o tempo de atualização do mapa",

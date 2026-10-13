@@ -1,4 +1,11 @@
 {
+  "module": {
+    "kind": "mod",
+    "id": "steam:2864011606",
+    "name": "Workshop 2864011606",
+    "workshopId": "2864011606",
+    "sourceAlias": "MOD_tSxXE7"
+  },
   "translations": {
     "</color>与<color=#BC1717>": "</color> e <color=#BC1717>",
     "</color>孕期性交导致早产, 生下了<color=#BC1717>": "</color> teve um parto prematuro após relações sexuais durante a gestação e deu à luz um filho de <color=#BC1717>",

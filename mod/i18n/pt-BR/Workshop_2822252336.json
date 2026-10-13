@@ -1,4 +1,11 @@
 {
+  "module": {
+    "kind": "mod",
+    "id": "steam:2822252336",
+    "name": "Workshop 2822252336",
+    "workshopId": "2822252336",
+    "sourceAlias": "MOD_LE2lAt"
+  },
   "translations": {
     " 测试": " Teste",
     "v1.0.5 新增传授功法的功能\nv1.0.6 调整了资质的指点判断\nv1.0.7 新增了npc遗忘技能的功能\nv1.1.0 可以突破化神和悟道了\nv1.2.0 新增易容功能，需要【含羞草】捏脸MOD\nv1.3.0 可以突破羽化和登仙啦\nv1.4.0 一秒登仙，新增仙人灌顶\nv1.4.3 调整仙人灌顶，对半砍一刀\nv1.4.4 处理突破瓶颈气运卡住问题\nv1.4.6 调整按钮可能与其它论道剧情mod冲突，取消按钮改成ID为100002的离开\nv1.4.7 fix 代码失效": "v1.0.5 Novo recurso para ensinar técnicas\nv1.0.6 Ajustado o critério de orientação das aptidões\nv1.0.7 Novo recurso para fazer NPCs esquecerem habilidades\nv1.1.0 Agora é possível avançar para Transformação da Alma e Iluminação\nv1.2.0 Novo recurso de alteração de aparência; requer o MOD de aparência 【含羞草】\nv1.3.0 Agora é possível avançar para Renascimento e Ascensão\nv1.4.0 Ascensão em um segundo: adicionada a Investidura imortal\nv1.4.3 Ajustada a Investidura imortal: seu efeito foi reduzido pela metade\nv1.4.4 Corrigido o travamento do destino relacionado ao gargalo de avanço\nv1.4.6 Os botões alterados podiam conflitar com outros MODs de eventos de debate sobre o Dao. O botão Cancelar agora usa Sair, de ID 100002\nv1.4.7 Corrigido o código que havia deixado de funcionar",
