@@ -23,7 +23,13 @@
     "正常双修": "Cultivo duplo normal",
     "流产": "Perda da gestação",
     "生个孩子": "Ter um filho",
-    "纯生子功能": "Apenas o recurso de ter filhos"
+    "纯生子功能": "Apenas o recurso de ter filhos",
+    "怀孕时长": "Duração da gestação",
+    "怀孕机率": "Probabilidade de gravidez",
+    "早产机率": "Probabilidade de parto prematuro",
+    "是否早产": "Permitir parto prematuro",
+    "是否流产": "Permitir aborto espontâneo",
+    "流产机率": "Probabilidade de aborto espontâneo"
   },
   "keys": {}
 }
