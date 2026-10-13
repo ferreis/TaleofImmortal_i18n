@@ -290,6 +290,9 @@ namespace TalesOfMortalI18N
             string current = string.IsNullOrEmpty(location) ? null : Path.GetDirectoryName(location);
             for (int n = 0; n < 8 && !string.IsNullOrEmpty(current); n++)
             {
+                string modAssets = Path.Combine(current, "ModAssets", "i18n");
+                if (Directory.Exists(modAssets)) return modAssets;
+
                 string candidate = Path.Combine(current, "i18n");
                 if (Directory.Exists(candidate)) return candidate;
                 DirectoryInfo parent = Directory.GetParent(current);
@@ -340,7 +343,9 @@ namespace TalesOfMortalI18N
         {
             if (!Directory.Exists(modFolder)) return null;
 
-            string translations = Path.Combine(modFolder, "i18n");
+            string translations = Path.Combine(modFolder, "ModAssets", "i18n");
+            if (!Directory.Exists(translations))
+                translations = Path.Combine(modFolder, "i18n");
             if (!Directory.Exists(translations)) return null;
 
             string[] dllCandidates =
