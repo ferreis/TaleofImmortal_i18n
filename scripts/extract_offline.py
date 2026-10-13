@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Extrai possíveis textos de UI de arquivos textuais do jogo e de mods.
 
-Não tenta decodificar AssetBundles Unity, Assembly-CSharp, DLLs ou arquivos
-criptografados. São necessários ferramentas e leitores específicos para eles.
+Decodifica ModExcel no formato excelEncrypt do Tale of Immortal.
+Não interpreta AssetBundles Unity, Assembly-CSharp, DLLs ou formatos desconhecidos.
 """
 import argparse
 import csv
@@ -12,6 +12,11 @@ import sys
 import xml.etree.ElementTree as ET
 from collections import defaultdict
 from pathlib import Path
+
+if __package__:
+    from .toi_crypto import decode_mod_file, is_mod_encrypted
+else:
+    from toi_crypto import decode_mod_file, is_mod_encrypted
 
 EXTENSIONS = {".json", ".jsonc", ".txt", ".csv", ".tsv", ".xml", ".ini",
               ".cfg", ".lang", ".strings", ".yaml", ".yml"}
@@ -58,12 +63,17 @@ def read_content(path, max_bytes):
     if path.stat().st_size > max_bytes:
         raise ValueError("Arquivo acima do limite configurado")
     raw = path.read_bytes()
+    was_encrypted = is_mod_encrypted(raw)
+    if was_encrypted:
+        raw = decode_mod_file(raw)
     if b"\x00" in raw and not (raw.startswith(b"\xff\xfe") or raw.startswith(b"\xfe\xff")):
         raise ValueError("Arquivo binário (NUL)")
     # UTF-16 sem BOM interpreta arquivos ASCII comuns como falsos
     # ideogramas chineses. Só aceitar UTF-16 com assinatura de bytes.
-    encodings = ("utf-16",) if raw.startswith((b"\xff\xfe", b"\xfe\xff")) else (
-        "utf-8-sig", "gb18030", "big5")
+    encodings = ("utf-8-sig",) if was_encrypted else (
+        ("utf-16",) if raw.startswith((b"\xff\xfe", b"\xfe\xff")) else
+        ("utf-8-sig", "gb18030", "big5")
+    )
     for enc in encodings:
         try:
             text = raw.decode(enc)
