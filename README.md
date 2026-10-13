@@ -18,6 +18,18 @@ bash scripts/build.sh
 Saída: `ModProject_DQKLF9/ModProject/ModCode/ModMain/bin/Release/MOD_DQKLF9.dll`.
 O script prepara também `ModProject_DQKLF9/debug/Mod_DQKLF9/` e `dist/TalesOfMortal_i18N/`, copiando a DLL, os JSON e os dois arquivos `.cache`. Os arquivos originais `ModProject.cache` e `ModData.cache` agora estão versionados e sincronizados; o segundo foi ajustado para `MOD_DQKLF9`. Leia [as instruções atualizadas](docs/BUILD.md).
 
+## Extrator de textos chineses e ingleses
+
+O mod também possui um **extrator de textos originais em tempo de execução**. Ele registra possíveis textos chineses e ingleses que passam pelos hooks de localização/UI do jogo, inclusive textos de mods, antes de traduzi-los. A captura é opcional e está ativada em `mod/i18n/config.json`.
+
+Após atualizar o mod instalado com `bash scripts/install-local.sh`, visite telas e diálogos no jogo. O resultado é salvo periodicamente em `TOI/TalesOfMortal_i18N_Extracted/runtime.json`, **fora** do catálogo de traduções. O arquivo acumula textos únicos, possíveis idiomas, fontes interceptadas e chaves internas, quando disponíveis.
+
+O extrator offline `scripts/extract_offline.py` percorre os formatos textuais legíveis nas pastas do jogo e dos mods, incluindo origens da Steam Workshop. Ele gera `dist/extracted/offline.json`. O script `scripts/prepare_translation_drafts.py` transforma os resultados em rascunhos editáveis por módulo na pasta `dist/drafts`, sem sobrescrever traduções revisadas.
+
+**Limites:** o idioma é identificado por heurística; `en-candidate` pode conter português ou nomes próprios. A captura ao vivo não identifica automaticamente qual DLL gerou cada texto, e não cobre interfaces não interceptadas. O scanner offline não lê Assembly-CSharp, DLLs, AssetBundles Unity ou arquivos criptografados. A extração não traduz textos novos automaticamente.
+
+Veja [instruções e exemplos completos](docs/EXTRACTOR.md).
+
 ## Diagnóstico após importação
 
 A DLL **não implementa tradução automática de frases desconhecidas**. Ela aplica traduções dos JSON aos textos interceptados, e o funcionamento foi confirmado em execução no jogo. Alterações nos JSON exigem reiniciar o jogo nesta versão.
