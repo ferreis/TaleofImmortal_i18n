@@ -21,6 +21,9 @@ class WorkshopPtBrImportTests(unittest.TestCase):
                     {"key": "key_five", "ch": "已经完成", "en": "Concluído"},
                     {"key": "key_six", "ch": "龙儿", "en": "Longe"},
                     {"key": "key_seven", "ch": "宗门公告", "en": "Aviso da seita"},
+                    {"key": "key_eight", "ch": "护盾&s_hudun&", "en": "Escudo &s_other&"},
+                    {"key": "key_nine", "ch": "获得$s_lingqi$", "en": "Obter $s_four$"},
+                    {"key": "key_ten", "ch": "<color=red>获得道具</color>", "en": "Obter item"},
                 ],
             }, ensure_ascii=False), encoding="utf-8")
             catalog = root / "catalogs"
@@ -49,6 +52,11 @@ class WorkshopPtBrImportTests(unittest.TestCase):
             self.assertNotIn("key_four", result["keys"])
             self.assertNotIn("key_six", result["keys"])
             self.assertNotIn("key_seven", result["keys"])
+            self.assertNotIn("key_eight", result["keys"])
+            self.assertNotIn("key_nine", result["keys"])
+            self.assertNotIn("key_ten", result["keys"])
+            self.assertGreaterEqual(report["internalVariableMismatch"], 2)
+            self.assertGreaterEqual(report["richTextLost"], 1)
             self.assertEqual(report["skippedAmbiguousChinese"], 1)
             again = prepare(original, catalog, target)
             self.assertEqual(again["addedKeys"], 0)
