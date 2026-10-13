@@ -26,6 +26,23 @@ RICH_TAG = re.compile(r"<(color|size|b|i|u|link|sprite)\b", re.I)
 SPRITE = re.compile(r'<sprite\s+name="([^"]+)"', re.I)
 
 
+def normalize_from_source(source, translated):
+    if not isinstance(source, str):
+        return translated
+    result = CANONICAL.get(source, translated)
+    if "移动速度" in source:
+        result = re.sub("(?i)\\bagilidade\\b", "velocidade de movimento", result)
+    if "技能范围" in source:
+        result = re.sub("(?i)\\bfaixa de habilidade\\b", "alcance da habilidade", result)
+    if "幸运" in source:
+        result = re.sub(r"\\bTipo(?=\\s*[+-]\\s*\\d)", "Sorte", result)
+    if "暮仙" in source:
+        result = result.replace("Em Xian", "Mu Xian")
+    if "雷属性" in source:
+        result = re.sub("(?i)\\brelâmpagos?\\b", "raio", result)
+    return result
+
+
 def structural_problem(source, translated):
     if (collections.Counter(PLACEHOLDER.findall(source)) !=
             collections.Counter(PLACEHOLDER.findall(translated))):
@@ -115,7 +132,7 @@ def prepare(source, catalog_dir, output):
             counts[problem] += 1
             continue
         # Corrigir somente rótulos EXATOS, nunca nomes de skills ou texto livre.
-        pt = CANONICAL.get(zh, pt)
+        pt = normalize_from_source(zh, pt)
         counts["acceptedRows"] += 1
         available[zh].add(pt)
         if key in keyed and keyed[key] != pt:
@@ -128,7 +145,7 @@ def prepare(source, catalog_dir, output):
     # anterior. Preserva revisões humanas que já corrigiram as variáveis.
     translations = {}
     for zh, pt in saved_text.items():
-        pt = CANONICAL.get(zh, pt)
+        pt = normalize_from_source(zh, pt)
         if structural_problem(zh, pt):
             counts["removedUnsafeSavedText"] += 1
         else:
@@ -137,7 +154,7 @@ def prepare(source, catalog_dir, output):
     keys = {}
     for key, pt in saved_keys.items():
         source = source_by_key.get(key)
-        pt = CANONICAL.get(source, pt)
+        pt = normalize_from_source(source, pt)
         if isinstance(source, str) and structural_problem(source, pt):
             counts["removedUnsafeSavedKeys"] += 1
         else:
