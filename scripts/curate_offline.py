@@ -11,8 +11,8 @@ import re
 from collections import defaultdict
 from pathlib import Path
 
-LOCALIZED = re.compile(r"^\\$\\[(\\d+)\\]\\.(en|ch|tc|key)$")
-CHINESE = re.compile(r"[\\u3400-\\u9fff\\uf900-\\ufaff]")
+LOCALIZED = re.compile(r"^\$\[(\d+)\]\.(en|ch|tc|key)$")
+CHINESE = re.compile(r"[\u3400-\u9fff\uf900-\ufaff]")
 FIELD = {"en": "english", "ch": "simplified", "tc": "traditional", "key": "key"}
 
 
