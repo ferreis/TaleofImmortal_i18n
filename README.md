@@ -60,8 +60,8 @@ O idioma é escolhido em `i18n/config.json`, por exemplo: `{"language":"pt-BR"}`
 
 Este projeto usa o formato **ModCode do Mod Creator nativo** do Tale of Immortal. O jogo carrega uma classe pública `ModMain` com os métodos `Init()` e `Destroy()`, e o mod aplica patches Harmony. O próprio jogo já usa MelonLoader para executar ModCode.
 
-1. Abra o criador de mods do Tale of Immortal e crie um mod com código. Esse procedimento gera os arquivos de metadados e a estrutura exigidos pela versão do jogo. Não substitua esses arquivos por um ZIP que contenha apenas DLL.
-2. Compile o projeto em `src/TalesOfMortal_i18N` com as bibliotecas da **sua instalação do jogo** (veja [compilação](docs/BUILD.md)).
+1. Abra o criador de mods do Tale of Immortal e crie um mod com código. Configure o **namespace do ModCode** como `TalesOfMortalI18N` (o mesmo namespace do código e nome da assembly do projeto). Esse procedimento gera os metadados e a estrutura exigidos pela versão do jogo. Não substitua esses arquivos por um ZIP que contenha apenas DLL.
+2. Compile o projeto em `src/TalesOfMortal_i18N` com as bibliotecas da **sua instalação do jogo** (veja [compilação](docs/BUILD.md)). O namespace configurado no editor deve coincidir com o do código.
 3. Adicione a DLL compilada à estrutura ModCode do mod criado e exporte-o pelo Mod Creator.
 4. Copie a pasta `i18n` fornecida em `mod/i18n` para a raiz **do mod exportado**. Se a DLL tiver sido movida para outra pasta pelo jogo, o carregador também tenta localizar a pasta do mod abaixo de `Mods/TalesOfMortal_i18N`.
 5. Ative o mod e inicie o jogo. O log Unity/MelonLoader apresentará `[Tales of Mortal i18N]` e as quantidades carregadas.

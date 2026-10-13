@@ -27,9 +27,9 @@ O `.csproj` procura:
 
 ## Saída
 
-`src/TalesOfMortal_i18N/bin/Release/TalesOfMortal_i18N.dll`
+`src/TalesOfMortal_i18N/bin/Release/TalesOfMortalI18N.dll`
 
-O exportador nativo de mods deve ser usado para gerar os demais arquivos de distribuição, como metadados e identificador único (soleID). Mantenha `mod/i18n` junto à raiz do mod exportado.
+O exportador nativo de mods deve ser usado para gerar os demais arquivos de distribuição, como metadados e identificador único (soleID). No Mod Creator, defina `modNamespace` como **`TalesOfMortalI18N`**, exatamente igual ao namespace C# e ao `AssemblyName`. Mantenha `mod/i18n` junto à raiz do mod exportado.
 
 ## Limites da primeira versão
 

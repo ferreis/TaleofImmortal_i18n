@@ -7,7 +7,7 @@
     <ProjectGuid>{C5462842-67DE-458F-8602-7DD893B12E6A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>TalesOfMortalI18N</RootNamespace>
-    <AssemblyName>TalesOfMortal_i18N</AssemblyName>
+    <AssemblyName>TalesOfMortalI18N</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <LangVersion>7.3</LangVersion>
