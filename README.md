@@ -18,6 +18,25 @@ bash scripts/build.sh
 Saída: `ModProject_DQKLF9/ModProject/ModCode/ModMain/bin/Release/MOD_DQKLF9.dll`.
 O script prepara também `ModProject_DQKLF9/debug/Mod_DQKLF9/` e `dist/TalesOfMortal_i18N/`, copiando a DLL, os JSON e os dois arquivos `.cache`. Os arquivos originais `ModProject.cache` e `ModData.cache` agora estão versionados e sincronizados; o segundo foi ajustado para `MOD_DQKLF9`. Leia [as instruções atualizadas](docs/BUILD.md).
 
+## Instalar ou atualizar diretamente no Tale of Immortal
+
+O instalador também funciona quando o mod **ainda não existe** no jogo:
+
+```bash
+git switch Dev
+git pull origin Dev
+bash scripts/install-local.sh
+```
+
+Ele gera o cache de exportação, cria
+`TOI/ModExportData/Mod_DQKLF9` e copia automaticamente a DLL e os
+JSON. Se já estiver instalado, atualiza sem substituir caches criados
+pelo jogo. Não precisa importar o projeto pelo Mod Creator. Com o
+jogo aberto novamente, na primeira instalação, ative o mod no menu
+**Mods > Mods locais** caso ainda esteja desmarcado.
+
+Veja [os detalhes e limitações](docs/BUILD.md).
+
 ## Extrator de textos chineses e ingleses
 
 O mod também possui um **extrator de textos originais em tempo de execução**. Ele registra possíveis textos chineses e ingleses que passam pelos hooks de localização/UI do jogo, inclusive textos de mods, antes de traduzi-los. A captura é opcional e está ativada em `mod/i18n/config.json`.

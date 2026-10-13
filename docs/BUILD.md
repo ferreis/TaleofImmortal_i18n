@@ -37,34 +37,89 @@ dist/TalesOfMortal_i18N/
 
 Os JSON continuam editáveis, sem recompilar a DLL. O script só prepara arquivos locais. A pasta `dist` é um **staging** com DLL, JSON e os dois arquivos `.cache`. Ainda não equivale, por si só, a um pacote exportado e instalado pelo Mod Creator: podem existir metadados e etapas adicionais geradas pelo jogo.
 
-## Atualizar o mod que já foi importado localmente
+## Instalação inicial e atualizações, com um único comando
 
-Feche totalmente Tale of Immortal e execute na branch Dev:
+**Não é necessário criar ou importar o mod manualmente pelo Mod Creator.**
+Feche completamente o Tale of Immortal, entre na branch `Dev` e execute:
 
 ```bash
 git pull origin Dev
 bash scripts/install-local.sh
 ```
 
-Esse script procura a instalação local existente em `TOI/ModExportData/Mod_DQKLF9`, exige `ModExportData.cache`, compila a DLL novamente, salva um backup da DLL anterior, copia o novo `MOD_DQKLF9.dll` e os JSON para `ModAssets/i18n`. Ele não remove nem modifica o XUnity.
+O instalador agora executa automaticamente:
 
-Depois de iniciar o jogo, consulte:
+1. Compila `MOD_DQKLF9.dll`, usando o Mono.
+2. Cria `<JOGO>/ModExportData/Mod_DQKLF9/` se essa pasta não existir.
+3. Cria o **`ModExportData.cache` nativo cifrado**, com `projectData`,
+   `items` e `modNamespace`, a partir dos metadados versionados
+   `ModProject.cache` e `ModData.cache`. Não renomeia simplesmente um
+   cache de projeto.
+4. Copia a DLL para `ModCode/dll/` e as traduções para `ModAssets/i18n/`.
+5. Se o mod já estiver instalado, preserva o cache que o jogo tiver criado,
+   valida o ID do mod e faz backup da DLL antes de substituí-la se mudar.
+6. Verifica os arquivos obrigatórios antes de informar sucesso.
+
+Não altera os arquivos dos outros mods nem reinstala o jogo. Se a Steam
+estiver em outra biblioteca, informe o caminho do jogo:
+
+```bash
+bash scripts/install-local.sh "/caminho/steamapps/common/TOI"
+```
+
+Estrutura instalada:
+
+```text
+TOI/
+└── ModExportData/
+    └── Mod_DQKLF9/
+        ├── ModExportData.cache
+        ├── ModProject.cache
+        ├── ModData.cache
+        ├── ModCode/
+        │   └── dll/MOD_DQKLF9.dll
+        └── ModAssets/
+            └── i18n/
+                ├── config.json
+                └── pt-BR/*.json
+```
+
+**Na primeira instalação, ainda poderá ser preciso ativar o mod em
+`Mods > Mods locais` dentro do jogo.** O script instala os arquivos no
+formato do jogo, mas não altera sua lista de mods ativados nem suas
+configurações de usuário.
+
+O arquivo `ModExportData.cache` é cifrado com o formato nativo de
+ModExportData identificado em um mod público já exportado; os testes
+verificam codificação, metadados e instalação inicial num diretório
+temporário. **A detecção e ativação no seu Tale of Immortal ainda devem ser
+confirmadas dentro do jogo.**
+
+Teste local do instalador sem iniciar o jogo:
+
+```bash
+bash scripts/test_install_local.sh
+```
+
+Após iniciar o jogo, consulte:
 
 ```bash
 bash scripts/check-xunity.sh
 cat "$HOME/.steam/debian-installation/steamapps/common/TOI/TalesOfMortal_i18N.log"
 ```
 
-Se o segundo arquivo não existir, os registros do MelonLoader devem ser verificados para investigar uma inicialização ausente ou falha de gravação.
+## Projeto fonte e exportação manual opcional
 
-## Instalação
+O projeto do Mod Creator continua disponível em
+`ModProject_DQKLF9/ModProject`, com o mesmo ID `DQKLF9`. Ele pode
+ser aberto no editor para modificar recursos nativos. **A exportação
+manual não é necessária** para a instalação inicial do tradutor com o
+novo `install-local.sh`.
 
-O projeto original está em `ModProject_DQKLF9/ModProject`, incluindo agora ambos os `.cache`. Abra ou atualize o projeto no Mod Creator e faça a exportação nativa. Não edite `soleID` ou `modNamespace` no editor; estão sincronizados com o código.
-
-Não renomeie o `MOD_DQKLF9.dll` nem tente carregar como mod MelonLoader independente. O tipo de entrada exportado é `MOD_DQKLF9.ModMain` com métodos `Init()` e `Destroy()`.
-
-Depois de exportar e instalar o mod pelo editor, garanta que a pasta `i18n` fique junto à raiz do mod exportado, ao lado de `ModCode`. Desative o XUnity.AutoTranslator para evitar tradução duplicada.
-
+O adaptador de código precisa permanecer com o nome
+`MOD_DQKLF9.dll` e com a classe de entrada `MOD_DQKLF9.ModMain`,
+com métodos `Init()` e `Destroy()`. Não o instale como mod
+MelonLoader independente.
 
 ## Estado verificado e limites funcionais
 
