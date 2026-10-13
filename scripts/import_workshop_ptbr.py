@@ -31,15 +31,15 @@ def normalize_from_source(source, translated):
         return translated
     result = CANONICAL.get(source, translated)
     if "移动速度" in source:
-        result = re.sub("(?i)\\bagilidade\\b", "velocidade de movimento", result)
+        result = re.sub(r"(?i)\bagilidade\b", "velocidade de movimento", result)
     if "技能范围" in source:
-        result = re.sub("(?i)\\bfaixa de habilidade\\b", "alcance da habilidade", result)
+        result = re.sub(r"(?i)\bfaixa de habilidade\b", "alcance da habilidade", result)
     if "幸运" in source:
-        result = re.sub(r"\\bTipo(?=\\s*[+-]\\s*\\d)", "Sorte", result)
+        result = re.sub(r"\bTipo(?=\s*[+-]\s*\d)", "Sorte", result)
     if "暮仙" in source:
         result = result.replace("Em Xian", "Mu Xian")
     if "雷属性" in source:
-        result = re.sub("(?i)\\brelâmpagos?\\b", "raio", result)
+        result = re.sub(r"(?i)\brelâmpagos?\b", "raio", result)
     return result
 
 
