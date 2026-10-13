@@ -5,6 +5,7 @@ on:
     branches: [Dev]
     paths:
       - "src/**"
+      - "tests/**"
       - "ModProject_DQKLF9/ModProject/ModCode/**"
       - "ModProject_DQKLF9/ModProject/*.cache"
       - "mod/i18n/**"
