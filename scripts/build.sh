@@ -46,19 +46,24 @@ if [[ ! -s "$OUTPUT" ]]; then
   exit 1
 fi
 
+# Files under ModAssets are included in the Mod Creator export.
+MOD_ASSETS="$ROOT/ModProject_DQKLF9/ModProject/ModAssets/i18n"
+mkdir -p "$MOD_ASSETS"
+cp -a "$ROOT/mod/i18n/." "$MOD_ASSETS/"
+
 # Prepare native project and debug layout; keep one authoritative copy in mod/i18n.
 mkdir -p "$ROOT/ModProject_DQKLF9/ModProject/i18n"
 cp -a "$ROOT/mod/i18n/." "$ROOT/ModProject_DQKLF9/ModProject/i18n/"
-mkdir -p "$DEBUG/ModCode/dll" "$DEBUG/i18n"
+mkdir -p "$DEBUG/ModCode/dll" "$DEBUG/ModAssets/i18n"
 cp "$OUTPUT" "$DEBUG/ModCode/dll/MOD_DQKLF9.dll"
-cp -a "$ROOT/mod/i18n/." "$DEBUG/i18n/"
+cp -a "$ROOT/mod/i18n/." "$DEBUG/ModAssets/i18n/"
 cp "$METADATA/ModProject.cache" "$DEBUG/ModProject.cache"
 cp "$METADATA/ModData.cache" "$DEBUG/ModData.cache"
 
 # Portable staging directory (not a substitute for Mod Creator metadata/export).
-mkdir -p "$DIST/ModCode/dll" "$DIST/i18n"
+mkdir -p "$DIST/ModCode/dll" "$DIST/ModAssets/i18n"
 cp "$OUTPUT" "$DIST/ModCode/dll/MOD_DQKLF9.dll"
-cp -a "$ROOT/mod/i18n/." "$DIST/i18n/"
+cp -a "$ROOT/mod/i18n/." "$DIST/ModAssets/i18n/"
 cp "$METADATA/ModProject.cache" "$DIST/ModProject.cache"
 cp "$METADATA/ModData.cache" "$DIST/ModData.cache"
 
