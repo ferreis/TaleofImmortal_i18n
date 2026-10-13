@@ -55,7 +55,7 @@ def read_content(path, max_bytes):
     if path.stat().st_size > max_bytes:
         raise ValueError("Arquivo acima do limite configurado")
     raw = path.read_bytes()
-    if b"\x00" in raw:
+    if b"\x00" in raw and not (raw.startswith(b"\xff\xfe") or raw.startswith(b"\xfe\xff")):
         raise ValueError("Arquivo binário (NUL)")
     for enc in ("utf-8-sig", "utf-16", "gb18030", "big5"):
         try:
@@ -127,6 +127,7 @@ def scan(roots, output, max_bytes=5_000_000, max_entries=120000,
     modules = {}
     skipped = []
     statistics = {"files_scanned": 0, "files_skipped": 0, "strings_observed": 0}
+    unique_total = 0
 
     for root in roots:
         root = root.expanduser().resolve()
@@ -155,8 +156,9 @@ def scan(roots, output, max_bytes=5_000_000, max_entries=120000,
                         statistics["strings_observed"] += 1
                         data = catalogs[mod_id]
                         if original not in data:
-                            if sum(len(d) for d in catalogs.values()) >= max_entries:
+                            if unique_total >= max_entries:
                                 continue
+                            unique_total += 1
                             data[original] = {
                                 "text": original, "language": kind, "occurrences": 0,
                                 "locations": [],
