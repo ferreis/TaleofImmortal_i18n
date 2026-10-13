@@ -1,6 +1,8 @@
+> **Atualização de segurança (13/10/2026):** o ajuste automático de fonte foi DESATIVADO por padrão e removido do hook de `UnityEngine.UI.Text.set_text` após um log mostrar exceções IL2CPP repetidas nesse setter. Não o reative no `config.json`: a função precisa ser reimplementada fora do setter, com compatibilidade comprovada dentro do jogo. O tooltip continua sem implementação.
+
 # Fonte adaptativa para traduções longas
 
-O mod Tale of Mortal i18N permite reduzir automaticamente a fonte quando um
+A versão experimental previa reduzir automaticamente a fonte quando um
 texto traduzido não cabe na área disponível de um componente de interface.
 
 ## Como funciona

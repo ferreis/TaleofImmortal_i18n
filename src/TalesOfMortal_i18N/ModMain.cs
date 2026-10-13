@@ -14,7 +14,7 @@ namespace TalesOfMortalI18N
             try
             {
                 TranslationCatalog.Load();
-                AdaptiveText.Initialize();
+                AdaptiveText.Initialize(); // Inativo por segurança no IL2CPP até correção do layout
                 RuntimeTextExtractor.Start();
                 patcher = new ReflectionPatcher(HarmonyId);
                 int installed = patcher.Install();

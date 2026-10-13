@@ -182,12 +182,30 @@ namespace TalesOfMortalI18N
             return text;
         }
 
-        private static void BeforeSetText(object __instance, ref string __0)
+        private static bool textSetterErrorLogged;
+
+        private static void BeforeSetText(ref string __0)
         {
+            // Harmony executes this inside Unity's IL2CPP Text setter.
+            // NEVER modify font/layout properties here: Unity may be rebuilding
+            // the same text component, causing a native NullReferenceException.
+            // Only rewrite the string, and fail open if the hook misbehaves.
             string original = __0;
-            RuntimeTextExtractor.Observe(original, "ui.text");
-            __0 = TranslationCatalog.TranslateText(original);
-            AdaptiveText.TryFit(__instance, original, __0);
+            try
+            {
+                RuntimeTextExtractor.Observe(original, "ui.text");
+                __0 = TranslationCatalog.TranslateText(original);
+            }
+            catch (Exception error)
+            {
+                __0 = original;
+                if (!textSetterErrorLogged)
+                {
+                    textSetterErrorLogged = true;
+                    ModLog.Warning("Hook de texto falhou; valor original preservado: " +
+                        error.GetType().Name + ": " + error.Message);
+                }
+            }
         }
 
         private static void AfterGameToolLs(string __0, ref string __result)

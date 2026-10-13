@@ -8,7 +8,7 @@
     "maxEntries": 50000
   },
   "adaptiveText": {
-    "enabled": true,
+    "enabled": false,
     "onlyTranslated": true,
     "minCharacters": 24,
     "minScale": 0.65,
