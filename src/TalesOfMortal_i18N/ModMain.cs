@@ -1,44 +1,56 @@
 using System;
-using System.Reflection;
-using HarmonyLib;
-using UnityEngine;
 
 namespace TalesOfMortalI18N
 {
-    // Entrada do ModCode nativo do Tale of Immortal.
+    // Entrada para o ModCode do Tale of Immortal.
+    // Nenhuma referência a DLLs do jogo é necessária na compilação.
     public class ModMain
     {
         private const string HarmonyId = "br.ferreis.talesofmortal.i18n";
-        private Harmony harmony;
+        private ReflectionPatcher patcher;
 
         public void Init()
         {
             try
             {
                 TranslationCatalog.Load();
-                harmony = new Harmony(HarmonyId);
-                int installed = TranslationPatches.Install(harmony);
-                Debug.Log("[Tales of Mortal i18N] Iniciado. Hooks instalados: " + installed + ".");
+                patcher = new ReflectionPatcher(HarmonyId);
+                int installed = patcher.Install();
+                ModLog.Info("Iniciado. Hooks instalados: " + installed + ".");
             }
             catch (Exception error)
             {
-                Debug.LogError("[Tales of Mortal i18N] Erro durante inicialização: " + error);
+                ModLog.Error("Falha ao iniciar: " + error);
             }
         }
 
         public void Destroy()
         {
-            if (harmony != null)
+            if (patcher != null)
             {
-                try { harmony.UnpatchSelf(); }
-                catch (Exception error)
-                {
-                    Debug.LogWarning("[Tales of Mortal i18N] Erro ao remover hooks: " + error.Message);
-                }
-                harmony = null;
+                patcher.Unpatch();
+                patcher = null;
             }
 
             TranslationCatalog.Clear();
+        }
+    }
+
+    internal static class ModLog
+    {
+        internal static void Info(string message)
+        {
+            Console.WriteLine("[Tales of Mortal i18N] " + message);
+        }
+
+        internal static void Warning(string message)
+        {
+            Console.WriteLine("[Tales of Mortal i18N] AVISO: " + message);
+        }
+
+        internal static void Error(string message)
+        {
+            Console.Error.WriteLine("[Tales of Mortal i18N] ERRO: " + message);
         }
     }
 }

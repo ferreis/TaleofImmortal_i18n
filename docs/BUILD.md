@@ -1,56 +1,42 @@
-# Compilação e empacotamento
+# Build do Tales of Mortal i18N (Ubuntu/Pop!_OS)
 
-## Compilação simplificada no Ubuntu
+O projeto é compilado como **biblioteca .NET Framework 4.7.2** com o Mono.
+**Não precisa ter o jogo instalado, não acessa a pasta da Steam, não utiliza DLLs de Unity, MelonLoader ou Tale of Immortal durante o build.**
+O Harmony e os tipos do jogo serão localizados por reflexão quando o mod executar dentro do jogo.
 
-Na branch `Dev`, instale o Mono se necessário (`sudo apt install mono-devel mono-xbuild`) e execute na raiz do repositório:
+## Compilar
 
 ```bash
+sudo apt install mono-devel
+git switch Dev
+git pull origin Dev
 bash scripts/build.sh
 ```
 
-O script tenta localizar a instalação do Tale of Immortal em pastas conhecidas da Steam. Caso esteja em outra biblioteca Steam, informe o caminho da pasta raiz do jogo, a que contém `MelonLoader`:
+Saída:
 
-```bash
-bash scripts/build.sh "/caminho/da/SteamLibrary/steamapps/common/TOI"
+```text
+src/TalesOfMortal_i18N/bin/Release/TalesOfMortalI18N.dll
 ```
 
-O script verifica as DLLs, usa `msbuild` ou `xbuild` e aponta o local da DLL compilada. Não instala mods, não altera o jogo e não substitui o empacotamento nativo descrito abaixo.
+O script prefere o compilador `mcs`, já fornecido por `mono-devel`, e usa apenas as referências `System.Core` e `System.Runtime.Serialization`. Não precisa de pacotes NuGet.
 
-Requisitos: código C# compilado para **.NET Framework 4.7.2**, com as bibliotecas do Tale of Immortal e do MelonLoader já geradas na sua instalação (versões anteriores à migração do MelonLoader para .NET 6). O jogo precisa ter sido executado ao menos uma vez para gerar as referências.
+## Executar dentro do jogo
 
-O projeto usa `Newtonsoft.Json` incluído nas DLLs da instalação conhecida do jogo. Nenhuma dependência é baixada durante o jogo.
+**Build independente não significa execução independente.** O código compilado é um **ModCode nativo** do Tale of Immortal, que exige o carregador de mods do jogo e Harmony durante a execução.
 
-## Linux / Steam Proton
+- Crie um mod do tipo ModCode no Mod Creator, configurando o namespace `TalesOfMortalI18N`.
+- Use a DLL gerada no pacote ModCode exportado pelo criador nativo (não copie esta DLL isolada para a pasta `Mods` do MelonLoader).
+- Copie os JSON de `mod/i18n` para a pasta `i18n` na raiz do mod exportado.
+- Desative XUnity.AutoTranslator para evitar traduções sobrepostas.
+- Confira o log com prefixo `[Tales of Mortal i18N]`. O log informa quantos hooks Harmony funcionaram.
 
-Utilize `msbuild` com o Mono/.NET Framework 4.7.2 reference assemblies disponíveis. Substitua a rota por sua pasta real:
+A compilação não comprova compatibilidade com cada versão do Tale of Immortal. Hooks como `GameTool.LS` e os setters de UI são resolvidos **em tempo de execução**; caso um deles não esteja disponível, o mod registra um aviso sem exigir essas referências no build.
 
-```bash
-msbuild src/TalesOfMortal_i18N/TalesOfMortal_i18N.csproj \
-  /p:Configuration=Release \
-  /p:GameRoot="$HOME/.local/share/Steam/steamapps/common/guigubahuang"
-```
+## Sobre o erro original do Mono
 
-Em sistemas com `dotnet msbuild`, também é possível tentar esse comando, desde que o ambiente tenha as referências do Framework 4.7.2. Não confunda o runtime `dotnet` moderno com o framework usado pelo jogo.
+O `xbuild` falhava com `InternalErrorException` ao ler `UnityEngine.dll` exportada pelo jogo. Removemos as referências externas e agora compilamos somente as classes do próprio tradutor e bibliotecas padrão do .NET 4.7.2.
 
-O `.csproj` procura:
-- `<GameRoot>/MelonLoader/0Harmony.dll`
-- `<GameRoot>/MelonLoader/Managed/Assembly-CSharp.dll`
-- `<GameRoot>/MelonLoader/Managed/UnityEngine*.dll`
-- `<GameRoot>/MelonLoader/Managed/Unity.TextMeshPro.dll`
-- `<GameRoot>/MelonLoader/Managed/Newtonsoft.Json.dll`
+## Traduções
 
-**Esses caminhos podem variar** conforme a instalação. Confira os arquivos reais antes de compilar. DLLs do jogo não são versionadas aqui.
-
-## Saída
-
-`src/TalesOfMortal_i18N/bin/Release/TalesOfMortalI18N.dll`
-
-O exportador nativo de mods deve ser usado para gerar os demais arquivos de distribuição, como metadados e identificador único (soleID). No Mod Creator, defina `modNamespace` como **`TalesOfMortalI18N`**, exatamente igual ao namespace C# e ao `AssemblyName`. Mantenha `mod/i18n` junto à raiz do mod exportado.
-
-## Limites da primeira versão
-
-O código-fonte está disponível, mas **não foi compilado nem executado contra sua instalação específica**. Antes de lançar uma versão pública, compile com as DLLs reais e verifique pelo log se os hooks foram aplicados. Se um hook não existir na versão do jogo, ele será ignorado com aviso, mantendo os demais.
-
-## Importar as traduções do histórico
-
-Na raiz do repositório, execute `python3 scripts/import_translation_zip.py ~/Downloads/Text.zip`. O importador usa a biblioteca padrão Python, não modifica o arquivo ZIP nem exige XUnity.AutoTranslator.
+Os JSON localizados em `mod/i18n/pt-BR` são arquivos de dados externos, não são incorporados à DLL. Alterar o conteúdo dos JSON não requer recompilar. Reinicie o jogo depois de modificar traduções.
