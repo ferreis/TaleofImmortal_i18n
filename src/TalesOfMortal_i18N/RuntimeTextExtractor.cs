@@ -22,6 +22,7 @@ namespace TalesOfMortalI18N
         }
 
         private static readonly object Gate = new object();
+        private static readonly object FileGate = new object();
         private static readonly Dictionary<string, Entry> Entries =
             new Dictionary<string, Entry>(StringComparer.Ordinal);
         private static string outputPath;
@@ -159,39 +160,50 @@ namespace TalesOfMortalI18N
         internal static void Flush(bool force)
         {
             if (string.IsNullOrEmpty(outputPath)) return;
-            try
+            // Timer e Destroy podem disparar a gravação simultaneamente.
+            lock (FileGate)
             {
-                string json;
-                int snapshotRevision;
-                lock (Gate)
+                try
                 {
-                    if (!dirty) return;
-                    json = Serialize();
-                    snapshotRevision = revision;
-                }
+                    string json;
+                    int snapshotRevision;
+                    lock (Gate)
+                    {
+                        if (!dirty) return;
+                        json = Serialize();
+                        snapshotRevision = revision;
+                    }
 
-                string temp = outputPath + ".tmp";
-                File.WriteAllText(temp, json, new UTF8Encoding(false));
-                if (!File.Exists(outputPath))
-                    File.Move(temp, outputPath);
-                else
-                {
-                    try { File.Replace(temp, outputPath, null); }
-                    catch (PlatformNotSupportedException) { File.Copy(temp, outputPath, true); File.Delete(temp); }
-                    catch (IOException) { File.Copy(temp, outputPath, true); File.Delete(temp); }
+                    string temp = outputPath + ".tmp";
+                    File.WriteAllText(temp, json, new UTF8Encoding(false));
+                    if (!File.Exists(outputPath))
+                        File.Move(temp, outputPath);
+                    else
+                    {
+                        try { File.Replace(temp, outputPath, null); }
+                        catch (PlatformNotSupportedException)
+                        {
+                            File.Copy(temp, outputPath, true);
+                            File.Delete(temp);
+                        }
+                        catch (IOException)
+                        {
+                            File.Copy(temp, outputPath, true);
+                            File.Delete(temp);
+                        }
+                    }
+
+                    lock (Gate)
+                    {
+                        // Se chegaram textos durante a gravação, repetir no
+                        // próximo ciclo em vez de marcar dados novos como salvos.
+                        if (revision == snapshotRevision) dirty = false;
+                    }
                 }
-                lock (Gate)
+                catch (Exception error)
                 {
-                    // Snapshot pode ficar defasado se uma UI mudou durante a gravação.
-                    // Nesse caso a próxima execução de Flush escreverá o conjunto novo.
-                    if (revision == snapshotRevision)
-                        dirty = false;
+                    ModLog.Warning("Falha ao salvar extração: " + error.Message);
                 }
-            }
-            catch (Exception error)
-            {
-                // Não pode quebrar o jogo por uma falha de escrita em disco.
-                ModLog.Warning("Falha ao salvar extração: " + error.Message);
             }
         }
 
