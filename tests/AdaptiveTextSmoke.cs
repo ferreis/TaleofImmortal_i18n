@@ -42,10 +42,13 @@ public static class AdaptiveTextSmoke
     public static void Run()
     {
         AdaptiveText.Initialize();
-        if (!AdaptiveText.Enabled || !AdaptiveText.OnlyTranslated)
-            throw new Exception("Configuração adaptiveText não foi lida.");
+        // Após erros reais no setter IL2CPP, o recurso deve permanecer desativado.
+        if (AdaptiveText.Enabled || !AdaptiveText.OnlyTranslated)
+            throw new Exception("Fonte adaptativa experimental deve estar desativada por segurança.");
 
-        var regular = new UnityEngine.UI.Text { fontSize = 20 };
+        // Os testes de propriedade abaixo exercitam o algoritmo isolado,
+        // sem reativá-lo no jogo até termos um hook de layout seguro.
+                var regular = new UnityEngine.UI.Text { fontSize = 20 };
         AdaptiveText.TryFit(regular, "short", "short");
         if (regular.resizeTextForBestFit)
             throw new Exception("Não deve modificar textos sem tradução.");
