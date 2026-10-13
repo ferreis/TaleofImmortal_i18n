@@ -97,6 +97,43 @@ O `GitHub Actions` executa o mesmo script de revisão para todos os
 catálogos **versionados**. O catálogo comunitário só entra na checagem
 automatizada local depois de ser importado.
 
+## Conferência adicional (13/10/2026, após as cinco passagens)
+
+Foi executada mais uma verificação independente dos 22 catálogos
+versionados e dos arquivos de origem e importação comunitária que o
+usuário havia enviado.
+
+A revalidação do GitHub Actions, no commit da correção, passou com
+**26 testes**, compilação da DLL, smoke tests e instalação simulada.
+Nos catálogos versionados foram analisadas **3.721 traduções por texto,
+76 chaves e 1.759 nomes protegidos**, sem colisões nem falhas de
+estrutura detectadas. Permanecem **340 alertas de revisão contextual**:
+110 textos com caracteres chineses (frequentemente nomes próprios)
+e 230 casos de mudanças nas quebras de linha.
+
+A auditoria revelou dois casos de borda que o importador anterior não
+cobria:
+
+1. Uma importação antiga poderia preservar traduções diretas para
+   **nomes protegidos** ou fontes chinesas **ambíguas**, apesar de essas
+   entradas já serem rejeitadas quando recém-importadas. O importador
+   agora remove esses registros antigos, preservando os ajustes manuais
+   estruturalmente válidos nas demais entradas. Também rejeita uma
+   chave de localização associada a originais divergentes.
+2. Alguns recursos do jogo representam sprites com aspas escapadas,
+   por exemplo `<sprite name=\\"zm_lingshi\\">`; as traduções podem
+   conter `<sprite name="zm_lingshi">`. A revisão agora compara
+   os **identificadores reais**, e não a forma de escape do texto.
+   Também valida separadamente tags Unity de abertura e fechamento.
+
+A inspeção independente do ZIP antigo (antes dessas correções) mostrou
+possíveis diferenças estruturais em valores já importados. Isso **não
+descreve o resultado após regenerar o JSON local**. Para corrigir
+automaticamente entradas rejeitadas, é obrigatório executar novamente
+`python3 scripts/import_workshop_ptbr.py` no computador do usuário.
+O ZIP comunitário completo não é enviado ao repositório e, portanto,
+não integra a revisão automática do GitHub Actions.
+
 ## Limites
 
 Cinco passagens automatizadas **não garantem a revisão linguística humana
