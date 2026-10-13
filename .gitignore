@@ -1,0 +1,17 @@
+# Builds
+**/bin/
+**/obj/
+*.user
+*.suo
+*.pdb
+.vs/
+.idea/
+
+# Game and third-party binaries
+*.dll
+!*.dll.config
+*.cache
+*.log
+
+# Distribution
+dist/
