@@ -22,7 +22,7 @@ SOURCE_MOD = "steam:2990310797"
 HAN = re.compile(r"[\u3400-\u9fff\uf900-\ufaff]")
 PLACEHOLDER = re.compile(r"\{[^{}]+\}")
 INTERNAL_VAR = re.compile(r"\$s_[^$\r\n]{1,140}\$|&[A-Za-z0-9_/%+|.?:=-]{1,140}&")
-RICH_TAG = re.compile(r"<(color|size|b|i|u|link|sprite)\b", re.I)
+RICH_TAG = re.compile(r"<(/?)(color|size|b|i|u|link|sprite)(?=[\s=>])", re.I)
 SPRITE = re.compile(r"""<sprite\b[^>]*?\bname=\\?["']([^"\\']+)\\?["']""", re.I)
 
 
@@ -57,8 +57,8 @@ def structural_problem(source, translated):
     if (collections.Counter(INTERNAL_VAR.findall(source)) !=
             collections.Counter(INTERNAL_VAR.findall(translated))):
         return "internalVariableMismatch"
-    if collections.Counter(x.lower() for x in RICH_TAG.findall(source)) != (
-            collections.Counter(x.lower() for x in RICH_TAG.findall(translated))):
+    if collections.Counter((prefix, tag.lower()) for prefix, tag in RICH_TAG.findall(source)) != (
+            collections.Counter((prefix, tag.lower()) for prefix, tag in RICH_TAG.findall(translated))):
         return "richTextMismatch"
     if collections.Counter(SPRITE.findall(source)) != collections.Counter(
             SPRITE.findall(translated)):
