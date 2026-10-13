@@ -26,7 +26,9 @@ Após atualizar o mod instalado com `bash scripts/install-local.sh`, visite tela
 
 O extrator offline `scripts/extract_offline.py` percorre os formatos textuais legíveis nas pastas do jogo e dos mods, incluindo origens da Steam Workshop. Ele gera `dist/extracted/offline.json`. O script `scripts/prepare_translation_drafts.py` transforma os resultados em rascunhos editáveis por módulo na pasta `dist/drafts`, sem sobrescrever traduções revisadas.
 
-**Limites:** o idioma é identificado por heurística; `en-candidate` pode conter português ou nomes próprios. A captura ao vivo não identifica automaticamente qual DLL gerou cada texto, e não cobre interfaces não interceptadas. O scanner offline não lê Assembly-CSharp, DLLs, AssetBundles Unity ou arquivos criptografados. A extração não traduz textos novos automaticamente.
+**Limites:** o idioma é identificado por heurística; `en-candidate` pode conter português ou nomes próprios. A captura ao vivo não identifica automaticamente qual DLL gerou cada texto, e não cobre interfaces não interceptadas. O scanner offline lê automaticamente o formato criptografado **excelEncrypt** de ModExcel. Ainda não lê Assembly-CSharp, DLLs, AssetBundles Unity ou outros formatos binários desconhecidos. A extração não traduz textos novos automaticamente.
+
+Após identificar e decodificar o cabeçalho de criptografia nativo de ModExcel, a extração offline passou a recuperar também tabelas `LocalText.json` desse formato, com identificadores internos. **Não é mais necessário fornecer cópias descriptografadas para esse formato específico.**
 
 Veja [instruções e exemplos completos](docs/EXTRACTOR.md).
 

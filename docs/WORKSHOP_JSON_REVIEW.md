@@ -1,3 +1,5 @@
+> Nota posterior (13/10/2026): a análise abaixo descreve os JSON gerados pelo extrator **antigo**, que ignorava arquivos excelEncrypt. O algoritmo desse formato já foi integrado aos extratores. No mod `3334313052`, os arquivos originais `LocalText.json` e `BattleEffect.json` enviados depois foram lidos: **26 linhas de localização** e **1 efeito de batalha**. Execute novamente `python3 scripts/extract_workshop_mods.py` para substituir a análise antiga com dados completos dos arquivos agora suportados. Outros formatos não reconhecidos ainda exigem revisão.
+
 # Revisão dos 17 JSON extraídos da Steam Workshop (13/10/2026)
 
 ## Resultado da auditoria

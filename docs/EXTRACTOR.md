@@ -82,7 +82,7 @@ Se o Steam Workshop estiver em outro disco, altere o caminho `--root`. Use um `-
 
 O scanner não reprocessa nossos JSON de tradução, logs, DLLs e executáveis. Usa limite de 30 MB por arquivo e 120 mil entradas únicas por execução, configuráveis por `--max-file-bytes` e `--max-entries`.
 
-**Limite importante:** arquivos Unity AssetBundle, TextAsset empacotado, tabelas criptografadas, DLLs e recursos nativos IL2CPP exigem decodificadores especializados. O scanner offline não consegue extrair esses formatos binários. A captura em tempo de execução complementa essa limitação, mas não garante todos os textos sem visitar as telas nem captura métodos não interceptados, incluindo alguns TMP.
+**Limite importante:** arquivos Unity AssetBundle, TextAsset empacotado, tabelas criptografadas, DLLs e recursos nativos IL2CPP exigem decodificadores especializados. O scanner offline não lê esses outros formatos binários, mas agora **descriptografa automaticamente o formato nativo excelEncrypt dos arquivos ModExcel**, reconhecido pelo cabeçalho `1b8bg-/%ePe]P[-/921CG`. A captura em tempo de execução complementa essa limitação, mas não garante todos os textos sem visitar as telas nem captura métodos não interceptados, incluindo alguns TMP.
 
 
 ## 2A. Extrair um arquivo `<ID>.json` para cada mod instalado
@@ -128,10 +128,9 @@ python3 scripts/extract_workshop_mods.py \
   --decrypted-mod "2864011606=/caminho/para/recursos-descriptografados"
 ```
 
-O script não descriptografa o conteúdo por si só. Os arquivos de origem
-na Steam permanecem intocados.
+O script descriptografa automaticamente arquivos com o cabeçalho **excelEncrypt**, mas não garante suporte a qualquer formato binário ou criptografia não reconhecida. Os arquivos na Steam permanecem intocados.
 
-O script preserva a estrutura original de cada mod e **não grava nada dentro da Steam Workshop**. Ele não altera os JSON PT-BR do tradutor. O resultado é material para revisão e não um dicionário de tradução pronto para usar. Arquivos Unity binários, DLLs e conteúdo criptografado permanecem fora do alcance deste extrator.
+O script preserva a estrutura original de cada mod e **não grava nada dentro da Steam Workshop**. Ele não altera os JSON PT-BR do tradutor. O resultado é material para revisão e não um dicionário de tradução pronto para usar. AssetBundles Unity, DLLs e formatos binários desconhecidos continuam fora do alcance deste extrator.
 
 ## 3. Gerar JSON de tradução para revisão
 
@@ -183,3 +182,17 @@ python3 -m unittest discover -s tests -p 'test_*.py'
 ```
 
 Os testes validam a gravação JSON pelo C#, textos Unicode, origem por diretório, detecção de arquivos binários, geração de rascunhos e preservação das traduções revisadas. Ainda é necessário testar a coleta ao vivo no seu jogo e confirmar os hooks disponíveis.
+
+## Formato excelEncrypt identificado com arquivos reais
+
+Em 13/10/2026, dois arquivos enviados do mod `3334313052`, `ModExcel/LocalText.json` e `ModExcel/BattleEffect.json`, foram descriptografados com sucesso. O primeiro contém **26 linhas** de inglês, chinês simplificado, tradicional e identificadores `AutoBattleText_1` a `AutoBattleText_26`. O segundo contém **1 configuração de efeito de batalha**, sem texto de diálogo. O suporte foi incorporado a `scripts/toi_crypto.py`, utilizado pelos extratores `extract_workshop_mods.py` e `extract_offline.py`.
+
+A transformação opera somente em memória, identifica um marcador de 21 bytes e usa a senha do formato de mods do Tale of Immortal. Referência técnica: [Tale of Immortal Tool, EncryptTool.cs](https://github.com/nozwock/tale-of-immortal-tool/blob/main/src/EncryptTool.cs).
+
+**Não é necessário instalar o utilitário externo** para o formato reconhecido. Basta atualizar a branch `Dev` e executar novamente:
+
+```bash
+python3 scripts/extract_workshop_mods.py
+```
+
+A saída continua sendo `dist/extracted/workshop/<ID>.json`, um JSON por mod. Para verificar especificamente o mod de combate automático, abra `dist/extracted/workshop/3334313052.json` e procure `localizations` com as 26 linhas. Se outros `ModExcel` apresentarem formatos não reconhecidos, continuam registrados em `skipped` para investigação individual.

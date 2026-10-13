@@ -5,8 +5,9 @@ Entrada: steamapps/workshop/content/1468810/<ID_DO_MOD>/
 Saída:   dist/extracted/workshop/<ID_DO_MOD>.json
          dist/extracted/workshop/index.json
 
-O script lê recursos textuais, não modifica os mods, não chama tradutores e
-não interpreta AssetBundles, DLLs ou tabelas binárias/criptografadas.
+O script lê recursos textuais e descodifica automaticamente o formato nativo
+excelEncrypt dos arquivos ModExcel do jogo. Não modifica os mods e não
+interpreta AssetBundles, DLLs ou formatos criptográficos desconhecidos.
 """
 import argparse
 import json
