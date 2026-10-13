@@ -127,7 +127,7 @@ class WorkshopExtractorTests(unittest.TestCase):
             steam = base / "steamapps/workshop/content/1468810"
             original = steam / "2864011606/ModExcel/LocalText.json"
             original.parent.mkdir(parents=True)
-            original.write_bytes(b"\\x00\\x03unreadable-file")
+            original.write_bytes(b"\x00\x03unreadable-file")
             decrypted = base / "decrypted-2864011606"
             write_json(decrypted / "ModExcel/LocalText.json", [
                 {"key": "myMod_dialogue1", "en": "Welcome to the sect",
