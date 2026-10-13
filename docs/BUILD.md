@@ -94,3 +94,13 @@ Ambos os scripts são não destrutivos. Para investigar o mod em execução, env
 O build sem o jogo foi configurado, mas a execução real ainda precisa de validação no Tale of Immortal. A implementação resolve Harmony e os métodos de Unity via reflexão na execução e registra avisos se algum hook não estiver disponível.
 
 O diretório `ModProject_DQKLF9/ModProject/ModRes` contém arquivos de exemplo gerados pelo Unity e não é necessário para o tradutor JSON; foi preservado para não apagar conteúdo do projeto criado.
+
+## Correção do leitor JSON (outubro/2026)
+
+O primeiro teste dentro do jogo mostrou `textos: 0`, apesar de encontrar a pasta e ler os nomes protegidos. O `DataContractJsonSerializer` lançava uma exceção de invocação no runtime IL2CPP do jogo, fazendo o carregador ignorar os arquivos de tradução.
+
+Agora `src/TalesOfMortal_i18N/JsonTextParser.cs` lê os objetos, arrays e strings JSON por código C# explícito, sem DataContract, Newtonsoft nem reflexão para desserializar. Isso mantém o build independente do jogo.
+
+O GitHub Actions validou os **22 arquivos JSON**, incluindo **3.677 textos**, **1.759 nomes protegidos** e **5 regras regex**. Use `bash scripts/test.sh` para reproduzir esse teste offline. Em seguida, use `bash scripts/install-local.sh` com o jogo fechado para atualizar o mod exportado. A validação final precisa ser feita **no jogo**, verificando o log novo; compilação bem-sucedida não prova que todos os hooks de Unity funcionam.
+
+Os hooks de `TMPro` estavam indisponíveis no log de 13/10/2026; por isso a cobertura de textos da interface continua parcial até inspecionarmos a versão do runtime utilizada pelo jogo.

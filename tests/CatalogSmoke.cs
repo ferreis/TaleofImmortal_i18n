@@ -6,18 +6,22 @@ public static class CatalogSmoke
     public static int Main()
     {
         TranslationCatalog.Load();
+        int expectedFiles = System.IO.Directory.GetFiles(
+            System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "i18n", "pt-BR"),
+            "*.json", System.IO.SearchOption.AllDirectories).Length;
         // Não basta traduzir uma palavra: TODOS os pacotes reais precisam
         // abrir, caso contrário o teste offline pode mascarar o erro do jogo.
         if (TranslationCatalog.TextCount < 3500 ||
             TranslationCatalog.ProtectedNameCount < 1700 ||
             TranslationCatalog.PatternCount < 5 ||
-            TranslationCatalog.LoadedFileCount < 19)
+            TranslationCatalog.LoadedFileCount != expectedFiles)
         {
             Console.Error.WriteLine("ERRO: o catálogo foi carregado parcialmente: " +
                 "textos=" + TranslationCatalog.TextCount +
                 ", nomes=" + TranslationCatalog.ProtectedNameCount +
                 ", padrões=" + TranslationCatalog.PatternCount +
-                ", arquivos=" + TranslationCatalog.LoadedFileCount);
+                ", arquivos=" + TranslationCatalog.LoadedFileCount +
+                ", esperados=" + expectedFiles);
             return 1;
         }
         var parsed = JsonTextParser.ParseObject(

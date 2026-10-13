@@ -25,7 +25,7 @@ if command -v mcs >/dev/null 2>&1; then
   echo "Compilando MOD_DQKLF9.dll offline com Mono..."
   mkdir -p "$NATIVE/bin/Release"
   mcs -sdk:4.7.2 -langversion:7.2 -target:library -optimize+ \
-    -r:System.Core -r:System.Runtime.Serialization \
+    -r:System.Core \
     -out:"$OUTPUT" \
     "$NATIVE/ModMain.cs" \
     "$NATIVE/Properties/AssemblyInfo.cs" \
