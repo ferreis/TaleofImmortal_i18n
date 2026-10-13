@@ -11,6 +11,8 @@ on:
       - "mod/i18n/**"
       - "scripts/build.sh"
       - "scripts/test.sh"
+      - "scripts/import_translation_zip.py"
+      - "scripts/audit_catalogs.py"
       - "scripts/check-xunity.sh"
       - "scripts/install-local.sh"
       - "scripts/disable-xunity.sh"
@@ -36,6 +38,9 @@ jobs:
 
       - name: Test JSON catalogs without game files
         run: bash scripts/test.sh
+
+      - name: Audit every translation JSON and module identity
+        run: python3 scripts/audit_catalogs.py
 
       - name: Validate shell scripts and ModAssets staging
         run: |
