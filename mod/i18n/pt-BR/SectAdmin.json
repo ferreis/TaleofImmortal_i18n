@@ -203,6 +203,8 @@
     "schoolAdmin_tips11": "Você pode aplicar vários requisitos a uma mesma seita. Nesse caso, o NPC precisará atender a todos eles para ingressar.",
     "schoolAdmin_tips12": "Marque uma seita para aplicar este requisito a ela. Se vários requisitos estiverem marcados para a mesma seita, o NPC precisará atender a todos para ingressar.",
     "schoolAdmin_zhaonatiaojianshezhi": "Configurar requisitos de ingresso",
-    "schoolAdmin_AppliedToSectting": "Aplicar à seita"
+    "schoolAdmin_AppliedToSectting": "Aplicar à seita",
+    "schoolAdmin_needModTips": "O mod {0} precisa do mod {1} para funcionar. A instalação de {0} parece estar incompleta, o que pode afetar seus recursos. Pesquise por <r>UIFramework</r> na loja de mods e inscreva-se em {1}. Depois, na lista de mods locais, coloque {1} acima de {0}.",
+    "schoolAdmin_needModName": "UIFramework"
   }
 }
