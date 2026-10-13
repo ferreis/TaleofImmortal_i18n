@@ -25,6 +25,14 @@ namespace TalesOfMortalI18N
         internal static int PatternCount { get { return patternRules.Count; } }
         internal static int LoadedFileCount { get; private set; }
 
+        private sealed class CatalogFile
+        {
+            internal string Path;
+            internal Dictionary<string, object> Document;
+            internal string Kind;
+            internal string Id;
+        }
+
         private sealed class PatternRule
         {
             internal Regex Regex;
@@ -57,47 +65,81 @@ namespace TalesOfMortalI18N
             }
 
             ModLog.Info("Lendo traduções de: " + folder);
-            string[] files = Directory.GetFiles(folder, "*.json", SearchOption.AllDirectories);
-            Array.Sort(files, delegate(string a, string b)
-            {
-                int pa = Priority(a), pb = Priority(b);
-                return pa == pb ? StringComparer.OrdinalIgnoreCase.Compare(a, b) : pa.CompareTo(pb);
-            });
+            // Each JSON identifies itself. File names are not used for classification,
+            // including protected names, game catalogs and fallback dictionaries.
+            string[] paths = Directory.GetFiles(folder, "*.json", SearchOption.AllDirectories);
+            var documents = new List<CatalogFile>();
+            var ids = new HashSet<string>(StringComparer.Ordinal);
 
-            int loaded = 0;
-            foreach (string file in files)
+            foreach (string file in paths)
             {
                 try
                 {
-                    string json = File.ReadAllText(file, Encoding.UTF8);
-                    Dictionary<string, object> document = JsonTextParser.ParseObject(json);
-                    if (Path.GetFileName(file).Equals("protected-names.json", StringComparison.OrdinalIgnoreCase))
+                    Dictionary<string, object> document =
+                        JsonTextParser.ParseObject(File.ReadAllText(file, Encoding.UTF8));
+                    string kind, identifier;
+                    IdentifyModule(document, file, out kind, out identifier);
+                    if (!ids.Add(identifier))
+                        ModLog.Warning("O identificador de módulo '" + identifier +
+                            "' foi encontrado mais de uma vez. Verifique os arquivos.");
+                    documents.Add(new CatalogFile
+                    {
+                        Path = file,
+                        Document = document,
+                        Kind = kind,
+                        Id = identifier
+                    });
+                }
+                catch (Exception error)
+                {
+                    ModLog.Warning("Ignorando " + Path.GetFileName(file) + ": " + error);
+                }
+            }
+
+            documents.Sort(delegate(CatalogFile a, CatalogFile b)
+            {
+                int order = KindPriority(a.Kind).CompareTo(KindPriority(b.Kind));
+                if (order != 0) return order;
+                order = StringComparer.Ordinal.Compare(a.Id, b.Id);
+                return order == 0 ? StringComparer.Ordinal.Compare(a.Path, b.Path) : order;
+            });
+
+            int loaded = 0;
+            foreach (CatalogFile file in documents)
+            {
+                try
+                {
+                    Dictionary<string, object> document = file.Document;
+                    if (file.Kind == "names")
                     {
                         List<object> entries = ReadArray(document, "names", true);
                         foreach (object entry in entries)
                         {
                             string name = entry as string;
-                            if (!string.IsNullOrWhiteSpace(name))
-                                names.Add(name);
+                            if (!string.IsNullOrWhiteSpace(name)) names.Add(name);
                         }
                     }
                     else if (document.ContainsKey("translations") ||
                              document.ContainsKey("keys") ||
                              document.ContainsKey("patterns"))
                     {
-                        LoadMap(ReadStringMap(document, "translations", false), texts, file);
-                        LoadMap(ReadStringMap(document, "keys", false), keys, file);
-                        LoadPatterns(ReadArray(document, "patterns", false), patterns, file);
+                        LoadMap(ReadStringMap(document, "translations", false), texts, file.Path);
+                        LoadMap(ReadStringMap(document, "keys", false), keys, file.Path);
+                        LoadPatterns(ReadArray(document, "patterns", false), patterns, file.Path);
                     }
                     else
                     {
-                        LoadMap(ConvertMap(document), texts, file);
+                        // Legacy plain-map JSON files are still supported.
+                        if (document.ContainsKey("module"))
+                            throw new FormatException(
+                                "Pacote com module exige translations, keys ou patterns.");
+                        LoadMap(ConvertMap(document), texts, file.Path);
                     }
                     loaded++;
                 }
                 catch (Exception error)
                 {
-                    ModLog.Warning("Ignorando " + Path.GetFileName(file) + ": " + error.ToString());
+                    ModLog.Warning("Ignorando " + Path.GetFileName(file.Path) + ": " + error);
                 }
             }
 
@@ -257,12 +299,51 @@ namespace TalesOfMortalI18N
             }
         }
 
-        private static int Priority(string file)
+        private static int KindPriority(string kind)
         {
-            string name = Path.GetFileName(file);
-            if (name.Equals("game.json", StringComparison.OrdinalIgnoreCase)) return 0;
-            if (name.Equals("zzz-auto.json", StringComparison.OrdinalIgnoreCase)) return 2;
-            return 1;
+            switch (kind)
+            {
+                case "names": return -1;
+                case "game": return 0;
+                case "mod": return 1;
+                case "fallback": return 2;
+                default: return 1;
+            }
+        }
+
+        private static void IdentifyModule(
+            Dictionary<string, object> document, string file,
+            out string kind, out string identifier)
+        {
+            object moduleToken;
+            if (!document.TryGetValue("module", out moduleToken))
+            {
+                // Compatibility with old v1 catalogs that lack metadata.
+                string name = Path.GetFileName(file);
+                kind = name.Equals("protected-names.json", StringComparison.OrdinalIgnoreCase)
+                    ? "names"
+                    : name.Equals("game.json", StringComparison.OrdinalIgnoreCase)
+                        ? "game"
+                        : name.Equals("zzz-auto.json", StringComparison.OrdinalIgnoreCase)
+                            ? "fallback" : "mod";
+                identifier = "legacy:" + name;
+                return;
+            }
+
+            var module = moduleToken as Dictionary<string, object>;
+            if (module == null)
+                throw new FormatException("module deve ser um objeto JSON.");
+
+            object kindValue, idValue;
+            kind = module.TryGetValue("kind", out kindValue) ? kindValue as string : null;
+            identifier = module.TryGetValue("id", out idValue) ? idValue as string : null;
+
+            if (kind != "game" && kind != "mod" && kind != "fallback" && kind != "names")
+                throw new FormatException("module.kind deve ser game, mod, fallback ou names.");
+            if (string.IsNullOrWhiteSpace(identifier))
+                throw new FormatException("module.id deve conter um identificador estável.");
+            if (kind == "mod" && !module.ContainsKey("name"))
+                ModLog.Warning("Módulo '" + identifier + "' não contém module.name.");
         }
 
         private static string ReadLanguage(string root)
