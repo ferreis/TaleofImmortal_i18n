@@ -9,6 +9,8 @@ on:
       - "ModProject_DQKLF9/ModProject/*.cache"
       - "mod/i18n/**"
       - "scripts/build.sh"
+      - "scripts/test.sh"
+      - "scripts/check-xunity.sh"
       - ".github/workflows/build.yml"
   workflow_dispatch:
 
@@ -28,6 +30,9 @@ jobs:
 
       - name: Build without game files
         run: bash scripts/build.sh
+
+      - name: Test JSON catalogs without game files
+        run: bash scripts/test.sh
 
       - name: Confirm compiled output
         run: test -s ModProject_DQKLF9/ModProject/ModCode/ModMain/bin/Release/MOD_DQKLF9.dll
