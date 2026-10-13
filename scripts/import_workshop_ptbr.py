@@ -132,7 +132,10 @@ def prepare(source, catalog_dir, output):
             temp.unlink()
 
     return {
-        **counts, "totalTextTranslations": len(translations),
+        **counts,
+        "addedKeys": counts["addedKeys"],
+        "addedChineseTranslations": counts["addedChineseTranslations"],
+        "totalTextTranslations": len(translations),
         "totalKeys": len(keys), "skippedAmbiguousChinese": len(ambiguous),
         "sourceMod": SOURCE_MOD, "destination": str(output)
     }
