@@ -1,6 +1,6 @@
 # Tales of Mortal i18N
 
-Traduções comunitárias de **Tale of Immortal** (鬼谷八荒) e de seus mods em arquivos JSON externos. Não usa XUnity.AutoTranslator, serviços online nem tradução automática em execução.
+Traduções comunitárias de **Tale of Immortal** (鬼谷八荒) e de seus mods em arquivos JSON externos. Não usa XUnity.AutoTranslator nem fornece tradução automática de novos textos nesta versão.
 
 > **Estado:** implementação inicial: projeto nativo `MOD_DQKLF9` integrado e compilação offline; ainda sem validação de execução dentro do jogo.
 
@@ -17,6 +17,28 @@ bash scripts/build.sh
 
 Saída: `ModProject_DQKLF9/ModProject/ModCode/ModMain/bin/Release/MOD_DQKLF9.dll`.
 O script prepara também `ModProject_DQKLF9/debug/Mod_DQKLF9/` e `dist/TalesOfMortal_i18N/`, copiando a DLL, os JSON e os dois arquivos `.cache`. Os arquivos originais `ModProject.cache` e `ModData.cache` agora estão versionados e sincronizados; o segundo foi ajustado para `MOD_DQKLF9`. Leia [as instruções atualizadas](docs/BUILD.md).
+
+## Diagnóstico após importação
+
+A DLL atual **não implementa tradução automática de frases desconhecidas**. Ela aplica os JSON ao vivo nos pontos de UI interceptados. Esse funcionamento precisa ser confirmado no jogo.
+
+Se você já importou `Mod_DQKLF9` localmente e deseja aplicar a versão mais recente sem exportar novamente, **feche o jogo** e execute:
+
+```bash
+git switch Dev
+git pull origin Dev
+bash scripts/install-local.sh
+```
+
+Para localizar DLLs antigas de XUnity ainda carregáveis e ler os logs:
+
+```bash
+bash scripts/check-xunity.sh
+```
+
+O novo build inclui `ModAssets/i18n`, o diretório apropriado para dados adicionais exportáveis. O leitor também reconhece `i18n` na raiz para compatibilidade. O teste offline `bash scripts/test.sh` valida a leitura de traduções dos JSON; não prova o funcionamento dos hooks de Unity no jogo.
+
+A fonte `SectAdmin_PTBR.txt` do ZIP fornecido contém somente comentários: por isso `SectAdmin.json` está vazio. `SchoolAdmin.json` tem 147 entradas e não deve ser confundido com ele. A palavra `Vingativo(a)` aparecia no TXT como `Vingativo(a)=Vingativo(a)`, sem transformação.
 
 ## Como as traduções ficam organizadas
 
