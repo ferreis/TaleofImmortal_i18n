@@ -8,9 +8,13 @@ if [[ ! -d "$GAME" ]]; then
   exit 1
 fi
 
-echo "=== Arquivos de entrada do XUnity potencialmente ativos ==="
+echo "=== Carregadores do XUnity com extensão .dll (podem estar ativos) ==="
 find "$GAME/Mods" "$GAME/Plugins" "$GAME/BepInEx/plugins" \
-  -maxdepth 6 -type f \( -iname '*XUnity*Translator*.dll*' -o -iname '*AutoTranslator*.dll*' \) -print 2>/dev/null || true
+  -maxdepth 6 -type f \( -iname '*XUnity*Translator*.dll' -o -iname '*AutoTranslator*.dll' \) -print 2>/dev/null || true
+echo
+echo "=== Carregadores renomeados/desativados ==="
+find "$GAME/Mods" "$GAME/Plugins" "$GAME/BepInEx/plugins" \
+  -maxdepth 6 -type f -iname '*AutoTranslator*.dll.disabled' -print 2>/dev/null || true
 echo
 echo "=== Último log do MelonLoader ==="
 if [[ -d "$GAME/MelonLoader/Logs" ]]; then
@@ -23,5 +27,12 @@ if [[ -d "$GAME/MelonLoader/Logs" ]]; then
   fi
 else
   echo "MelonLoader/Logs não encontrado."
+fi
+echo
+if [[ -f "$GAME/TalesOfMortal_i18N.log" ]]; then
+  echo "=== Log próprio do Tales of Mortal i18N ==="
+  tail -n 45 "$GAME/TalesOfMortal_i18N.log"
+else
+  echo "O log próprio TalesOfMortal_i18N.log ainda não foi encontrado."
 fi
 echo "Arquivos intactos. Este script não altera o jogo."
