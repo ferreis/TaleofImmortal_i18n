@@ -1,42 +1,48 @@
-# Build do Tales of Mortal i18N (Ubuntu/Pop!_OS)
+# Compilação do projeto DQKLF9
 
-O projeto é compilado como **biblioteca .NET Framework 4.7.2** com o Mono.
-**Não precisa ter o jogo instalado, não acessa a pasta da Steam, não utiliza DLLs de Unity, MelonLoader ou Tale of Immortal durante o build.**
-O Harmony e os tipos do jogo serão localizados por reflexão quando o mod executar dentro do jogo.
+A identidade do projeto criada pelo jogo é `MOD_DQKLF9`. **Não modifique esse namespace no editor.**
 
-## Compilar
+## Build offline (Ubuntu/Pop!_OS)
+
+Na branch `Dev`, execute:
 
 ```bash
-sudo apt install mono-devel
-git switch Dev
 git pull origin Dev
 bash scripts/build.sh
 ```
 
-Saída:
+O script usa `mcs` do pacote `mono-devel` e compila em .NET Framework 4.7.2 **sem Unity, Tale of Immortal, MelonLoader ou Steam instalados**.
+
+DLL resultante:
 
 ```text
-src/TalesOfMortal_i18N/bin/Release/TalesOfMortalI18N.dll
+ModProject_DQKLF9/ModProject/ModCode/ModMain/bin/Release/MOD_DQKLF9.dll
 ```
 
-O script prefere o compilador `mcs`, já fornecido por `mono-devel`, e usa apenas as referências `System.Core` e `System.Runtime.Serialization`. Não precisa de pacotes NuGet.
+O script também copia a DLL e os JSON de `mod/i18n` para as seguintes pastas:
 
-## Executar dentro do jogo
+```text
+ModProject_DQKLF9/ModProject/i18n/             # arquivos-fonte do mod criado
+ModProject_DQKLF9/debug/Mod_DQKLF9/
+  ├── ModCode/dll/MOD_DQKLF9.dll
+  └── i18n/pt-BR/*.json
+dist/TalesOfMortal_i18N/
+  ├── ModCode/dll/MOD_DQKLF9.dll
+  └── i18n/pt-BR/*.json
+```
 
-**Build independente não significa execução independente.** O código compilado é um **ModCode nativo** do Tale of Immortal, que exige o carregador de mods do jogo e Harmony durante a execução.
+Os JSON continuam editáveis, sem recompilar a DLL. O script só prepara arquivos locais. A pasta `dist` é um **staging**, não um mod completo, pois precisa dos arquivos de metadados que o editor nativo exporta.
 
-- Crie um mod do tipo ModCode no Mod Creator, configurando o namespace `TalesOfMortalI18N`.
-- Use a DLL gerada no pacote ModCode exportado pelo criador nativo (não copie esta DLL isolada para a pasta `Mods` do MelonLoader).
-- Copie os JSON de `mod/i18n` para a pasta `i18n` na raiz do mod exportado.
-- Desative XUnity.AutoTranslator para evitar traduções sobrepostas.
-- Confira o log com prefixo `[Tales of Mortal i18N]`. O log informa quantos hooks Harmony funcionaram.
+## Instalação
 
-A compilação não comprova compatibilidade com cada versão do Tale of Immortal. Hooks como `GameTool.LS` e os setters de UI são resolvidos **em tempo de execução**; caso um deles não esteja disponível, o mod registra um aviso sem exigir essas referências no build.
+O projeto do mod foi adicionado em `ModProject_DQKLF9/ModProject`. Abra-o no editor do Tale of Immortal e faça a exportação normal. Os arquivos `.cache` e os metadados não foram enviados ao GitHub, então a cópia do repositório por si só pode **não conter um projeto importável completo** no editor.
 
-## Sobre o erro original do Mono
+Não renomeie o `MOD_DQKLF9.dll` nem tente carregar como mod MelonLoader independente. O tipo de entrada exportado é `MOD_DQKLF9.ModMain` com métodos `Init()` e `Destroy()`.
 
-O `xbuild` falhava com `InternalErrorException` ao ler `UnityEngine.dll` exportada pelo jogo. Removemos as referências externas e agora compilamos somente as classes do próprio tradutor e bibliotecas padrão do .NET 4.7.2.
+Depois de exportar e instalar o mod pelo editor, garanta que a pasta `i18n` fique junto à raiz do mod exportado, ao lado de `ModCode`. Desative o XUnity.AutoTranslator para evitar tradução duplicada.
 
-## Traduções
+## Limites
 
-Os JSON localizados em `mod/i18n/pt-BR` são arquivos de dados externos, não são incorporados à DLL. Alterar o conteúdo dos JSON não requer recompilar. Reinicie o jogo depois de modificar traduções.
+O build sem o jogo foi configurado, mas a execução real ainda precisa de validação no Tale of Immortal. A implementação resolve Harmony e os métodos de Unity via reflexão na execução e registra avisos se algum hook não estiver disponível.
+
+O diretório `ModProject_DQKLF9/ModProject/ModRes` contém arquivos de exemplo gerados pelo Unity e não é necessário para o tradutor JSON; foi preservado para não apagar conteúdo do projeto criado.

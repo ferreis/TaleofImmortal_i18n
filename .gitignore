@@ -15,3 +15,7 @@
 
 # Distribution
 dist/
+
+# Generated native Mod Creator staging files (the committed sources remain intact)
+/ModProject_DQKLF9/debug/
+/ModProject_DQKLF9/ModProject/i18n/

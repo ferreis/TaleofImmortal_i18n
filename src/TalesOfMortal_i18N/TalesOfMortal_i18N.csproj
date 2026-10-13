@@ -6,11 +6,11 @@
     <Platform Condition="'$(Platform)' == ''">AnyCPU</Platform>
     <ProjectGuid>{C5462842-67DE-458F-8602-7DD893B12E6A}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>TalesOfMortalI18N</RootNamespace>
-    <AssemblyName>TalesOfMortalI18N</AssemblyName>
+    <RootNamespace>MOD_DQKLF9</RootNamespace>
+    <AssemblyName>MOD_DQKLF9</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
     <LangVersion>7.2</LangVersion>
+    <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
@@ -26,6 +26,8 @@
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="../../ModProject_DQKLF9/ModProject/ModCode/ModMain/ModMain.cs" />
+    <Compile Include="../../ModProject_DQKLF9/ModProject/ModCode/ModMain/Properties/AssemblyInfo.cs" />
     <Compile Include="ModMain.cs" />
     <Compile Include="TranslationCatalog.cs" />
     <Compile Include="TranslationPatches.cs" />
