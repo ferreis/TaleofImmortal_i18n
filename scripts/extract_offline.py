@@ -19,6 +19,7 @@ SKIP_DIRS = {
     ".git", ".github", "__pycache__", "node_modules", "bin", "obj", "logs",
     "melonloader", "cache", "translation", "i18n",
     "talesofmortal_i18n_extracted", "dist", "xunity.autotranslator",
+    "modfqa", "userdata", "il2cpp_data", "library",
 }
 SIMP = set("龙门剑学气灵体发岁无万国经师后阳风广画云东叶书鸟马鱼")
 TRAD = set("龍門劍學氣靈體發歲無萬國經師後陽風廣畫雲東葉書鳥馬魚")
@@ -47,8 +48,10 @@ def strings_from_json(value):
                 stack.append((item, key + "[" + str(index) + "]"))
         elif isinstance(obj, dict):
             for k, v in obj.items():
-                # Chaves de objetos também podem ser strings exibidas no jogo.
-                yield str(k), key + ".<key>"
+                # Só inclua chaves de objeto que contenham ideogramas;
+                # evitar IDs internos, propriedades, números e definições de classe.
+                if CJK.search(str(k)):
+                    yield str(k), key + ".<key>"
                 stack.append((v, key + "." + str(k)[:80]))
 
 def read_content(path, max_bytes):
@@ -57,10 +60,14 @@ def read_content(path, max_bytes):
     raw = path.read_bytes()
     if b"\x00" in raw and not (raw.startswith(b"\xff\xfe") or raw.startswith(b"\xfe\xff")):
         raise ValueError("Arquivo binário (NUL)")
-    for enc in ("utf-8-sig", "utf-16", "gb18030", "big5"):
+    # UTF-16 sem BOM interpreta arquivos ASCII comuns como falsos
+    # ideogramas chineses. Só aceitar UTF-16 com assinatura de bytes.
+    encodings = ("utf-16",) if raw.startswith((b"\xff\xfe", b"\xfe\xff")) else (
+        "utf-8-sig", "gb18030", "big5")
+    for enc in encodings:
         try:
             text = raw.decode(enc)
-            if text.count("\ufffd"):
+            if "\ufffd" in text:
                 continue
             return text
         except (UnicodeDecodeError, LookupError):
@@ -121,7 +128,7 @@ def module_for(path, root):
                     "name": "Workshop " + mod_id, "workshopId": mod_id}
     return {"kind": "game", "id": "game:tale-of-immortal", "name": "Tale of Immortal"}
 
-def scan(roots, output, max_bytes=5_000_000, max_entries=120000,
+def scan(roots, output, max_bytes=30_000_000, max_entries=120000,
          include_english=True, include_chinese=True):
     catalogs = defaultdict(dict)
     modules = {}
@@ -138,6 +145,8 @@ def scan(roots, output, max_bytes=5_000_000, max_entries=120000,
             for filename in sorted(filenames):
                 path = Path(directory) / filename
                 if path.suffix.lower() not in EXTENSIONS:
+                    continue
+                if filename.endswith("（打开查看说明）.txt"):
                     continue
                 try:
                     text = read_content(path, max_bytes)
@@ -202,7 +211,7 @@ def main():
     p.add_argument("--root", action="append", type=Path, required=True,
                    help="Pasta do jogo, ModExportData ou Steam Workshop 1468810; repetível")
     p.add_argument("--output", type=Path, default=Path("dist/extracted/offline.json"))
-    p.add_argument("--max-file-bytes", type=int, default=5_000_000)
+    p.add_argument("--max-file-bytes", type=int, default=30_000_000)
     p.add_argument("--max-entries", type=int, default=120000)
     p.add_argument("--no-english", action="store_true")
     p.add_argument("--no-chinese", action="store_true")
