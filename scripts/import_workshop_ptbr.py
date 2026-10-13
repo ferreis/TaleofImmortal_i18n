@@ -21,7 +21,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SOURCE_MOD = "steam:2990310797"
 HAN = re.compile(r"[\u3400-\u9fff\uf900-\ufaff]")
 PLACEHOLDER = re.compile(r"\{[^{}]+\}")
-INTERNAL_VAR = re.compile(r"\$s_[A-Za-z0-9_]+\$|&[A-Za-z0-9_|]+&")
+INTERNAL_VAR = re.compile(r"\$s_[^$\r\n]{1,140}\$|&[A-Za-z0-9_/%+|.?:=-]{1,140}&")
 RICH_TAG = re.compile(r"<(color|size|b|i|u|link|sprite)\b", re.I)
 SPRITE = re.compile(r'<sprite\s+name="([^"]+)"', re.I)
 
@@ -128,6 +128,7 @@ def prepare(source, catalog_dir, output):
     # anterior. Preserva revisões humanas que já corrigiram as variáveis.
     translations = {}
     for zh, pt in saved_text.items():
+        pt = CANONICAL.get(zh, pt)
         if structural_problem(zh, pt):
             counts["removedUnsafeSavedText"] += 1
         else:
@@ -136,6 +137,7 @@ def prepare(source, catalog_dir, output):
     keys = {}
     for key, pt in saved_keys.items():
         source = source_by_key.get(key)
+        pt = CANONICAL.get(source, pt)
         if isinstance(source, str) and structural_problem(source, pt):
             counts["removedUnsafeSavedKeys"] += 1
         else:
