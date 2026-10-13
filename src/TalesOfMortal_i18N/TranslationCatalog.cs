@@ -19,6 +19,18 @@ namespace TalesOfMortalI18N
         private static HashSet<string> protectedNames =
             new HashSet<string>(StringComparer.Ordinal);
         private static List<PatternRule> patternRules = new List<PatternRule>();
+        // Separa SOMENTE limites de linha e tags de formatação (capturadas).
+        // Sem tradução por substring: nomes de NPCs e parâmetros são preservados.
+        private static readonly Regex FragmentBoundaries = new Regex(
+            @"(\r\n|\r|\n|<[^>]*>)", RegexOptions.CultureInvariant,
+            TimeSpan.FromMilliseconds(75));
+        private static readonly Regex EnglishSkillName = new Regex(
+            @"^[A-Z][A-Za-z-]+(?:'s|’s) [A-Z][\w'-]+(?: [A-Z][\w'-]+){0,4} (?:Firebolt|Groundfire|Thundercall|Palm|Sword|Spear|Fist|Technique|Técnica|Blade|Manual|Celerity Palm)(?: -\d+)?$",
+            RegexOptions.CultureInvariant, TimeSpan.FromMilliseconds(75));
+        private static readonly HashSet<string> EnglishRegions =
+            new HashSet<string>(StringComparer.Ordinal)
+            { "Yong Ning", "Hua Feng", "Mu Xian", "Yun Mo", "Chi You" };
+
 
         internal static int TextCount { get { return byText.Count; } }
         internal static int ProtectedNameCount { get { return protectedNames.Count; } }
@@ -191,8 +203,19 @@ namespace TalesOfMortalI18N
             if (string.IsNullOrEmpty(original) || protectedNames.Contains(original))
                 return original;
 
+            // Atributos de região e títulos completos de skills que já estão
+            // em inglês não devem passar por traduções comunitárias imprecisas.
+            if (EnglishRegions.Contains(original) || IsEnglishSkillName(original))
+                return original;
+
             string result;
             if (byText.TryGetValue(original, out result))
+                return result;
+
+            // Se não houver correspondência para o bloco todo, traduzir apenas
+            // linhas/trechos completos entre tags; nunca fazer Replace global.
+            result = TranslateSeparatedSegments(original);
+            if (result != null)
                 return result;
 
             foreach (PatternRule rule in patternRules)
@@ -212,6 +235,50 @@ namespace TalesOfMortalI18N
                 }
             }
             return original;
+        }
+
+        private static bool IsEnglishSkillName(string text)
+        {
+            if (text.Length > 180) return false;
+            try { return EnglishSkillName.IsMatch(text); }
+            catch (RegexMatchTimeoutException) { return false; }
+        }
+
+        private static string TranslateSeparatedSegments(string source)
+        {
+            if (source.Length > 16000 ||
+                (source.IndexOf('<') < 0 && source.IndexOf('\n') < 0 &&
+                 source.IndexOf('\r') < 0))
+                return null;
+
+            try
+            {
+                string[] parts = FragmentBoundaries.Split(source);
+                if (parts.Length == 1) return null;
+                int updated = 0;
+                for (int i = 0; i < parts.Length; i++)
+                {
+                    string value = parts[i];
+                    if (string.IsNullOrWhiteSpace(value) || value[0] == '<' ||
+                        value == "\n" || value == "\r" || value == "\r\n" ||
+                        protectedNames.Contains(value) || EnglishRegions.Contains(value) ||
+                        IsEnglishSkillName(value))
+                        continue;
+                    string translated;
+                    if (byText.TryGetValue(value, out translated) &&
+                        !string.IsNullOrEmpty(translated) &&
+                        translated != value)
+                    {
+                        parts[i] = translated;
+                        updated++;
+                    }
+                }
+                return updated > 0 ? string.Concat(parts) : null;
+            }
+            catch (RegexMatchTimeoutException)
+            {
+                return null;
+            }
         }
 
         private static Dictionary<string, string> ConvertMap(Dictionary<string, object> objectMap)
