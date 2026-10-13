@@ -20,6 +20,8 @@ on:
       - "scripts/prepare_translation_drafts.py"
       - "scripts/check-xunity.sh"
       - "scripts/install-local.sh"
+      - "scripts/prepare_export_cache.py"
+      - "scripts/test_install_local.sh"
       - "scripts/disable-xunity.sh"
       - ".github/workflows/build.yml"
   workflow_dispatch:
@@ -43,6 +45,9 @@ jobs:
 
       - name: Test JSON catalogs without game files
         run: bash scripts/test.sh
+
+      - name: Test first install and reinstall without Mod Creator
+        run: bash scripts/test_install_local.sh
 
       - name: Test offline file extractor
         run: python3 -m unittest discover -s tests -p "test_*.py"
