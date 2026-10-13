@@ -17,7 +17,7 @@ EXTENSIONS = {".json", ".jsonc", ".txt", ".csv", ".tsv", ".xml", ".ini",
               ".cfg", ".lang", ".strings", ".yaml", ".yml"}
 SKIP_DIRS = {
     ".git", ".github", "__pycache__", "node_modules", "bin", "obj", "logs",
-    "melonloader", "cache", "translation", "text", "i18n",
+    "melonloader", "cache", "translation", "i18n",
     "talesofmortal_i18n_extracted", "dist", "xunity.autotranslator",
 }
 SIMP = set("龙门剑学气灵体发岁无万国经师后阳风广画云东叶书鸟马鱼")
