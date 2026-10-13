@@ -81,9 +81,9 @@ def readable_candidate(value, context, protected):
         return None
     # Métodos de classes, chamadas de API e identificadores PascalCase
     # não são texto de interface, mesmo que contenham letras latinas.
-    if re.fullmatch(r"[A-Za-z_]\\w*(?:\\.[A-Za-z_]\\w*)+\\([^)]*\\)", plain):
+    if re.fullmatch(r"[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)+\([^)]*\)", plain):
         return None
-    if re.fullmatch(r"[A-Za-z_]\\w*\\([^)]*\\)", plain):
+    if re.fullmatch(r"[A-Za-z_]\w*\([^)]*\)", plain):
         return None
     if (not TEXT_FIELD.search(context) and
             re.fullmatch(r"[A-Z][a-z0-9]+(?:[A-Z][a-z0-9]+)+", plain)):
