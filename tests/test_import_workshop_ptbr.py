@@ -56,7 +56,7 @@ class WorkshopPtBrImportTests(unittest.TestCase):
             self.assertNotIn("key_nine", result["keys"])
             self.assertNotIn("key_ten", result["keys"])
             self.assertGreaterEqual(report["internalVariableMismatch"], 2)
-            self.assertGreaterEqual(report["richTextLost"], 1)
+            self.assertGreaterEqual(report["richTextMismatch"], 1)
             self.assertEqual(report["skippedAmbiguousChinese"], 1)
             again = prepare(original, catalog, target)
             self.assertEqual(again["addedKeys"], 0)
