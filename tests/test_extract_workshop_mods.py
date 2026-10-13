@@ -39,10 +39,13 @@ class WorkshopExtractorTests(unittest.TestCase):
             self.assertEqual({x["workshopId"] for x in summary["mods"]},
                              {"2814722600", "2864011606", "123456"})
             self.assertTrue((out / "index.json").is_file())
+            self.assertEqual({path.name for path in out.glob("*.json")},
+                             {"2814722600.json", "2864011606.json", "123456.json", "index.json"})
+            self.assertFalse((out / "2814722600").exists())
 
-            admin = json.loads((out / "2814722600/texts.json").read_text(encoding="utf-8"))
-            extra = json.loads((out / "2864011606/texts.json").read_text(encoding="utf-8"))
-            empty = json.loads((out / "123456/texts.json").read_text(encoding="utf-8"))
+            admin = json.loads((out / "2814722600.json").read_text(encoding="utf-8"))
+            extra = json.loads((out / "2864011606.json").read_text(encoding="utf-8"))
+            empty = json.loads((out / "123456.json").read_text(encoding="utf-8"))
             self.assertEqual(admin["module"]["id"], "steam:2814722600")
             self.assertEqual(extra["module"]["id"], "steam:2864011606")
             self.assertEqual(len(admin["localizations"]), 2)
@@ -82,7 +85,7 @@ class WorkshopExtractorTests(unittest.TestCase):
             self.assertEqual(mod_file.read_bytes(), original)
             entries = {
                 e["text"]: e for e in
-                json.loads((out / "111/texts.json").read_text())["entries"]
+                json.loads((out / "111.json").read_text())["entries"]
             }
             self.assertEqual(entries["Recruit disciple"]["translatedInProject"], True)
             self.assertNotIn("龙儿", entries)

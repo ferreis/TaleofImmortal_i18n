@@ -2,7 +2,7 @@
 """Extrai textos originais de CADA mod da Steam Workshop de Tale of Immortal.
 
 Entrada: steamapps/workshop/content/1468810/<ID_DO_MOD>/
-Saída:   dist/extracted/workshop/<ID_DO_MOD>/texts.json
+Saída:   dist/extracted/workshop/<ID_DO_MOD>.json
          dist/extracted/workshop/index.json
 
 O script lê recursos textuais, não modifica os mods, não chama tradutores e
@@ -78,6 +78,15 @@ def readable_candidate(value, context, protected):
     if plain.lower().startswith(TECH_PREFIXES):
         return None
     if "\x00" in plain or TECHNICAL.fullmatch(plain):
+        return None
+    # Métodos de classes, chamadas de API e identificadores PascalCase
+    # não são texto de interface, mesmo que contenham letras latinas.
+    if re.fullmatch(r"[A-Za-z_]\\w*(?:\\.[A-Za-z_]\\w*)+\\([^)]*\\)", plain):
+        return None
+    if re.fullmatch(r"[A-Za-z_]\\w*\\([^)]*\\)", plain):
+        return None
+    if (not TEXT_FIELD.search(context) and
+            re.fullmatch(r"[A-Z][a-z0-9]+(?:[A-Z][a-z0-9]+)+", plain)):
         return None
     if lang == "en-candidate":
         tokens = ENGLISH.findall(plain)
@@ -294,9 +303,9 @@ def run(workshop_dirs, output, known_folder=None, max_file_bytes=30_000_000,
                 continue
             seen_ids.add(mod_id)
             data = extract_mod(mod_id, mod_dir, known, protected, max_file_bytes, max_entries)
-            path = output / mod_id / "texts.json"
+            path = output / (mod_id + ".json")
             write_json_atomic(path, data)
-            results.append({"workshopId": mod_id, "file": f"{mod_id}/texts.json",
+            results.append({"workshopId": mod_id, "file": f"{mod_id}.json",
                             "stats": data["stats"]})
             print(f"[{mod_id}] {data['stats']['unique_texts']} textos; "
                   f"{data['stats']['files_skipped']} arquivo(s) ignorado(s) -> {path}")

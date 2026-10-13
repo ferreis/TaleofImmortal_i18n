@@ -84,6 +84,36 @@ O scanner não reprocessa nossos JSON de tradução, logs, DLLs e executáveis. 
 
 **Limite importante:** arquivos Unity AssetBundle, TextAsset empacotado, tabelas criptografadas, DLLs e recursos nativos IL2CPP exigem decodificadores especializados. O scanner offline não consegue extrair esses formatos binários. A captura em tempo de execução complementa essa limitação, mas não garante todos os textos sem visitar as telas nem captura métodos não interceptados, incluindo alguns TMP.
 
+
+## 2A. Extrair um arquivo `<ID>.json` para cada mod instalado
+
+Para extrair todos os mods da Workshop automaticamente, **sem misturar textos de mods diferentes**, execute na raiz do repositório:
+
+```bash
+python3 scripts/extract_workshop_mods.py
+```
+
+O script procura a pasta da Workshop nas bibliotecas Steam conhecidas no Linux. Se necessário, informe seu caminho manualmente:
+
+```bash
+python3 scripts/extract_workshop_mods.py \
+  --workshop-dir "$HOME/.steam/debian-installation/steamapps/workshop/content/1468810"
+```
+
+A saída é uma única pasta com **um JSON por ID numérico**:
+
+```text
+dist/extracted/workshop/
+├── 2814722600.json
+├── 2864011606.json
+├── 3334313052.json
+└── index.json
+```
+
+Cada `<ID>.json` contém `module.id` (`steam:ID`), `module.workshopId`, `entries` com texto original e prováveis idiomas, `localizationKeys` e `locations`, além de `localizations` para alinhar as colunas `en`, `ch`, `tc` e `key` dos arquivos `ModExcel/LocalText.json`. O `index.json` resume quais mods foram examinados, incluindo os que não possuem recursos textuais legíveis.
+
+O script preserva a estrutura original de cada mod e **não grava nada dentro da Steam Workshop**. Ele não altera os JSON PT-BR do tradutor. O resultado é material para revisão e não um dicionário de tradução pronto para usar. Arquivos Unity binários, DLLs e conteúdo criptografado permanecem fora do alcance deste extrator.
+
 ## 3. Gerar JSON de tradução para revisão
 
 ```bash
