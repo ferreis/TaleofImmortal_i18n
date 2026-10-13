@@ -50,9 +50,9 @@ O idioma é escolhido em `i18n/config.json`, por exemplo: `{"language":"pt-BR"}`
 
 ## Regras de correspondência
 
-- Correspondência exata, sensível a maiúsculas e espaços; não traduz por partes nem usa regex.
+- Correspondência exata, sensível a maiúsculas e espaços, para `translations` e `keys`. Regras opcionais `patterns` permitem expressões regulares com limite de tempo de 100 ms por operação.
 - A tradução por chave é consultada antes da tradução pelo texto retornado.
-- Arquivos são processados em ordem alfabética estável (ignorando maiúsculas). Em caso de duplicação com tradução diferente, o **primeiro** valor é preservado e o conflito é registrado no log.
+- Precedência: `game.json` primeiro, JSON dos mods em ordem alfabética estável e `zzz-auto.json` por último. Em caso de conflito, o **primeiro** valor é preservado e registrado no log.
 - Arquivos inválidos são ignorados individualmente e a tradução original permanece intacta quando não houver correspondência.
 - Os JSON são carregados no início do mod. Reinicie o jogo para aplicar alterações.
 
@@ -86,6 +86,20 @@ python3 scripts/import_xunity.py -o mod/i18n/pt-BR/SectAdmin.json \
 ```
 
 O importador não interpreta regras de regex nem determina automaticamente se um texto é nome de NPC. Revise os nomes antes de adicioná-los em `protected-names.json`. Faça um backup das traduções existentes antes de uma conversão grande.
+
+## Importação completa do arquivo Text.zip
+
+O ZIP de traduções existentes pode ser importado sem passar pelo XUnity.AutoTranslator:
+
+```bash
+python3 scripts/import_translation_zip.py /caminho/Text.zip
+```
+
+O importador lê todos os TXT dentro do ZIP, identifica os pacotes da Workshop e os transforma em `mod/i18n/pt-BR/*.json`. Ele converte sequências escapadas do XUnity (`\\n`, `\\=`, `\\u002f`), mantém traduções manuais prioritárias, transforma os padrões `r:"..."` em `patterns` com placeholders nomeados e preserva nomes protegidos. Traduções que repetem o original são omitidas do runtime porque não alteram o texto mostrado.
+
+**A execução do importador é feita antes de compilar ou publicar o mod.** O script não depende do XUnity nem de bibliotecas Python externas. Os arquivos `Text.zip` originais permanecem intactos.
+
+As traduções importadas automaticamente precisam de revisão linguística antes de uma versão pública.
 
 ## Contribuições
 

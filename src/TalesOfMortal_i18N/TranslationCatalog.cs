@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 
@@ -18,6 +19,14 @@ namespace TalesOfMortalI18N
             new Dictionary<string, string>(StringComparer.Ordinal);
         private static HashSet<string> protectedNames =
             new HashSet<string>(StringComparer.Ordinal);
+        private static List<PatternRule> patternRules = new List<PatternRule>();
+
+        private sealed class PatternRule
+        {
+            internal Regex Regex;
+            internal string Replacement;
+            internal bool Disabled;
+        }
 
         internal static void Load()
         {
@@ -25,6 +34,7 @@ namespace TalesOfMortalI18N
             var loadedText = new Dictionary<string, string>(StringComparer.Ordinal);
             var loadedKeys = new Dictionary<string, string>(StringComparer.Ordinal);
             var loadedNames = new HashSet<string>(StringComparer.Ordinal);
+            var loadedPatterns = new List<PatternRule>();
             string root = FindI18nFolder();
 
             if (root == null)
@@ -44,7 +54,15 @@ namespace TalesOfMortalI18N
             }
 
             string[] files = Directory.GetFiles(languagePath, "*.json", SearchOption.AllDirectories);
-            Array.Sort(files, StringComparer.OrdinalIgnoreCase);
+            // Precedência: revisões do jogo, mods, e auto-geradas por último.
+            Array.Sort(files, (a, b) =>
+            {
+                int first = Priority(a);
+                int second = Priority(b);
+                return first != second
+                    ? first.CompareTo(second)
+                    : StringComparer.OrdinalIgnoreCase.Compare(a, b);
+            });
             int loadedFiles = 0;
 
             foreach (string file in files)
@@ -58,7 +76,7 @@ namespace TalesOfMortalI18N
                     }
                     else
                     {
-                        LoadTranslations(data, file, loadedText, loadedKeys);
+                        LoadTranslations(data, file, loadedText, loadedKeys, loadedPatterns);
                     }
                     loadedFiles++;
                 }
@@ -71,12 +89,14 @@ namespace TalesOfMortalI18N
             byText = loadedText;
             byKey = loadedKeys;
             protectedNames = loadedNames;
+            patternRules = loadedPatterns;
 
             Debug.Log("[Tales of Mortal i18N] Idioma: " + language +
                 "; arquivos: " + loadedFiles +
                 "; textos: " + byText.Count +
                 "; chaves: " + byKey.Count +
-                "; nomes protegidos: " + protectedNames.Count + ".");
+                "; nomes protegidos: " + protectedNames.Count +
+                "; padrões: " + patternRules.Count + ".");
         }
 
         internal static void Clear()
@@ -84,6 +104,7 @@ namespace TalesOfMortalI18N
             byText = new Dictionary<string, string>(StringComparer.Ordinal);
             byKey = new Dictionary<string, string>(StringComparer.Ordinal);
             protectedNames = new HashSet<string>(StringComparer.Ordinal);
+            patternRules = new List<PatternRule>();
         }
 
         internal static bool TryKey(string key, out string translation)
@@ -100,19 +121,54 @@ namespace TalesOfMortalI18N
                 return original;
 
             string translation;
-            return byText.TryGetValue(original, out translation) ? translation : original;
+            if (byText.TryGetValue(original, out translation))
+                return translation;
+
+            // Regex são opcionais e só executam após as traduções exatas.
+            foreach (PatternRule rule in patternRules)
+            {
+                if (rule.Disabled)
+                    continue;
+
+                try
+                {
+                    Match match = rule.Regex.Match(original);
+                    if (match.Success)
+                        return rule.Regex.Replace(original, rule.Replacement, 1);
+                }
+                catch (RegexMatchTimeoutException)
+                {
+                    rule.Disabled = true;
+                    Debug.LogWarning("[Tales of Mortal i18N] Regex demorou demais e foi desativada: " +
+                        rule.Regex.ToString());
+                }
+            }
+
+            return original;
+        }
+
+        private static int Priority(string path)
+        {
+            string name = Path.GetFileName(path);
+            if (name.Equals("game.json", StringComparison.OrdinalIgnoreCase))
+                return 0;
+            if (name.Equals("zzz-auto.json", StringComparison.OrdinalIgnoreCase))
+                return 2;
+            return 1;
         }
 
         private static void LoadTranslations(
             JObject data,
             string file,
             Dictionary<string, string> texts,
-            Dictionary<string, string> keys)
+            Dictionary<string, string> keys,
+            List<PatternRule> patterns)
         {
             JToken translations = data["translations"];
             JToken keyed = data["keys"];
+            JToken regexRules = data["patterns"];
 
-            if (translations != null || keyed != null)
+            if (translations != null || keyed != null || regexRules != null)
             {
                 if (translations != null && translations.Type != JTokenType.Object)
                     throw new FormatException("translations deve ser um objeto JSON.");
@@ -123,10 +179,42 @@ namespace TalesOfMortalI18N
                     LoadMap((JObject)translations, texts, file, "texto");
                 if (keyed != null)
                     LoadMap((JObject)keyed, keys, file, "chave");
+                if (regexRules != null)
+                    LoadPatterns(regexRules, file, patterns);
             }
             else
             {
                 LoadMap(data, texts, file, "texto");
+            }
+        }
+
+        private static void LoadPatterns(JToken entries, string file, List<PatternRule> patterns)
+        {
+            var array = entries as JArray;
+            if (array == null)
+                throw new FormatException("patterns deve ser um array.");
+
+            foreach (JToken entry in array)
+            {
+                string pattern = entry.Type == JTokenType.Object ? (string)entry["pattern"] : null;
+                string replacement = entry.Type == JTokenType.Object ? (string)entry["replacement"] : null;
+                if (string.IsNullOrWhiteSpace(pattern) || replacement == null)
+                    continue;
+
+                try
+                {
+                    patterns.Add(new PatternRule
+                    {
+                        Regex = new Regex(pattern, RegexOptions.CultureInvariant,
+                            TimeSpan.FromMilliseconds(100)),
+                        Replacement = replacement
+                    });
+                }
+                catch (ArgumentException error)
+                {
+                    Debug.LogWarning("[Tales of Mortal i18N] Regex inválida em " +
+                        Path.GetFileName(file) + ": " + error.Message);
+                }
             }
         }
 

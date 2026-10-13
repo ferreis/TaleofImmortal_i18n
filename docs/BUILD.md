@@ -34,3 +34,7 @@ O exportador nativo de mods deve ser usado para gerar os demais arquivos de dist
 ## Limites da primeira versão
 
 O código-fonte está disponível, mas **não foi compilado nem executado contra sua instalação específica**. Antes de lançar uma versão pública, compile com as DLLs reais e verifique pelo log se os hooks foram aplicados. Se um hook não existir na versão do jogo, ele será ignorado com aviso, mantendo os demais.
+
+## Importar as traduções do histórico
+
+Na raiz do repositório, execute `python3 scripts/import_translation_zip.py ~/Downloads/Text.zip`. O importador usa a biblioteca padrão Python, não modifica o arquivo ZIP nem exige XUnity.AutoTranslator.
