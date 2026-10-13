@@ -1,4 +1,11 @@
 {
+  "module": {
+    "kind": "mod",
+    "id": "steam:2831402551",
+    "name": "FixData",
+    "workshopId": "2831402551",
+    "sourceAlias": "FixData"
+  },
   "translations": {
     "\n修复{0}天骄错误": "\n{0} erros de prodígios corrigidos",
     "\n修复{0}条器灵错误": "\n{0} erros de espíritos de artefato corrigidos",

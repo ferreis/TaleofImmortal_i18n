@@ -1,4 +1,11 @@
 {
+  "module": {
+    "kind": "mod",
+    "id": "steam:2814717778",
+    "name": "Cave",
+    "workshopId": "2814717778",
+    "sourceAlias": "Cave"
+  },
   "translations": {
     "(该说明只出现一次，后续需要阅读可到更新公告【2.0抢鲜体验版】查看)": "(Esta explicação aparece apenas uma vez. Para consultá-la novamente, veja o anúncio da atualização [2.0 — versão de acesso antecipado].)",
     "1. You can add new effects to the Dragon by upgrading the Sun Moon Spring.\n2. You can upgrade the Sun Moon Spring by consuming certain spirit stones.\n3. After the Sun Moon Spring reaches a certain level, it will have mysterious special effects.\n4. In the Sun Moon Spring, you can interact with the Dragon to promote your relationship.": "1. Melhorar Sun Moon Spring permite conceder novos efeitos a Dragon.\n2. Para melhorar Sun Moon Spring, é preciso gastar pedras espirituais.\n3. Ao atingir certo nível, Sun Moon Spring revelará efeitos especiais misteriosos.\n4. Em Sun Moon Spring, você pode interagir com Dragon e fortalecer seus laços.",

@@ -1,4 +1,11 @@
 {
+  "module": {
+    "kind": "mod",
+    "id": "steam:2814703549",
+    "name": "Fatury",
+    "workshopId": "2814703549",
+    "sourceAlias": "Fatury"
+  },
   "translations": {
     "- 适配新版本": "- Compatibilidade com a nova versão",
     "Fatury框架交流1群：<color=#FF0000>647917100</color>\n框架交流2群<color=#FF0000>723616940</color>\n目前正在b站更新《Fatury框架使用教程与疑难解答》，\n欢迎大家来关注我！b站id：<color=#FF0000>SorryLL </color>\n\n在官方编辑器的基础上，拓展了以下功能\n- 动态、静态立绘替换功能\n- 器灵的立绘替换（支持用webm格式视频替换）\n- 怪物的立绘替换\n- 奇遇图，过场图等贴图替换\n- UI替换\n- 游戏内部的音频替换（背景音乐、音效）\n- 支持用视频替换双修图，并能设置顺序和随机双修\n- <color=#0000CC>具体使用方法请参考</color><color=#FF0000>Sorry</color><color=#0000CC>的其他示例mod</color>\n": "Grupo 1 de discussão do framework Fatury: <color=#FF0000>647917100</color>\nGrupo 2 de discussão do framework: <color=#FF0000>723616940</color>\nEstou publicando no Bilibili a série «Tutorial e solução de dúvidas do framework Fatury».\nAcompanhe meu perfil! ID no Bilibili: <color=#FF0000>SorryLL </color>\n\nAmplia o editor oficial com os seguintes recursos:\n- Substituição de retratos estáticos e animados\n- Substituição dos retratos dos espíritos de artefato, incluindo vídeos no formato webm\n- Substituição dos retratos de monstros\n- Substituição de imagens de encontros, cenas de transição e outras texturas\n- Substituição da interface\n- Substituição dos áudios do jogo, incluindo música de fundo e efeitos sonoros\n- Substituição das imagens de cultivo duplo por vídeos, com reprodução em sequência ou aleatória\n- <color=#0000CC>Para saber como usar, consulte os outros MODs de exemplo de </color><color=#FF0000>Sorry</color><color=#0000CC>.</color>\n",

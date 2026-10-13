@@ -1,4 +1,11 @@
 {
+  "module": {
+    "kind": "mod",
+    "id": "steam:2814686803",
+    "name": "GuiUI",
+    "workshopId": "2814686803",
+    "sourceAlias": "GuiUI"
+  },
   "translations": {
     "<b><color=red>请把这个MOD排到顶部使用。\nPlease put this MOD to the top for use.</color></b>\n\n提供更方便的UI制作接口。": "<b><color=red>Coloque este MOD no topo da ordem de carregamento.\nColoque este MOD no topo da ordem de carregamento.</color></b>\n\nOferece uma interface mais prática para criar interfaces de usuário.",
     "UI预制体名称": "Nome do prefab da interface",

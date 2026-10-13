@@ -1,4 +1,11 @@
 {
+  "module": {
+    "kind": "mod",
+    "id": "steam:2816702829",
+    "name": "Mapa totalmente revelado",
+    "workshopId": "2816702829",
+    "sourceAlias": "地图全开"
+  },
   "translations": {
     " 是否开启快速修炼秘籍功能": " Ativar o treinamento rápido de manuais?",
     "不开启": "Não ativar",
