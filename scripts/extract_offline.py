@@ -16,7 +16,11 @@ from pathlib import Path
 if __package__:
     from .toi_crypto import decode_mod_file, is_mod_encrypted
 else:
-    from toi_crypto import decode_mod_file, is_mod_encrypted
+    try:
+        from toi_crypto import decode_mod_file, is_mod_encrypted
+    except ModuleNotFoundError:
+        # Support loading this file through importlib from the repository root.
+        from scripts.toi_crypto import decode_mod_file, is_mod_encrypted
 
 EXTENSIONS = {".json", ".jsonc", ".txt", ".csv", ".tsv", ".xml", ".ini",
               ".cfg", ".lang", ".strings", ".yaml", ".yml"}
