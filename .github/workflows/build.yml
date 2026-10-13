@@ -1,0 +1,39 @@
+name: Build Tales of Mortal i18N
+
+on:
+  push:
+    branches: [Dev]
+    paths:
+      - "src/**"
+      - "ModProject_DQKLF9/ModProject/ModCode/**"
+      - "mod/i18n/**"
+      - "scripts/build.sh"
+      - ".github/workflows/build.yml"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Mono
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mono-devel
+
+      - name: Build without game files
+        run: bash scripts/build.sh
+
+      - name: Confirm compiled output
+        run: test -s ModProject_DQKLF9/ModProject/ModCode/ModMain/bin/Release/MOD_DQKLF9.dll
+
+      - name: Upload DLL and translations
+        uses: actions/upload-artifact@v4
+        with:
+          name: TalesOfMortal-i18N-DQKLF9-staging
+          path: dist/TalesOfMortal_i18N/
+          if-no-files-found: error
