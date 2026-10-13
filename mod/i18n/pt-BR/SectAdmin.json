@@ -201,6 +201,8 @@
     "schoolAdmin_ordinary": "Comum (sem coração do Dao)",
     "schoolAdmin_tips10": "As opções abaixo só terão efeito se estiverem marcadas. Se uma opção estiver desmarcada, esse requisito será ignorado.",
     "schoolAdmin_tips11": "Você pode aplicar vários requisitos a uma mesma seita. Nesse caso, o NPC precisará atender a todos eles para ingressar.",
-    "schoolAdmin_tips12": "Marque uma seita para aplicar este requisito a ela. Se vários requisitos estiverem marcados para a mesma seita, o NPC precisará atender a todos para ingressar."
+    "schoolAdmin_tips12": "Marque uma seita para aplicar este requisito a ela. Se vários requisitos estiverem marcados para a mesma seita, o NPC precisará atender a todos para ingressar.",
+    "schoolAdmin_zhaonatiaojianshezhi": "Configurar requisitos de ingresso",
+    "schoolAdmin_AppliedToSectting": "Aplicar à seita"
   }
 }
