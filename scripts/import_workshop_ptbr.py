@@ -70,6 +70,9 @@ def prepare(source, catalog_dir, output):
         if not key.strip() or not zh.strip() or not pt.strip():
             counts["emptyRows"] += 1
             continue
+        if zh in names or key in names:
+            counts["protectedNames"] += 1
+            continue
         if zh == pt or not HAN.search(zh):
             counts["sameOrNoChinese"] += 1
             continue
