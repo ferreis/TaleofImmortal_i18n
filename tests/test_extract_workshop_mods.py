@@ -121,5 +121,50 @@ class WorkshopExtractorTests(unittest.TestCase):
         self.assertEqual(workshop.readable_candidate("保存游戏", "$.title", known)[0], "保存游戏")
 
 
+    def test_reports_unreadable_files_and_uses_decrypted_copy(self):
+        with tempfile.TemporaryDirectory() as temp:
+            base = Path(temp)
+            steam = base / "steamapps/workshop/content/1468810"
+            original = steam / "2864011606/ModExcel/LocalText.json"
+            original.parent.mkdir(parents=True)
+            original.write_bytes(b"\\x00\\x03unreadable-file")
+            decrypted = base / "decrypted-2864011606"
+            write_json(decrypted / "ModExcel/LocalText.json", [
+                {"key": "myMod_dialogue1", "en": "Welcome to the sect",
+                 "ch": "欢迎加入宗门", "tc": "歡迎加入宗門"}
+            ])
+            out = base / "out"
+            result = workshop.run([steam], out, base / "known",
+                                  decrypted_dirs={"2864011606": decrypted})
+            self.assertEqual(result["mods_processed"], 1)
+            document = json.loads((out / "2864011606.json").read_text())
+            self.assertEqual(document["stats"]["files_skipped"], 1)
+            self.assertEqual(len(document["localizations"]), 1)
+            self.assertEqual(document["localizations"][0]["key"], "myMod_dialogue1")
+            self.assertEqual(document["localizations"][0]["file"],
+                             "decrypted/ModExcel/LocalText.json")
+            self.assertIn("歡迎加入宗門", {e["text"] for e in document["entries"]})
+
+    def test_skips_mod_creator_template_unless_requested(self):
+        with tempfile.TemporaryDirectory() as temp:
+            base = Path(temp)
+            steam = base / "steamapps/workshop/content/1468810"
+            mod = steam / "111/ModAssets"
+            mod.mkdir(parents=True)
+            (mod / "这个目录下的所有文件都会被一起导出（打开查看说明）.txt").write_text(
+                "在代码中获取模组根目录：", encoding="utf-8")
+            (mod / "dialogues.txt").write_text("Join our sect today",
+                                               encoding="utf-8")
+            out = base / "out"
+            workshop.run([steam], out)
+            texts = {entry["text"] for entry in
+                     json.loads((out / "111.json").read_text())["entries"]}
+            self.assertEqual(texts, {"Join our sect today"})
+            workshop.run([steam], out, include_documentation=True)
+            texts = {entry["text"] for entry in
+                     json.loads((out / "111.json").read_text())["entries"]}
+            self.assertIn("在代码中获取模组根目录：", texts)
+
+
 if __name__ == "__main__":
     unittest.main()
