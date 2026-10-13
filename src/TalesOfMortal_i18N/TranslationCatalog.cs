@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -21,43 +19,6 @@ namespace TalesOfMortalI18N
         private static HashSet<string> protectedNames =
             new HashSet<string>(StringComparer.Ordinal);
         private static List<PatternRule> patternRules = new List<PatternRule>();
-
-        [DataContract]
-        private sealed class TranslationFile
-        {
-            [DataMember(Name = "translations", EmitDefaultValue = false)]
-            public Dictionary<string, string> Translations { get; set; }
-
-            [DataMember(Name = "keys", EmitDefaultValue = false)]
-            public Dictionary<string, string> Keys { get; set; }
-
-            [DataMember(Name = "patterns", EmitDefaultValue = false)]
-            public List<PatternEntry> Patterns { get; set; }
-        }
-
-        [DataContract]
-        private sealed class PatternEntry
-        {
-            [DataMember(Name = "pattern")]
-            public string Pattern { get; set; }
-
-            [DataMember(Name = "replacement")]
-            public string Replacement { get; set; }
-        }
-
-        [DataContract]
-        private sealed class NamesFile
-        {
-            [DataMember(Name = "names")]
-            public List<string> Names { get; set; }
-        }
-
-        [DataContract]
-        private sealed class ConfigFile
-        {
-            [DataMember(Name = "language")]
-            public string Language { get; set; }
-        }
 
         internal static int TextCount { get { return byText.Count; } }
         internal static int ProtectedNameCount { get { return protectedNames.Count; } }
@@ -95,6 +56,7 @@ namespace TalesOfMortalI18N
                 return;
             }
 
+            ModLog.Info("Lendo traduções de: " + folder);
             string[] files = Directory.GetFiles(folder, "*.json", SearchOption.AllDirectories);
             Array.Sort(files, delegate(string a, string b)
             {
@@ -108,38 +70,34 @@ namespace TalesOfMortalI18N
                 try
                 {
                     string json = File.ReadAllText(file, Encoding.UTF8);
+                    Dictionary<string, object> document = JsonTextParser.ParseObject(json);
                     if (Path.GetFileName(file).Equals("protected-names.json", StringComparison.OrdinalIgnoreCase))
                     {
-                        NamesFile list = Deserialize<NamesFile>(json);
-                        if (list == null || list.Names == null)
-                            throw new FormatException("O arquivo precisa de um array names.");
-                        foreach (string name in list.Names)
+                        List<object> entries = ReadArray(document, "names", true);
+                        foreach (object entry in entries)
+                        {
+                            string name = entry as string;
                             if (!string.IsNullOrWhiteSpace(name))
                                 names.Add(name);
+                        }
+                    }
+                    else if (document.ContainsKey("translations") ||
+                             document.ContainsKey("keys") ||
+                             document.ContainsKey("patterns"))
+                    {
+                        LoadMap(ReadStringMap(document, "translations", false), texts, file);
+                        LoadMap(ReadStringMap(document, "keys", false), keys, file);
+                        LoadPatterns(ReadArray(document, "patterns", false), patterns, file);
                     }
                     else
                     {
-                        TranslationFile pack = Deserialize<TranslationFile>(json);
-                        if (pack == null)
-                            throw new FormatException("Objeto JSON inválido.");
-
-                        if (pack.Translations == null && pack.Keys == null && pack.Patterns == null)
-                        {
-                            // Compatibilidade com JSON simples: { "original": "tradução" }.
-                            LoadMap(Deserialize<Dictionary<string, string>>(json), texts, file);
-                        }
-                        else
-                        {
-                            LoadMap(pack.Translations, texts, file);
-                            LoadMap(pack.Keys, keys, file);
-                            LoadPatterns(pack.Patterns, patterns, file);
-                        }
+                        LoadMap(ConvertMap(document), texts, file);
                     }
                     loaded++;
                 }
                 catch (Exception error)
                 {
-                    ModLog.Warning("Ignorando " + Path.GetFileName(file) + ": " + error.Message);
+                    ModLog.Warning("Ignorando " + Path.GetFileName(file) + ": " + error.ToString());
                 }
             }
 
@@ -198,16 +156,47 @@ namespace TalesOfMortalI18N
             return original;
         }
 
-        private static T Deserialize<T>(string json)
+        private static Dictionary<string, string> ConvertMap(Dictionary<string, object> objectMap)
         {
-            var options = new DataContractJsonSerializerSettings
+            var result = new Dictionary<string, string>(StringComparer.Ordinal);
+            foreach (KeyValuePair<string, object> entry in objectMap)
             {
-                UseSimpleDictionaryFormat = true,
-                MaxItemsInObjectGraph = int.MaxValue
-            };
-            var serializer = new DataContractJsonSerializer(typeof(T), options);
-            using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(json)))
-                return (T)serializer.ReadObject(stream);
+                string text = entry.Value as string;
+                if (text != null)
+                    result.Add(entry.Key, text);
+            }
+            return result;
+        }
+
+        private static Dictionary<string, string> ReadStringMap(
+            Dictionary<string, object> container, string property, bool required)
+        {
+            object value;
+            if (!container.TryGetValue(property, out value))
+            {
+                if (required) throw new FormatException("Falta campo " + property + ".");
+                return null;
+            }
+
+            var map = value as Dictionary<string, object>;
+            if (map == null)
+                throw new FormatException("O campo " + property + " deve ser objeto JSON.");
+            return ConvertMap(map);
+        }
+
+        private static List<object> ReadArray(
+            Dictionary<string, object> container, string property, bool required)
+        {
+            object value;
+            if (!container.TryGetValue(property, out value))
+            {
+                if (required) throw new FormatException("Falta campo " + property + ".");
+                return null;
+            }
+            var array = value as List<object>;
+            if (array == null)
+                throw new FormatException("O campo " + property + " deve ser array JSON.");
+            return array;
         }
 
         private static void LoadMap(Dictionary<string, string> source, Dictionary<string, string> target, string file)
@@ -234,27 +223,36 @@ namespace TalesOfMortalI18N
             }
         }
 
-        private static void LoadPatterns(List<PatternEntry> entries, List<PatternRule> destination, string file)
+        private static void LoadPatterns(List<object> entries, List<PatternRule> destination, string file)
         {
-            if (entries == null)
-                return;
+            if (entries == null) return;
 
-            foreach (PatternEntry entry in entries)
+            foreach (object item in entries)
             {
-                if (entry == null || string.IsNullOrWhiteSpace(entry.Pattern) || entry.Replacement == null)
+                var entry = item as Dictionary<string, object>;
+                if (entry == null) continue;
+
+                object patternToken, replacementToken;
+                if (!entry.TryGetValue("pattern", out patternToken) ||
+                    !entry.TryGetValue("replacement", out replacementToken))
                     continue;
+
+                string pattern = patternToken as string;
+                string replacement = replacementToken as string;
+                if (string.IsNullOrWhiteSpace(pattern) || replacement == null) continue;
+
                 try
                 {
                     destination.Add(new PatternRule
                     {
-                        Regex = new Regex(entry.Pattern, RegexOptions.CultureInvariant,
+                        Regex = new Regex(pattern, RegexOptions.CultureInvariant,
                             TimeSpan.FromMilliseconds(100)),
-                        Replacement = entry.Replacement
+                        Replacement = replacement
                     });
                 }
                 catch (ArgumentException error)
                 {
-                    ModLog.Warning("Regex inválida em " + Path.GetFileName(file) + ": " + error.Message);
+                    ModLog.Warning("Regex inválida em " + Path.GetFileName(file) + ": " + error);
                 }
             }
         }
@@ -274,15 +272,16 @@ namespace TalesOfMortalI18N
 
             try
             {
-                ConfigFile config = Deserialize<ConfigFile>(File.ReadAllText(configPath));
-                string language = config == null ? null : config.Language;
+                var config = JsonTextParser.ParseObject(File.ReadAllText(configPath, Encoding.UTF8));
+                object token;
+                string language = config.TryGetValue("language", out token) ? token as string : null;
                 if (!string.IsNullOrEmpty(language) &&
                     Regex.IsMatch(language, @"^[A-Za-z]{2,3}-[A-Za-z0-9]{2,12}$"))
                     return language;
             }
             catch (Exception error)
             {
-                ModLog.Warning("Configuração de idioma inválida: " + error.Message);
+                ModLog.Warning("Configuração de idioma inválida: " + error.ToString());
             }
             return DefaultLanguage;
         }
