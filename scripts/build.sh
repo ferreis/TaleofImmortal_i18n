@@ -31,6 +31,7 @@ if command -v mcs >/dev/null 2>&1; then
     "$NATIVE/Properties/AssemblyInfo.cs" \
     "$SOURCE/ModMain.cs" \
     "$SOURCE/TranslationCatalog.cs" \
+    "$SOURCE/JsonTextParser.cs" \
     "$SOURCE/TranslationPatches.cs"
 elif command -v msbuild >/dev/null 2>&1; then
   msbuild "$NATIVE/ModMain.csproj" /p:Configuration=Release /verbosity:minimal

@@ -15,6 +15,7 @@ mcs -sdk:4.7.2 -langversion:7.2 -target:exe \
   -out:"$WORK/CatalogSmoke.exe" \
   "$ROOT/src/TalesOfMortal_i18N/ModMain.cs" \
   "$ROOT/src/TalesOfMortal_i18N/TranslationCatalog.cs" \
+  "$ROOT/src/TalesOfMortal_i18N/JsonTextParser.cs" \
   "$ROOT/src/TalesOfMortal_i18N/TranslationPatches.cs" \
   "$ROOT/tests/CatalogSmoke.cs"
 mono "$WORK/CatalogSmoke.exe"

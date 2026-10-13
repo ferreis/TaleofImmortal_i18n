@@ -30,6 +30,7 @@
     <Compile Include="../../ModProject_DQKLF9/ModProject/ModCode/ModMain/Properties/AssemblyInfo.cs" />
     <Compile Include="ModMain.cs" />
     <Compile Include="TranslationCatalog.cs" />
+    <Compile Include="JsonTextParser.cs" />
     <Compile Include="TranslationPatches.cs" />
   </ItemGroup>
   <ItemGroup>

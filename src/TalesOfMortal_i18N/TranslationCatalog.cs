@@ -59,6 +59,11 @@ namespace TalesOfMortalI18N
             public string Language { get; set; }
         }
 
+        internal static int TextCount { get { return byText.Count; } }
+        internal static int ProtectedNameCount { get { return protectedNames.Count; } }
+        internal static int PatternCount { get { return patternRules.Count; } }
+        internal static int LoadedFileCount { get; private set; }
+
         private sealed class PatternRule
         {
             internal Regex Regex;
@@ -142,6 +147,7 @@ namespace TalesOfMortalI18N
             byKey = keys;
             protectedNames = names;
             patternRules = patterns;
+            LoadedFileCount = loaded;
 
             ModLog.Info("Idioma: " + lang + "; arquivos: " + loaded +
                 "; textos: " + texts.Count + "; chaves: " + keys.Count +
@@ -154,6 +160,7 @@ namespace TalesOfMortalI18N
             byKey = new Dictionary<string, string>(StringComparer.Ordinal);
             protectedNames = new HashSet<string>(StringComparer.Ordinal);
             patternRules = new List<PatternRule>();
+            LoadedFileCount = 0;
         }
 
         internal static bool TryKey(string key, out string value)
