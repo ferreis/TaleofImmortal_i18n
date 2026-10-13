@@ -42,48 +42,21 @@ public static class AdaptiveTextSmoke
     public static void Run()
     {
         AdaptiveText.Initialize();
-        // Após erros reais no setter IL2CPP, o recurso deve permanecer desativado.
         if (AdaptiveText.Enabled || !AdaptiveText.OnlyTranslated)
-            throw new Exception("Fonte adaptativa experimental deve estar desativada por segurança.");
+            throw new Exception("Ajuste de fonte deve iniciar desativado por segurança IL2CPP.");
 
-        // Os testes de propriedade abaixo exercitam o algoritmo isolado,
-        // sem reativá-lo no jogo até termos um hook de layout seguro.
-                var regular = new UnityEngine.UI.Text { fontSize = 20 };
-        AdaptiveText.TryFit(regular, "short", "short");
-        if (regular.resizeTextForBestFit)
-            throw new Exception("Não deve modificar textos sem tradução.");
-
-        AdaptiveText.TryFit(regular, "Short", "Traduzido: texto bastante grande para o campo de interface.");
-        if (!regular.resizeTextForBestFit || regular.resizeTextMaxSize != 20 ||
-            regular.resizeTextMinSize != 13)
-            throw new Exception("Auto ajuste Unity UI.Text incorreto.");
-
-        var input = new UnityEngine.UI.Text { fontSize = 18, IsInput = true };
-        AdaptiveText.TryFit(input, "Short", "Uma descrição traduzida bastante longa.");
-        if (input.resizeTextForBestFit)
-            throw new Exception("Campo editável não pode ter auto ajuste.");
+        var legacy = new UnityEngine.UI.Text { fontSize = 20 };
+        AdaptiveText.TryFit(legacy, "Short", "Tradução longa demais para a área do texto.");
+        if (legacy.resizeTextForBestFit || legacy.fontSize != 20)
+            throw new Exception("O ajuste desativado não deve alterar a UI.");
 
         var tmp = new TMPro.TextMeshProUGUI { fontSize = 24f };
-        AdaptiveText.TryFit(tmp, "Short", "Uma descrição traduzida grande para a interface.");
-        if (!tmp.enableAutoSizing || tmp.fontSizeMax != 24f ||
-            Math.Abs(tmp.fontSizeMin - 15.6f) > .01f)
-            throw new Exception("Auto ajuste TextMeshPro incorreto.");
-
-        var tmpInput = new TMPro.TextMeshProUGUI { fontSize = 24f, IsInput = true };
-        AdaptiveText.TryFit(tmpInput, "Short", "Outra descrição traduzida grande para a interface.");
-        if (tmpInput.enableAutoSizing)
-            throw new Exception("Campo TMP editável não pode ter auto ajuste.");
-
-        var configured = new UnityEngine.UI.Text
-        {
-            fontSize = 17, resizeTextForBestFit = true,
-            resizeTextMinSize = 11, resizeTextMaxSize = 17
-        };
-        AdaptiveText.TryFit(configured, "Short", "Tradução que já possui autoajuste.");
-        if (configured.resizeTextMinSize != 11)
-            throw new Exception("Não deve sobrescrever ajustes existentes.");
+        AdaptiveText.TryFit(tmp, "Short", "Tradução longa demais para a área do texto.");
+        if (tmp.enableAutoSizing || tmp.fontSize != 24f)
+            throw new Exception("O ajuste desativado não deve alterar o TMP.");
 
         AdaptiveText.Clear();
-        Console.WriteLine("AdaptiveTextSmoke OK: fonte adaptativa sem interferir em campos editáveis.");
+        Console.WriteLine("AdaptiveTextSmoke OK: UI e TMP preservados com ajuste desativado.");
+
     }
 }
