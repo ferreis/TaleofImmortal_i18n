@@ -80,7 +80,7 @@ python3 scripts/extract_offline.py \
 
 Se o Steam Workshop estiver em outro disco, altere o caminho `--root`. Use um `--root` quantas vezes for necessário. Não precisa rodar como root.
 
-O scanner não reprocessa nossos JSON de tradução, logs, DLLs e executáveis. Usa limite de 5 MB por arquivo e 120 mil entradas únicas por execução, configuráveis por `--max-file-bytes` e `--max-entries`.
+O scanner não reprocessa nossos JSON de tradução, logs, DLLs e executáveis. Usa limite de 30 MB por arquivo e 120 mil entradas únicas por execução, configuráveis por `--max-file-bytes` e `--max-entries`.
 
 **Limite importante:** arquivos Unity AssetBundle, TextAsset empacotado, tabelas criptografadas, DLLs e recursos nativos IL2CPP exigem decodificadores especializados. O scanner offline não consegue extrair esses formatos binários. A captura em tempo de execução complementa essa limitação, mas não garante todos os textos sem visitar as telas nem captura métodos não interceptados, incluindo alguns TMP.
 
@@ -111,6 +111,25 @@ dist/extracted/workshop/
 ```
 
 Cada `<ID>.json` contém `module.id` (`steam:ID`), `module.workshopId`, `entries` com texto original e prováveis idiomas, `localizationKeys` e `locations`, além de `localizations` para alinhar as colunas `en`, `ch`, `tc` e `key` dos arquivos `ModExcel/LocalText.json`. O `index.json` resume quais mods foram examinados, incluindo os que não possuem recursos textuais legíveis.
+
+O extrator foi revisado após analisar 17 pacotes enviados pelo usuário:
+os TXT padronizados do Mod Creator e as instruções técnicas de configuração
+são ignorados **por padrão** porque não representam textos da interface.
+Para incluí-los explicitamente, use `--include-documentation`.
+
+Muitos mods possuem `ModExcel/*.json` binários ou criptografados. Esses
+arquivos são listados como ilegíveis no campo `skipped` do resultado, e
+**não podem ser recuperados somente pela extensão JSON**. Se possuir uma cópia
+legível extraída do jogo, é possível combiná-la automaticamente ao pacote
+do ID correspondente:
+
+```bash
+python3 scripts/extract_workshop_mods.py \
+  --decrypted-mod "2864011606=/caminho/para/recursos-descriptografados"
+```
+
+O script não descriptografa o conteúdo por si só. Os arquivos de origem
+na Steam permanecem intocados.
 
 O script preserva a estrutura original de cada mod e **não grava nada dentro da Steam Workshop**. Ele não altera os JSON PT-BR do tradutor. O resultado é material para revisão e não um dicionário de tradução pronto para usar. Arquivos Unity binários, DLLs e conteúdo criptografado permanecem fora do alcance deste extrator.
 
