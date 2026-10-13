@@ -11,7 +11,7 @@ internal static class ExtractorSmoke
         if (!RuntimeTextExtractor.Enabled)
             throw new Exception("Extrator não ativou pelo config.json.");
 
-        RuntimeTextExtractor.Observe("龙门客栈", "test.ui");
+        RuntimeTextExtractor.Observe("龙门客栈", "test.ui", "npc.inn.name");
         RuntimeTextExtractor.Observe("English quest objective", "test.ui");
         RuntimeTextExtractor.Observe("龙门客栈", "test.ui");
         RuntimeTextExtractor.Observe("XXXX_IGNORAR", "test.debug");
@@ -32,7 +32,13 @@ internal static class ExtractorSmoke
             var row = item as Dictionary<string, object>;
             if (row == null) continue;
             string source = row["text"] as string;
-            if (source == "龙门客栈") chinese = true;
+            if (source == "龙门客栈")
+            {
+                chinese = true;
+                var keys = row["localizationKeys"] as List<object>;
+                if (keys == null || !keys.Contains("npc.inn.name"))
+                    throw new Exception("Não preservou a chave de localização.");
+            }
             if (source == "English quest objective") english = true;
         }
         if (!chinese || !english)
