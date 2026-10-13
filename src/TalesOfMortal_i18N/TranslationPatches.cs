@@ -190,7 +190,7 @@ namespace TalesOfMortalI18N
 
         private static void AfterGameToolLs(string __0, ref string __result)
         {
-            RuntimeTextExtractor.Observe(__result, "GameTool.LS");
+            RuntimeTextExtractor.Observe(__result, "GameTool.LS", __0);
             string value;
             __result = TranslationCatalog.TryKey(__0, out value)
                 ? FormatText(value, 1)
@@ -210,8 +210,8 @@ namespace TalesOfMortalI18N
         {
             try
             {
-                RuntimeTextExtractor.Observe(__result, "ConfLocalTextEx.text");
                 string key = ReadKey(__0) as string;
+                RuntimeTextExtractor.Observe(__result, "ConfLocalTextEx.text", key);
                 string value;
                 __result = TranslationCatalog.TryKey(key, out value)
                     ? FormatText(value, 1)
