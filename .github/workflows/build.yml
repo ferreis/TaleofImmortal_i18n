@@ -12,6 +12,7 @@ on:
       - "scripts/test.sh"
       - "scripts/check-xunity.sh"
       - "scripts/install-local.sh"
+      - "scripts/disable-xunity.sh"
       - ".github/workflows/build.yml"
   workflow_dispatch:
 
