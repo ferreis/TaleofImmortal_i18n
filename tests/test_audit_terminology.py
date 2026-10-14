@@ -29,6 +29,10 @@ class TerminologyAuditTests(unittest.TestCase):
                     "A wooden table": "Uma mesa de madeira",
                     "Lightning strikes nearby": "Relâmpago atinge perto",
                     "Obsidian's Signing Firebolt": "Seta de fogo de Obsidian",
+                    "Azure Jade": "Jade Azul",
+                    "<color=#FF630D>G3 Unity Elixir</color>": "<color=#FF630D>Elixir da Unidade G3</color>",
+                    "Recebeu <color=#FF630D>Azure Jade</color>.": "Recebeu <color=#FF630D>Jade Azul</color>.",
+                    "An elixir can restore your health.": "Um elixir pode restaurar sua vida.",
                     "Hua Feng": "Hua Feng",
                     "Lucky strike": "Golpe de sorte",
                     "Luck": "Luck",
@@ -55,7 +59,14 @@ class TerminologyAuditTests(unittest.TestCase):
             self.assertEqual(value["Hua Feng"], "Hua Feng")
             self.assertEqual(value["Skill Rate"], "Taxa da habilidade")
             self.assertEqual(value["Looking for a merchant"], "Em busca de um mercador")
-            self.assertEqual(result["summary"]["corrected"], 9)
+            self.assertEqual(value["Azure Jade"], "Azure Jade")
+            self.assertEqual(value["<color=#FF630D>G3 Unity Elixir</color>"],
+                             "<color=#FF630D>G3 Unity Elixir</color>")
+            self.assertEqual(value["Recebeu <color=#FF630D>Azure Jade</color>."],
+                             "Recebeu <color=#FF630D>Azure Jade</color>.")
+            self.assertEqual(value["An elixir can restore your health."],
+                             "Um elixir pode restaurar sua vida.")
+            self.assertEqual(result["summary"]["corrected"], 10)
             again = audit(folder, apply=True)
             self.assertEqual(again["summary"].get("corrected", 0), 0)
 
