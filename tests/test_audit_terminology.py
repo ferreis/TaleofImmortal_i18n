@@ -20,6 +20,13 @@ class TerminologyAuditTests(unittest.TestCase):
                 "module": {"kind": "game", "id": "game:tale-of-immortal"},
                 "translations": {
                     "lightning": "relâmpago",
+                    "Wood": "Madeira",
+                    "wood": "tábua",
+                    "木属性": "Madeira",
+                    "木属性资质": "Aptidão de Madeira",
+                    "Wind": "Brisa",
+                    "Fire": "Chama",
+                    "A wooden table": "Uma mesa de madeira",
                     "Lightning strikes nearby": "Relâmpago atinge perto",
                     "Obsidian's Signing Firebolt": "Seta de fogo de Obsidian",
                     "Hua Feng": "Hua Feng",
@@ -34,6 +41,13 @@ class TerminologyAuditTests(unittest.TestCase):
             result = audit(folder, apply=True)
             value = json.loads(path.read_text())["translations"]
             self.assertEqual(value["lightning"], "Raio")
+            self.assertEqual(value["Wood"], "Wood")
+            self.assertEqual(value["wood"], "Wood")
+            self.assertEqual(value["木属性"], "Wood")
+            self.assertEqual(value["木属性资质"], "Aptidão com Wood")
+            self.assertEqual(value["Wind"], "Vento")
+            self.assertEqual(value["Fire"], "Fogo")
+            self.assertEqual(value["A wooden table"], "Uma mesa de madeira")
             self.assertEqual(value["Luck"], "Sorte")
             self.assertEqual(value["Obsidian's Signing Firebolt"],
                              "Obsidian's Signing Firebolt")
@@ -41,7 +55,7 @@ class TerminologyAuditTests(unittest.TestCase):
             self.assertEqual(value["Hua Feng"], "Hua Feng")
             self.assertEqual(value["Skill Rate"], "Taxa da habilidade")
             self.assertEqual(value["Looking for a merchant"], "Em busca de um mercador")
-            self.assertEqual(result["summary"]["corrected"], 3)
+            self.assertEqual(result["summary"]["corrected"], 9)
             again = audit(folder, apply=True)
             self.assertEqual(again["summary"].get("corrected", 0), 0)
 
