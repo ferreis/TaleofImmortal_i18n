@@ -62,6 +62,57 @@ def is_named_skill(text):
     return bool(SKILL_NAME.fullmatch(match.group(1) if match else text))
 
 
+
+# Identificação conservadora de títulos ingleses de itens. Não inclui
+# rótulos comuns (ex.: Exit, Quest), nem frases ou descrições de efeitos.
+ITEM_TYPES = {
+    "Elixir", "Jade", "Bone", "Ring", "Fruit", "Pill", "Potion",
+    "Orb", "Talisman", "Scroll", "Pearl", "Feather", "Crystal",
+    "Ore", "Herb", "Seed", "Stone", "Grass", "Flower", "Token",
+    "Fur", "Powder", "Armor", "Cloak", "Gem",
+}
+ITEM_TITLE = re.compile(
+    r"^(?:G[1-9]\s+)?[A-Z][A-Za-z'-]*"
+    r"(?:\s+(?:[A-Z][A-Za-z'-]*|of|the|and)){1,5}"
+    r"(?:\s+\([A-Z][A-Za-z ]+\))?(?: -\d+)?$"
+)
+COLORED_LABEL = re.compile(r"(<color(?:=[^>]+)>)([^<>]*)(</color>)")
+
+
+def is_named_item(text):
+    match = COLOR_SKILL.fullmatch(text)
+    plain = match.group(1) if match else text
+    if not ITEM_TITLE.fullmatch(plain):
+        return False
+    words = plain.split()
+    # Spirit Stone(s) é um recurso monetário, não um título de item.
+    if plain in {"Spirit Stone", "Spirit Stones"}:
+        return False
+    return bool(ITEM_TYPES.intersection(words))
+
+
+def restore_named_labels(source, target):
+    """Preserva apenas nomes em inglês em spans coloridos correspondentes.
+
+    Nunca reescreve prosa, variáveis, atributos, a ordem das tags ou outros
+    nomes que não conseguimos identificar com segurança.
+    """
+    src = list(COLORED_LABEL.finditer(source))
+    dst = list(COLORED_LABEL.finditer(target))
+    if len(src) != len(dst):
+        return target
+    changes = []
+    for a, b in zip(src, dst):
+        if a.group(1) != b.group(1) or a.group(3) != b.group(3):
+            return target
+        if a.group(2) != b.group(2) and (
+                is_named_skill(a.group(2)) or is_named_item(a.group(2))):
+            changes.append((b.start(), b.end(), a.group(0)))
+    for start, end, replacement in reversed(changes):
+        target = target[:start] + replacement + target[end:]
+    return target
+
+
 HAN = re.compile(r"[\u3400-\u9fff\uf900-\ufaff]")
 CURLY = re.compile(r"\{[^{}\r\n]+\}")
 SPECIAL = re.compile(r"\$s_[A-Za-z0-9_]+\$|&[A-Za-z0-9_|]+&")
@@ -89,6 +140,10 @@ def inspect(original, target):
         issues.append("rich-tags-lost")
     if is_named_skill(original) and original != target:
         issues.append("translated-skill-name")
+    if is_named_item(original) and original != target:
+        issues.append("translated-item-name")
+    if restore_named_labels(original, target) != target:
+        issues.append("translated-richtext-name")
     if original in CANONICAL and target != CANONICAL[original]:
         issues.append("glossary-conflict")
     return issues
@@ -119,8 +174,10 @@ def audit(folder, apply=False, report=None):
                 summary[reason] += 1
                 file_issues[reason] += 1
             replacement = CANONICAL.get(source)
-            if is_named_skill(source):
+            if is_named_skill(source) or is_named_item(source):
                 replacement = source
+            elif apply:
+                replacement = restore_named_labels(source, replacement if replacement is not None else value)
             if apply and replacement is not None and value != replacement:
                 # Uma normalização nunca modifica a string ORIGINAL da chave.
                 translations[source] = replacement
@@ -170,7 +227,7 @@ def main():
     parser.add_argument("--report", type=Path,
                         default=ROOT / "dist/TalesOfMortal_i18N/terminology-audit.json")
     parser.add_argument("--apply", action="store_true",
-                        help="Corrige somente entradas exatas do glossário e nomes completos de skills.")
+                        help="Corrige rótulos exatos, nomes identificáveis de itens/técnicas e spans coloridos.")
     args = parser.parse_args()
     result = audit(args.folder, args.apply, args.report)
     print(json.dumps(result["summary"], ensure_ascii=False, indent=2))
