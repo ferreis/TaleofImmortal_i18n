@@ -130,7 +130,7 @@ def seconds_values(text):
     """Compara números de segundos em habilidades sem confundir tags Unity.
 
     Considera tanto recarga (jinenglengque) quanto duração (chixushijian).
-    Ponto e vírgula decimal representam o mesmo valor, mas palavras
+    Ponto ou vírgula como separador decimal representam o mesmo valor, mas palavras
     inventadas ou horários gerados indevidamente não são aceitos.
     """
     if ('<sprite name="jinenglengque">' not in text
@@ -139,7 +139,7 @@ def seconds_values(text):
     plain = re.sub(r"<[^>]*>", "", text)
     return tuple(
         match.replace(",", ".")
-        for match in re.findall(r"(?<![\\w])([+-]?\\d+(?:[.,]\\d+)?)s\\b", plain, re.I)
+        for match in re.findall(r"(?<![\w])([+-]?\d+(?:[.,]\d+)?)s\b", plain, re.I)
     )
 
 
@@ -150,7 +150,7 @@ def inspect(original, target):
         if collections.Counter(regex.findall(original)) != collections.Counter(
                 regex.findall(target)):
             issues.append(marker)
-    if re.fullmatch(r"\\s*[+-]?\\d+(?:[./]\\d+)*\\s*", original) and target != original:
+    if re.fullmatch(r"\s*[+-]?\d+(?:[./]\d+)*\s*", original) and target != original:
         issues.append("numeric-only-label-changed")
     if original.count("\n") > 0 and original.count("\n") != target.count("\n"):
         issues.append("linebreak-count")
