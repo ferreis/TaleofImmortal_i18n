@@ -44,6 +44,37 @@ referir-se a aparência conforme a origem. Essas expressões exigem contexto.
 suas descrições, efeitos e mensagens. E `Lightning` em uma habilidade
 com nome próprio não deve ser substituído automaticamente por `Raio`.
 
+## Nomes oficiais dos Espíritos de Artefato (Artifact Spirits)
+
+O jogo utiliza **nomes próprios em inglês** para os Espíritos de Artefato,
+não traduções literais ou fonéticas feitas por tradução automática.
+
+Lista oficial publicada nas [notas da atualização do jogo na Steam,
+30/06/2021](https://store.steampowered.com/news/posts/?enddate=1625033517&feed=steam_community_announcements):
+
+Mengyi, Cangya, Jiuchen, Muqing, Ningshuang, Lingge, Yunling, Huofa,
+Silver Edge, Xuanti, Bajiao, Jiuzhu, Zhenxin, Sharp Edge, Charon,
+Searing Feather, Feiming, Youling, Sharpclaw, Darkfang, Voodoo, Muke,
+Brawler e Rainmaker.
+
+**Correções da interface de seleção:** `homens G um` → `Mengyi`,
+`Luz UM` → `Muqing`, `hu Ofa` → `Huofa`,
+`Colar Y ONU` → `Yunling`, `FeIming` → `Feiming`,
+`Jovem` → `Youling`, `Borda de prata` → `Silver Edge` e
+`Pena abrasadora` → `Searing Feather`.
+
+Os nomes oficiais foram adicionados a `protected-names.json`.
+Também foi corrigida a lista unificada com tags de cores do
+`game.json` e a auditoria passou a detectar corrupção dessa lista.
+
+**Cuidado com nomes que se confundem com palavras comuns:** a entrada
+isolada `Jovem` foi normalizada porque o próprio texto da lista de
+espíritos na extração antiga a usa como alias do espírito `Youling`.
+A substituição é por string inteira, **não dentro de outras frases**,
+mas uma outra interface que use exatamente a palavra `Jovem` ainda
+poderá sofrer colisão. Uma correção por contexto exigirá verificar
+a hierarquia da UI no jogo.
+
 ## Auditoria de todos os arquivos, inclusive fallback local
 
 ```bash
