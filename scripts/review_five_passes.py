@@ -38,7 +38,7 @@ ARTIFACT_LIST_NAMES = re.compile(r"<color=[^>]*>([^<>]+)</color>")
 # Um único glossário evita divergências entre as duas auditorias.
 # Funciona como módulo (testes) e como script executado diretamente.
 try:
-    from .audit_terminology import CANONICAL as CANON, is_named_skill, is_named_item, restore_named_labels
+    from .audit_terminology import CANONICAL as CANON, is_named_skill, is_named_item, restore_named_labels, seconds_values
 except ImportError:
     from audit_terminology import CANONICAL as CANON, is_named_skill, is_named_item, restore_named_labels
 SUSPICIOUS = re.compile(r"parmeasureiRO|\b(?:nullpointer|undefined)\b", re.I)
@@ -113,6 +113,8 @@ def audit(folder, extracted=None, report=None):
                 if TAG.search(source) and collections.Counter(TAG.findall(source)) != (
                         collections.Counter(TAG.findall(target))):
                     flag(1, filename, key, "unity-tag-mismatch", source, target, "error")
+                if seconds_values(source) and seconds_values(source) != seconds_values(target):
+                    flag(1, filename, key, "seconds-value-mismatch", source, target, "error")
 
                 # Pass 2: canonical labels only; never rewrite sentence fragments.
                 if source in CANON and target != CANON[source]:
