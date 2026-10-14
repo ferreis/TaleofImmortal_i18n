@@ -37,6 +37,19 @@ class FivePassReviewTests(unittest.TestCase):
             self.assertEqual(saved, f.read_bytes())
             self.assertTrue((directory.parent / "report.csv").is_file())
 
+    def test_seconds_corruption_is_blocking(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = '<sprite name="jinenglengque"><size=100%></voffset>-2.57s'
+            broken = '<sprite name="jinenglengque"><size=100%></voffset>A. Khas'
+            (root / "game.json").write_text(json.dumps({
+                "module": {"kind": "game", "id": "game:test"},
+                "translations": {source: broken}, "keys": {}
+            }, ensure_ascii=False), encoding="utf-8")
+            results = audit(root)
+            self.assertEqual(results["pass_counts"]["1"]["seconds-value-mismatch"], 1)
+            self.assertGreater(results["unsafe_candidates"], 0)
+
     def test_escaped_unity_sprite_identifiers(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
