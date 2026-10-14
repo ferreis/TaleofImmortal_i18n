@@ -137,8 +137,8 @@ def audit(folder, extracted=None, report=None):
                         target != ARTIFACT_SOURCE_ALIASES[source]):
                     flag(3, filename, key, "artifact-spirit-alias-changed", source, target)
                 if "<color=" in source and "Mengyi" in source and "Muqing" in source:
-                    originals = ARTIFACT_LIST_NAMES.findall(source)
-                    expected = [ARTIFACT_SOURCE_ALIASES.get(name, name) for name in originals]
+                    spirit_sources = ARTIFACT_LIST_NAMES.findall(source)
+                    expected = [ARTIFACT_SOURCE_ALIASES.get(name, name) for name in spirit_sources]
                     found = ARTIFACT_LIST_NAMES.findall(target)
                     if len(expected) >= 5 and found != expected:
                         flag(3, filename, key, "artifact-spirit-roster-corrupted",
