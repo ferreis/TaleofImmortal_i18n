@@ -49,9 +49,9 @@ SKILL_NAME = re.compile(
     r"(?:Aerial|Blooming|Blooded|Cardinal|Clouded|Deep|Diving|Empty|"
     r"Flawed|Forceful|Living|Maple|Misty|Nether|Peaked|Powerful|Rear|"
     r"Signing|Solid|Thundrous|Vesseled|Warring|Wavy|Willful) "
-    r"[^\\n<>.!?]{2,80}|"
-    r"(?:Windseek(?: \\(\\d+\\))?|Dayblaze|Spiritcall))"
-    r"(?: -\\d+)?$"
+    r"[^\n<>.!?]{2,80}|"
+    r"(?:Windseek(?: \(\d+\))?|Dayblaze|Spiritcall))"
+    r"(?: -\d+)?$"
 )
 COLOR_SKILL = re.compile(r"^<color(?:=[^>]+)>([^<>]+)</color>$")
 
