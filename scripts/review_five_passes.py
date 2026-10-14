@@ -24,6 +24,20 @@ SKILL = re.compile(
     r"(?:Firebolt|Groundfire|Thundercall|Palm|Sword|Spear|Fist|"
     r"Technique|Técnica|Blade|Manual|Celerity Palm)(?: -\d+)?$")
 REGIONS = {"Yong Ning", "Hua Feng", "Mu Xian", "Yun Mo", "Chi You"}
+ARTIFACT_SPIRITS = {
+    "Mengyi", "Cangya", "Jiuchen", "Muqing", "Ningshuang", "Lingge",
+    "Yunling", "Huofa", "Silver Edge", "Xuanti", "Bajiao", "Jiuzhu",
+    "Zhenxin", "Sharp Edge", "Charon", "Searing Feather", "Feiming",
+    "Youling", "Sharpclaw", "Darkfang", "Voodoo", "Muke", "Brawler",
+    "Rainmaker",
+}
+ARTIFACT_SOURCE_ALIASES = {
+    "Jovem": "Youling",
+    "Borda de prata": "Silver Edge",
+    "Pena abrasadora": "Searing Feather",
+}
+ARTIFACT_LIST_NAMES = re.compile(r"<color=[^>]*>([^<>]+)</color>")
+
 CANON = {
     "lightning": "Raio", "Lightning": "Raio", "雷属性": "Raio",
     "火属性": "Fogo", "水属性": "Água", "木属性": "Madeira", "土属性": "Terra",
@@ -117,6 +131,18 @@ def audit(folder, extracted=None, report=None):
                     flag(3, filename, key, "region-changed", source, target)
                 if SKILL.fullmatch(source) and source != target:
                     flag(3, filename, key, "skill-name-changed", source, target)
+                if source in ARTIFACT_SPIRITS and source != target:
+                    flag(3, filename, key, "artifact-spirit-name-changed", source, target)
+                if source in ARTIFACT_SOURCE_ALIASES and (
+                        target != ARTIFACT_SOURCE_ALIASES[source]):
+                    flag(3, filename, key, "artifact-spirit-alias-changed", source, target)
+                if "<color=" in source and "Mengyi" in source and "Muqing" in source:
+                    originals = ARTIFACT_LIST_NAMES.findall(source)
+                    expected = [ARTIFACT_SOURCE_ALIASES.get(name, name) for name in originals]
+                    found = ARTIFACT_LIST_NAMES.findall(target)
+                    if len(expected) >= 5 and found != expected:
+                        flag(3, filename, key, "artifact-spirit-roster-corrupted",
+                             " | ".join(expected), " | ".join(found), "error")
 
                 # Pass 4: language, suspicious corruption and line structure.
                 if HAN.search(target) and target != source and target not in protected:
