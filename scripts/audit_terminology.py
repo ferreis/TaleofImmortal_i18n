@@ -19,17 +19,17 @@ ROOT = Path(__file__).resolve().parents[1]
 # ou nomes de habilidades. Termos ambíguos como 'Looking' e 'Skill Rate'
 # NÃO são corrigidos sem contexto do jogo.
 CANONICAL = {
-    # Somente rótulos EXATOS de elementos/estatísticas. "Wood" é o nome
+    # Somente rótulos EXATOS de elementos/estatísticas. "Madeira" é o nome
     # canônico do elemento, sem alterar usos comuns de "madeira" (material).
     "lightning": "Raio", "Lightning": "Raio", "雷属性": "Raio",
     "fire": "Fogo", "Fire": "Fogo", "火属性": "Fogo",
     "water": "Água", "Water": "Água", "水属性": "Água",
-    "wood": "Wood", "Wood": "Wood", "木属性": "Wood",
+    "wood": "Madeira", "Wood": "Madeira", "木属性": "Madeira",
     "earth": "Terra", "Earth": "Terra", "土属性": "Terra",
     "wind": "Vento", "Wind": "Vento", "风属性": "Vento",
     "火属性资质": "Aptidão com Fogo",
     "水属性资质": "Aptidão com Água",
-    "木属性资质": "Aptidão com Wood",
+    "木属性资质": "Aptidão com Madeira",
     "土属性资质": "Aptidão com Terra",
     "雷属性资质": "Aptidão com Raio",
     "风属性资质": "Aptidão com Vento",
