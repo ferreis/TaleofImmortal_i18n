@@ -12,7 +12,7 @@ estatística ou o mesmo elemento**.
 | Elemento `Lightning` / `雷属性` | **Raio** | Relâmpago, Trovão para o elemento |
 | Elemento `Fire` / `火属性` | **Fogo** | Flamejante como nome de elemento |
 | Elemento `Water` / `水属性` | **Água** | Aquático como nome de elemento |
-| Elemento `Wood` / `木属性` | **Wood** | Madeira, Tábua, Árvore como nome de elemento |
+| Elemento `Wood` / `木属性` | **Madeira** | Wood, Tábua, Árvore como nome de elemento |
 | Elemento `Earth` / `土属性` | **Terra** | Solo como nome de elemento |
 | Elemento `Wind` / `风属性` | **Vento** | Variações para o mesmo atributo |
 | `Luck` quando representa atributo | **Sorte** | Luck, Fortuna sem critério |
@@ -21,7 +21,7 @@ estatística ou o mesmo elemento**.
 | `Skill Range` | **Alcance da habilidade** | taxa de habilidade, raio de efeito |
 | `Jianmu` como nome do armazém | **Jianmu** | construção, madeira de construção |
 
-**Não confundir:** `Wood` é a grafia fixa do **elemento** e do seu Qi, inclusive em `Wood Qi` e `Aptidão com Wood`. A palavra portuguesa *madeira* permanece válida quando o texto fala do material físico (árvores, móveis, construções), nunca como sinônimo automático do elemento.
+**Não confundir:** `Madeira` é a tradução fixa do **elemento** e do seu Qi, inclusive em `Qi de Madeira` e `Aptidão com Madeira`. A palavra *madeira* também pode aparecer como material físico (árvores, móveis, construções), mas os sentidos não devem ser confundidos.
 
 `Skill Rate` pode designar cadência, porcentagem,
 taxa ou outro parâmetro do mod. **Não é sinônimo seguro de Skill Range**.
