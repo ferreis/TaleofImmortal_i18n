@@ -13,6 +13,13 @@ class TerminologyAuditTests(unittest.TestCase):
         self.assertIn("game-variable", issues)
         self.assertIn("sprite", issues)
 
+    def test_preserves_cooldown_seconds(self):
+        source = '<sprite name="jinenglengque"><size=100%></voffset>-1.36s'
+        good = '<sprite name="jinenglengque"><size=100%></voffset>-1,36s'
+        broken = '<sprite name="jinenglengque"><size=100%></voffset>-1. Espirros'
+        self.assertNotIn("seconds-value-mismatch", inspect(source, good))
+        self.assertIn("seconds-value-mismatch", inspect(source, broken))
+
     def test_fixes_only_exact_labels_and_skill_names(self):
         with tempfile.TemporaryDirectory() as folder:
             path = Path(folder) / "game.json"
