@@ -41,6 +41,23 @@ public static class CatalogSmoke
         AssertTranslation("Obsidian's Signing Firebolt", "Obsidian's Signing Firebolt");
         AssertTranslation("Yong Ning", "Yong Ning");
 
+        // Official artifact spirit names: original Steam nomenclature.
+        AssertTranslation("Mengyi", "Mengyi");
+        AssertTranslation("Muqing", "Muqing");
+        AssertTranslation("Huofa", "Huofa");
+        AssertTranslation("Yunling", "Yunling");
+        AssertTranslation("Feiming", "Feiming");
+        AssertTranslation("Youling", "Youling");
+        AssertTranslation("Jovem", "Youling");
+        AssertTranslation("Borda de prata", "Silver Edge");
+        AssertTranslation("Pena abrasadora", "Searing Feather");
+        AssertTranslation("Silver Edge", "Silver Edge");
+        AssertTranslation("Searing Feather", "Searing Feather");
+        AssertTranslation("Combinado: Muqing", "Combinado: Muqing");
+        AssertTranslation("Uma pessoa Jovem apareceu", "Uma pessoa Jovem apareceu");
+        AssertTranslation("<color=#FF630D>Mengyi</color>,<color=#FF630D>Muqing</color>,<color=#14B8FF>Huofa</color>,<color=#14B8FF>Jovem</color>,<color=#BCBCBC>Yunling</color>,<color=#BCBCBC>Borda de prata</color>,<color=#BCBCBC>Pena abrasadora</color>,<color=#BCBCBC>Feiming</color>", "<color=#FF630D>Mengyi</color>,<color=#FF630D>Muqing</color>,<color=#14B8FF>Huofa</color>,<color=#14B8FF>Youling</color>,<color=#BCBCBC>Yunling</color>,<color=#BCBCBC>Silver Edge</color>,<color=#BCBCBC>Searing Feather</color>,<color=#BCBCBC>Feiming</color>");
+
+
         // Captured FixData modal: dynamically rendered values, buttons and status.
         AssertTranslation("大鬼修复存档MOD", "Reparo de saves do Bahuang Dagui");
         AssertTranslation("前往大鬼首页", "Página do Dagui");
