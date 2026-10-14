@@ -1,0 +1,81 @@
+name: Build Tales of Mortal i18N
+
+on:
+  push:
+    branches: [Dev]
+    paths:
+      - "src/**"
+      - "tests/**"
+      - "ModProject_DQKLF9/ModProject/ModCode/**"
+      - "ModProject_DQKLF9/ModProject/*.cache"
+      - "mod/i18n/**"
+      - "scripts/build.sh"
+      - "scripts/test.sh"
+      - "scripts/import_translation_zip.py"
+      - "scripts/import_workshop_ptbr.py"
+      - "scripts/audit_catalogs.py"
+      - "scripts/audit_terminology.py"
+      - "scripts/review_five_passes.py"
+      - "scripts/extract_offline.py"
+      - "scripts/extract_workshop_mods.py"
+      - "scripts/curate_offline.py"
+      - "scripts/prepare_translation_drafts.py"
+      - "scripts/check-xunity.sh"
+      - "scripts/install-local.sh"
+      - "scripts/prepare_export_cache.py"
+      - "scripts/test_install_local.sh"
+      - "scripts/disable-xunity.sh"
+      - ".github/workflows/build.yml"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Mono
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mono-devel
+
+      - name: Build without game files
+        run: bash scripts/build.sh
+
+      - name: Test JSON catalogs without game files
+        run: bash scripts/test.sh
+
+      - name: Test first install and reinstall without Mod Creator
+        run: bash scripts/test_install_local.sh
+
+      - name: Test offline file extractor
+        run: python3 -m unittest discover -s tests -p "test_*.py"
+
+      - name: Audit every translation JSON and module identity
+        run: python3 scripts/audit_catalogs.py
+
+      - name: Five-pass audit of all versioned translation catalogs
+        run: python3 scripts/review_five_passes.py
+
+      - name: Audit every PT-BR translation for terminology and game-variable integrity
+        run: python3 scripts/audit_terminology.py
+
+      - name: Validate shell scripts and ModAssets staging
+        run: |
+          bash -n scripts/*.sh
+          test -s ModProject_DQKLF9/ModProject/ModAssets/i18n/pt-BR/game.json
+          test -s dist/TalesOfMortal_i18N/ModAssets/i18n/pt-BR/game.json
+          test -s dist/TalesOfMortal_i18N/ModCode/dll/MOD_DQKLF9.dll
+
+      - name: Confirm compiled output
+        run: test -s ModProject_DQKLF9/ModProject/ModCode/ModMain/bin/Release/MOD_DQKLF9.dll
+
+      - name: Upload DLL and translations
+        uses: actions/upload-artifact@v4
+        with:
+          name: TalesOfMortal-i18N-DQKLF9-staging
+          path: dist/TalesOfMortal_i18N/
+          if-no-files-found: error

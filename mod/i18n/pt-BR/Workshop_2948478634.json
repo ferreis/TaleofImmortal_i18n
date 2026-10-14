@@ -1,0 +1,13 @@
+{
+  "module": {
+    "kind": "mod",
+    "id": "steam:2948478634",
+    "name": "Aprendizado rápido de manuais",
+    "workshopId": "2948478634"
+  },
+  "translations": {
+    "快速学习秘籍，学习时出现<color=#FF0000>三个球</color>，悟球只需点一个即可学成秘籍，若有<color=#FF0000>魔球</color>，需消除\n\n—因悟性低可能出现魔球，所以设定为三个球，增加成功几率\n\n—若同境界秘籍无法一次学会，请将此MOD排序尽量下移\n\n—移除MOD不坏档": "Aprenda manuais rapidamente: surgem <color=#FF0000>três esferas</color> durante o aprendizado. Basta clicar em uma esfera de compreensão para aprender o manual. Se aparecer uma <color=#FF0000>esfera demoníaca</color>, elimine-a.\n\n— Uma compreensão baixa pode gerar esferas demoníacas; por isso, são usadas três esferas para aumentar a chance de sucesso.\n\n— Se um manual do mesmo reino não for aprendido em uma tentativa, coloque este MOD mais abaixo na ordem de carregamento.\n\n— Remover o MOD não corrompe os saves.",
+    "标题修改": "Título alterado"
+  },
+  "keys": {}
+}

@@ -1,0 +1,19 @@
+{
+  "module": {
+    "kind": "mod",
+    "id": "steam:2990449768",
+    "name": "Workshop 2990449768",
+    "workshopId": "2990449768"
+  },
+  "translations": {
+    "-画符必定判定为优": "- A confecção de talismãs será sempre avaliada como excelente.",
+    "1_RuneParameters_画符成功判定：": "1_RuneParameters_critério de sucesso na confecção de talismãs:",
+    "改动说明：": "Descrição das alterações:"
+  },
+  "keys": {},
+  "patterns": [],
+  "extractionReview": {
+    "source": "ModProject/ModExcel/改动说明.txt",
+    "note": "Texto de documentação do mod. Não há evidência de que seja exibido pela UI."
+  }
+}

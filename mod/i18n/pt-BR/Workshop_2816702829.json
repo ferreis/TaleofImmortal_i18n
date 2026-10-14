@@ -1,0 +1,23 @@
+{
+  "module": {
+    "kind": "mod",
+    "id": "steam:2816702829",
+    "name": "Mapa totalmente revelado",
+    "workshopId": "2816702829",
+    "sourceAlias": "地图全开"
+  },
+  "translations": {
+    " 是否开启快速修炼秘籍功能": " Ativar o treinamento rápido de manuais?",
+    "不开启": "Não ativar",
+    "全图视野": "Visão de todo o mapa",
+    "地图全开": "Mapa totalmente revelado",
+    "地图全开，大地图上走一步后触发。加载全图时会比较卡。\n\n": "Revela todo o mapa após dar um passo no mapa-múndi. O carregamento do mapa completo pode causar lentidão.\n\n",
+    "开启": "Ativar",
+    "快速修炼": "Treinamento rápido",
+    "添加功能：背包内存在秘籍时，每次进入城镇可立即学习一本秘籍。\n进入城镇时需确认是否开启该功能。": "Novo recurso: se houver manuais na mochila, você poderá aprender um imediatamente a cada entrada em uma cidade.\nAo entrar na cidade, será necessário confirmar se deseja ativar o recurso.",
+    "直接全图(会卡顿)": "Revelar tudo de uma vez (pode causar travamentos)",
+    "选择开图方式": "Escolha como revelar o mapa",
+    "逐步加载(三十步内开完全图)": "Carregar aos poucos (todo o mapa será revelado em até trinta passos)"
+  },
+  "keys": {}
+}

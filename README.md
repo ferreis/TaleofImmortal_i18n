@@ -1,8 +1,146 @@
 # Tales of Mortal i18N
 
-Traduções comunitárias de **Tale of Immortal** (鬼谷八荒) e de seus mods em arquivos JSON externos. Não usa XUnity.AutoTranslator, serviços online nem tradução automática em execução.
+Traduções comunitárias de **Tale of Immortal** (鬼谷八荒) e de seus mods em arquivos JSON externos. Não usa XUnity.AutoTranslator nem fornece tradução automática de novos textos nesta versão.
 
-> **Estado:** implementação inicial, ainda sem DLL validada dentro do jogo. Os pontos de interceptação foram selecionados com base nas APIs conhecidas do Tale of Immortal, mas precisam de validação na instalação real.
+> **Estado:** carregamento de JSON e aplicação de traduções confirmado no Tale of Immortal em 13/10/2026. Build independente do jogo; cobertura de todos os métodos de interface e atualização sem reiniciar ainda não validada.
+
+## Projeto nativo gerado pelo Tale of Immortal
+
+O editor do jogo criou o projeto em `ModProject_DQKLF9/ModProject`, com identidade `MOD_DQKLF9`.
+A DLL precisa se chamar **`MOD_DQKLF9.dll`** e expor **`MOD_DQKLF9.ModMain`**. O adaptador nativo já está integrado ao tradutor, e a compilação é independente da instalação do jogo.
+
+```bash
+git switch Dev
+git pull origin Dev
+bash scripts/build.sh
+```
+
+Saída: `ModProject_DQKLF9/ModProject/ModCode/ModMain/bin/Release/MOD_DQKLF9.dll`.
+O script prepara também `ModProject_DQKLF9/debug/Mod_DQKLF9/` e `dist/TalesOfMortal_i18N/`, copiando a DLL, os JSON e os dois arquivos `.cache`. Os arquivos originais `ModProject.cache` e `ModData.cache` agora estão versionados e sincronizados; o segundo foi ajustado para `MOD_DQKLF9`. Leia [as instruções atualizadas](docs/BUILD.md).
+
+## Instalar ou atualizar diretamente no Tale of Immortal
+
+O instalador também funciona quando o mod **ainda não existe** no jogo:
+
+```bash
+git switch Dev
+git pull origin Dev
+bash scripts/install-local.sh
+```
+
+Ele gera o cache de exportação, cria
+`TOI/ModExportData/Mod_DQKLF9` e copia automaticamente a DLL e os
+JSON. Se já estiver instalado, atualiza sem substituir caches criados
+pelo jogo. Não precisa importar o projeto pelo Mod Creator. Com o
+jogo aberto novamente, na primeira instalação, ative o mod no menu
+**Mods > Mods locais** caso ainda esteja desmarcado.
+
+Veja [os detalhes e limitações](docs/BUILD.md).
+
+## Padronização PT-BR e diagnóstico dos hooks
+
+A revisão de outubro/2026 acrescentou um [glossário de termos e regras para
+nomes próprios](docs/TERMINOLOGY.md): `Lightning` (elemento) = **Raio**;
+`Luck` (atributo) = **Sorte**; `Movement Speed` =
+**Velocidade de movimento**; `Skill Range` =
+**Alcance da habilidade**. Regiões e nomes ingleses de habilidades
+permanecem no idioma original; `Skill Rate` não é tratado como sinônimo
+de alcance sem contexto.
+
+O tradutor também tenta traduzir **linhas inteiras separadas por quebras de
+linha ou tags Unity** quando não existe uma tradução exata para o bloco;
+não substitui pedaços arbitrários de frases ou nomes.
+
+O script `python3 scripts/audit_terminology.py` verifica todos os JSON,
+incluindo o fallback comunitário se tiver sido gerado localmente. Com
+`--apply`, só corrige rótulos originais exatos e títulos completos de
+skills que estejam no padrão conhecido.
+
+**Correção de estabilidade:** o log de 13/10/2026 mostrou falhas repetidas
+de `UnityEngine.UI.Text.set_text`. Por segurança, o ajuste experimental de
+fonte foi retirado do setter e desativado por padrão. Tooltip ao passar
+o mouse **ainda não está implementado**. Os avisos separados
+`Fatury.ResLateLoadPatch.Postfix` pertencem a outro hook de mod e
+devem ser diagnosticados independentemente.
+
+## Extrator de textos chineses e ingleses
+
+O mod também possui um **extrator de textos originais em tempo de execução**. Ele registra possíveis textos chineses e ingleses que passam pelos hooks de localização/UI do jogo, inclusive textos de mods, antes de traduzi-los. A captura é opcional e está ativada em `mod/i18n/config.json`.
+
+Após atualizar o mod instalado com `bash scripts/install-local.sh`, visite telas e diálogos no jogo. O resultado é salvo periodicamente em `TOI/TalesOfMortal_i18N_Extracted/runtime.json`, **fora** do catálogo de traduções. O arquivo acumula textos únicos, possíveis idiomas, fontes interceptadas e chaves internas, quando disponíveis.
+
+O extrator offline `scripts/extract_offline.py` percorre os formatos textuais legíveis nas pastas do jogo e dos mods, incluindo origens da Steam Workshop. Ele gera `dist/extracted/offline.json`. O script `scripts/prepare_translation_drafts.py` transforma os resultados em rascunhos editáveis por módulo na pasta `dist/drafts`, sem sobrescrever traduções revisadas.
+
+**Limites:** o idioma é identificado por heurística; `en-candidate` pode conter português ou nomes próprios. A captura ao vivo não identifica automaticamente qual DLL gerou cada texto, e não cobre interfaces não interceptadas. O scanner offline lê automaticamente o formato criptografado **excelEncrypt** de ModExcel. Ainda não lê Assembly-CSharp, DLLs, AssetBundles Unity ou outros formatos binários desconhecidos. A extração não traduz textos novos automaticamente.
+
+Após identificar e decodificar o cabeçalho de criptografia nativo de ModExcel, a extração offline passou a recuperar também tabelas `LocalText.json` desse formato, com identificadores internos. **Não é mais necessário fornecer cópias descriptografadas para esse formato específico.**
+
+**Importação da tradução comunitária existente:** o `workshop.zip` de outubro/2026 revelou 54.991 registros do mod `2990310797` com chinês e versões em português. O script `python3 scripts/import_workshop_ptbr.py` converte o JSON já extraído em um catálogo de fallback local com verificações de nomes protegidos, marcadores de variável e ambiguidades. Não sobrescreve traduções anteriores. Consulte [a revisão do ZIP e as instruções](docs/WORKSHOP_ZIP_IMPORT.md).
+
+**Fonte adaptativa em textos longos:** a DLL agora pode reduzir automaticamente
+a fonte de traduções extensas em `UnityEngine.UI.Text` e em
+`TextMeshProUGUI` quando o hook TMP estiver disponível. Configuração em
+`mod/i18n/config.json` → `adaptiveText`; componentes de entrada editável
+são preservados. O tooltip ao passar o mouse ainda está em estudo.
+Veja [configuração e limitações](docs/UI_AUTO_FIT.md).
+
+Veja [instruções e exemplos completos](docs/EXTRACTOR.md).
+
+## Diagnóstico após importação
+
+A DLL **não implementa tradução automática de frases desconhecidas**. Ela aplica traduções dos JSON aos textos interceptados, e o funcionamento foi confirmado em execução no jogo. Alterações nos JSON exigem reiniciar o jogo nesta versão.
+
+Se você já importou `Mod_DQKLF9` localmente e deseja aplicar a versão mais recente sem exportar novamente, **feche o jogo** e execute:
+
+```bash
+git switch Dev
+git pull origin Dev
+bash scripts/install-local.sh
+```
+
+Para localizar DLLs antigas de XUnity ainda carregáveis e ler os logs:
+
+```bash
+bash scripts/check-xunity.sh
+```
+
+O novo build inclui `ModAssets/i18n`, o diretório apropriado para dados adicionais exportáveis. O leitor também reconhece `i18n` na raiz para compatibilidade. O teste offline `bash scripts/test.sh` valida a leitura de traduções dos JSON; não prova o funcionamento dos hooks de Unity no jogo.
+
+O identificador `SchoolAdmin` no ZIP é um alias do **SectAdmin**, Workshop `2814722600`. As 147 traduções foram consolidadas em `SectAdmin.json`; o arquivo vazio antigo foi substituído. A fonte separada `SectAdmin_PTBR.txt` contém apenas comentários. A palavra `Vingativo(a)` aparecia no TXT como `Vingativo(a)=Vingativo(a)`, sem transformação.
+
+## Identificação dos módulos por metadados
+
+**O nome do arquivo JSON não determina a origem da tradução.** Cada catálogo inclui:
+
+```json
+{
+  "module": {
+    "kind": "mod",
+    "id": "steam:2814722600",
+    "name": "SectAdmin",
+    "workshopId": "2814722600",
+    "sourceAlias": "SchoolAdmin"
+  },
+  "translations": {
+    "Admin": "Chamar administrador"
+  },
+  "keys": {},
+  "patterns": []
+}
+```
+
+- `module.kind`: `game`, `mod`, `fallback` ou `names`.
+- `module.id`: identificador estável, único e obrigatório. Pode ser `steam:ID` para mods Workshop ou `local:meu-mod` para mods fora da Steam.
+- `module.name`: nome legível. Não precisa ser o nome da DLL.
+- `module.workshopId`: opcional, apenas para mods da Workshop.
+- `module.sourceAlias`: nome do pacote encontrado na importação; não comprova namespace nem DLL real.
+- `module.namespace` ou `module.assembly`: identificadores opcionais para informar o namespace e nome da DLL **quando forem conhecidos**, sem precisar da Steam.
+
+Os arquivos `SectAdmin.json`, `game.json`, `zzz-auto.json` e `protected-names.json` podem ser renomeados sem alterar a classificação, desde que o campo `module` seja preservado. Arquivos antigos sem `module` continuam usando a regra de compatibilidade por nome.
+
+`translations` traduz pelo texto original, `keys` traduz por chave de localização do jogo (por exemplo, argumento de `GameTool.LS`) e `patterns` aceita regex. Como o XUnity gerou pares de **textos**, os `keys` do acervo importado continuam vazios. São sensíveis a maiúsculas/minúsculas.
+
+A origem identificada serve para organizar, auditar e estabelecer prioridade (`names`, `game`, `mod`, `fallback`). **Ela ainda não restringe uma tradução apenas à DLL do mod correspondente**: o hook global de UI conhece o texto, não necessariamente qual mod o produziu. Textos originais iguais podem conflitar. O script `python3 scripts/audit_catalogs.py` identifica essas colisões e problemas de placeholders.
 
 ## Como as traduções ficam organizadas
 
@@ -18,7 +156,7 @@ TalesOfMortal_i18N/                 <- pasta do mod exportado pelo criador do jo
         └── protected-names.json     <- nomes que não devem ser modificados
 ```
 
-Cada idioma possui sua pasta, e cada mod pode possuir seu próprio JSON. Os nomes dos arquivos JSON são livres, exceto `protected-names.json`. Não é preciso alterar C# para acrescentar traduções.
+Cada idioma possui sua pasta, e cada mod pode possuir seu próprio JSON. Com `module` presente, até o JSON de nomes protegidos pode ser renomeado. Não é preciso alterar C# para acrescentar traduções.
 
 ## Formatos de JSON
 
@@ -52,21 +190,21 @@ O idioma é escolhido em `i18n/config.json`, por exemplo: `{"language":"pt-BR"}`
 
 - Correspondência exata, sensível a maiúsculas e espaços, para `translations` e `keys`. Regras opcionais `patterns` permitem expressões regulares com limite de tempo de 100 ms por operação.
 - A tradução por chave é consultada antes da tradução pelo texto retornado.
-- Precedência: `game.json` primeiro, JSON dos mods em ordem alfabética estável e `zzz-auto.json` por último. Em caso de conflito, o **primeiro** valor é preservado e registrado no log.
+- Precedência definida pelo `module.kind`: nomes protegidos, jogo, mods e legado/fallback. Mods são ordenados por `module.id`, sem depender do nome do arquivo. Em caso de conflito, o **primeiro** valor é preservado e registrado no log.
 - Arquivos inválidos são ignorados individualmente e a tradução original permanece intacta quando não houver correspondência.
 - Os JSON são carregados no início do mod. Reinicie o jogo para aplicar alterações.
 
 ## Integração e instalação
 
-Este projeto usa o formato **ModCode do Mod Creator nativo** do Tale of Immortal. O jogo carrega uma classe pública `ModMain` com os métodos `Init()` e `Destroy()`, e o mod aplica patches Harmony. O próprio jogo já usa MelonLoader para executar ModCode.
+Este projeto usa o formato **ModCode do Mod Creator nativo** do Tale of Immortal. O jogo carrega uma classe pública `ModMain` com os métodos `Init()` e `Destroy()`, e o mod aplica patches Harmony. O próprio jogo usa MelonLoader para executar ModCode. **A compilação utiliza somente Mono/.NET Framework 4.7.2; as APIs do jogo são resolvidas por reflexão na execução.**
 
-1. Abra o criador de mods do Tale of Immortal e crie um mod com código. Configure o **namespace do ModCode** como `TalesOfMortalI18N` (o mesmo namespace do código e nome da assembly do projeto). Esse procedimento gera os metadados e a estrutura exigidos pela versão do jogo. Não substitua esses arquivos por um ZIP que contenha apenas DLL.
-2. Compile o projeto em `src/TalesOfMortal_i18N` com as bibliotecas da **sua instalação do jogo** (veja [compilação](docs/BUILD.md)). O namespace configurado no editor deve coincidir com o do código.
-3. Adicione a DLL compilada à estrutura ModCode do mod criado e exporte-o pelo Mod Creator.
+1. Abra o projeto existente em `ModProject_DQKLF9/ModProject` no Mod Creator do jogo. Os dois arquivos `.cache` estão incluídos. O namespace foi alinhado para **`MOD_DQKLF9`** (o cache recebido originalmente dizia `Mod_i18N`).
+2. Compile sem o jogo instalado usando `bash scripts/build.sh` e Mono (veja [compilação](docs/BUILD.md)). A DLL terá o namespace e nome exigidos pelo editor.
+3. Compile `MOD_DQKLF9.dll` com `bash scripts/build.sh`; o projeto nativo já está integrado, então exporte-o pelo Mod Creator.
 4. Copie a pasta `i18n` fornecida em `mod/i18n` para a raiz **do mod exportado**. Se a DLL tiver sido movida para outra pasta pelo jogo, o carregador também tenta localizar a pasta do mod abaixo de `Mods/TalesOfMortal_i18N`.
 5. Ative o mod e inicie o jogo. O log Unity/MelonLoader apresentará `[Tales of Mortal i18N]` e as quantidades carregadas.
 
-**Não** instale `TalesOfMortal_i18N.dll` isoladamente em `<jogo>/Mods/`: esta versão possui entrada `ModMain` para o ModCode do jogo, não o atributo `MelonInfo` de um mod MelonLoader autônomo.
+**Não** instale `MOD_DQKLF9.dll` isoladamente em `<jogo>/Mods/`: esta versão possui entrada `ModMain` para o ModCode do jogo, não o atributo `MelonInfo` de um mod MelonLoader autônomo.
 
 ## O que esta versão intercepta
 

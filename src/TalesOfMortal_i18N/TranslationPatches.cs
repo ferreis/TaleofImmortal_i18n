@@ -1,122 +1,246 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
-using HarmonyLib;
-using UnityEngine;
-using UnityEngine.UI;
-using TMPro;
 
 namespace TalesOfMortalI18N
 {
-    internal static class TranslationPatches
+    // O Harmony e as classes do jogo são resolvidos quando o mod inicia.
+    // O compilador só precisa do .NET Framework.
+    internal sealed class ReflectionPatcher
     {
-        private static readonly BindingFlags NonPublicStatic =
-            BindingFlags.NonPublic | BindingFlags.Static;
+        private const BindingFlags AllMethods =
+            BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
 
-        internal static int Install(Harmony harmony)
+        private readonly string id;
+        private object harmony;
+        private Type harmonyMethodType;
+        private MethodInfo harmonyPatchMethod;
+        private MethodInfo unpatchSelfMethod;
+
+        internal ReflectionPatcher(string harmonyId)
         {
-            int count = 0;
-            var installed = new HashSet<MethodBase>();
-
-            count += InstallOne(harmony, installed,
-                AccessTools.Method(typeof(GameTool), "LS", new[] { typeof(string) }),
-                null, nameof(AfterGameToolLs), "GameTool.LS(string)");
-
-            count += InstallOne(harmony, installed,
-                AccessTools.Method(typeof(GameTool), "LS", new[] { typeof(string), typeof(int) }),
-                null, nameof(AfterGameToolLsWithBackground), "GameTool.LS(string,int)");
-
-            count += InstallOne(harmony, installed,
-                AccessTools.Method(typeof(ConfLocalTextEx), "text", new[] { typeof(ConfLocalTextItem) }),
-                null, nameof(AfterLocalText), "ConfLocalTextEx.text");
-
-            count += InstallOne(harmony, installed,
-                AccessTools.PropertySetter(typeof(Text), "text"),
-                nameof(BeforeSetText), null, "UnityEngine.UI.Text.text");
-
-            count += InstallOne(harmony, installed,
-                AccessTools.PropertySetter(typeof(TMP_Text), "text"),
-                nameof(BeforeSetText), null, "TMP_Text.text");
-
-            count += InstallOne(harmony, installed,
-                AccessTools.PropertySetter(typeof(TextMeshProUGUI), "text"),
-                nameof(BeforeSetText), null, "TextMeshProUGUI.text");
-
-            count += InstallOne(harmony, installed,
-                AccessTools.PropertySetter(typeof(TextMeshPro), "text"),
-                nameof(BeforeSetText), null, "TextMeshPro.text");
-
-            return count;
+            id = harmonyId;
         }
 
-        private static int InstallOne(
-            Harmony harmony,
-            HashSet<MethodBase> installed,
-            MethodBase target,
-            string prefixName,
-            string postfixName,
-            string label)
+        internal int Install()
         {
-            if (target == null)
+            Type harmonyType = FindType("HarmonyLib.Harmony");
+            harmonyMethodType = FindType("HarmonyLib.HarmonyMethod");
+
+            if (harmonyType == null || harmonyMethodType == null)
             {
-                Debug.LogWarning("[Tales of Mortal i18N] Hook indisponível: " + label);
+                ModLog.Error("Harmony não está carregado. Este ModCode precisa do MelonLoader do jogo.");
                 return 0;
             }
 
-            if (installed.Contains(target))
+            harmony = Activator.CreateInstance(harmonyType, id);
+            harmonyPatchMethod = harmonyType.GetMethods(AllMethods).FirstOrDefault(m =>
+            {
+                ParameterInfo[] parameters = m.GetParameters();
+                return m.Name == "Patch" && parameters.Length >= 3 &&
+                    parameters[0].ParameterType == typeof(MethodBase);
+            });
+            unpatchSelfMethod = harmonyType.GetMethod("UnpatchSelf", AllMethods, null, Type.EmptyTypes, null);
+
+            if (harmonyPatchMethod == null)
+            {
+                ModLog.Error("Método Harmony.Patch não encontrado na versão instalada.");
                 return 0;
+            }
+
+            var patched = new HashSet<MethodBase>();
+            int installed = 0;
+
+            Type gameTool = FindType("GameTool");
+            installed += Patch(patched, ExactMethod(gameTool, "LS", typeof(string)),
+                null, "AfterGameToolLs", "GameTool.LS(string)");
+            installed += Patch(patched, ExactMethod(gameTool, "LS", typeof(string), typeof(int)),
+                null, "AfterGameToolLsWithBackground", "GameTool.LS(string, int)");
+
+            Type localText = FindType("ConfLocalTextEx");
+            MethodInfo textMethod = localText == null ? null :
+                localText.GetMethods(AllMethods).FirstOrDefault(m =>
+                {
+                    ParameterInfo[] parameters = m.GetParameters();
+                    return m.Name == "text" && m.ReturnType == typeof(string) &&
+                        parameters.Length == 1 && parameters[0].ParameterType.Name == "ConfLocalTextItem";
+                });
+            installed += Patch(patched, textMethod, null, "AfterLocalText", "ConfLocalTextEx.text");
+
+            installed += Patch(patched, TextSetter("UnityEngine.UI.Text"),
+                "BeforeSetText", null, "UnityEngine.UI.Text.text");
+            installed += Patch(patched, TextSetter("TMPro.TMP_Text"),
+                "BeforeSetText", null, "TMPro.TMP_Text.text");
+            installed += Patch(patched, TextSetter("TMPro.TextMeshProUGUI"),
+                "BeforeSetText", null, "TMPro.TextMeshProUGUI.text");
+            installed += Patch(patched, TextSetter("TMPro.TextMeshPro"),
+                "BeforeSetText", null, "TMPro.TextMeshPro.text");
+
+            return installed;
+        }
+
+        internal void Unpatch()
+        {
+            if (harmony == null) return;
+            try
+            {
+                if (unpatchSelfMethod != null)
+                    unpatchSelfMethod.Invoke(harmony, null);
+                else
+                    ModLog.Warning("UnpatchSelf não disponível na versão do Harmony.");
+            }
+            catch (Exception error)
+            {
+                ModLog.Warning("Erro ao remover hooks: " + error.Message);
+            }
+            harmony = null;
+        }
+
+        private int Patch(HashSet<MethodBase> patched, MethodBase target,
+            string prefixName, string postfixName, string label)
+        {
+            if (target == null)
+            {
+                ModLog.Warning("Hook indisponível: " + label);
+                return 0;
+            }
+            if (!patched.Add(target)) return 0;
 
             try
             {
-                HarmonyMethod prefix = prefixName == null ? null :
-                    new HarmonyMethod(typeof(TranslationPatches).GetMethod(prefixName, NonPublicStatic));
-                HarmonyMethod postfix = postfixName == null ? null :
-                    new HarmonyMethod(typeof(TranslationPatches).GetMethod(postfixName, NonPublicStatic));
+                MethodInfo prefix = prefixName == null ? null :
+                    typeof(ReflectionPatcher).GetMethod(prefixName, BindingFlags.NonPublic | BindingFlags.Static);
+                MethodInfo postfix = postfixName == null ? null :
+                    typeof(ReflectionPatcher).GetMethod(postfixName, BindingFlags.NonPublic | BindingFlags.Static);
 
-                harmony.Patch(target, prefix, postfix);
-                installed.Add(target);
+                if ((prefixName != null && prefix == null) || (postfixName != null && postfix == null))
+                    throw new MissingMethodException("Método de patch não encontrado.");
+
+                ParameterInfo[] parameters = harmonyPatchMethod.GetParameters();
+                object[] args = new object[parameters.Length];
+                args[0] = target;
+                args[1] = prefix == null ? null : Activator.CreateInstance(harmonyMethodType, prefix);
+                args[2] = postfix == null ? null : Activator.CreateInstance(harmonyMethodType, postfix);
+                harmonyPatchMethod.Invoke(harmony, args);
                 return 1;
             }
             catch (Exception error)
             {
-                Debug.LogWarning("[Tales of Mortal i18N] Falha no hook " + label + ": " + error.Message);
+                ModLog.Warning("Falha ao instalar " + label + ": " + error.Message);
                 return 0;
             }
         }
 
-        // Recebe o texto antes que o componente Unity o desenhe.
+        private static MethodInfo TextSetter(string typeName)
+        {
+            Type type = FindType(typeName);
+            if (type == null) return null;
+            PropertyInfo property = type.GetProperty("text", AllMethods);
+            return property == null ? null : property.GetSetMethod(true);
+        }
+
+        private static MethodInfo ExactMethod(Type type, string name, params Type[] args)
+        {
+            return type == null ? null : type.GetMethod(name, AllMethods, null, args, null);
+        }
+
+        private static Type FindType(string fullName)
+        {
+            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                Type type = assembly.GetType(fullName, false);
+                if (type != null) return type;
+            }
+            return Type.GetType(fullName, false);
+        }
+
+        private static object ReadKey(object item)
+        {
+            if (item == null) return null;
+            Type type = item.GetType();
+            FieldInfo field = type.GetField("key", AllMethods);
+            if (field != null) return field.GetValue(item);
+            PropertyInfo property = type.GetProperty("key", AllMethods);
+            return property == null ? null : property.GetValue(item, null);
+        }
+
+        private static string FormatText(string text, int background)
+        {
+            // Preserva o mecanismo do jogo que expande tags e placeholders.
+            try
+            {
+                Type gameTool = FindType("GameTool");
+                MethodInfo formatter = ExactMethod(gameTool, "TextToData", typeof(string), typeof(int));
+                if (formatter != null)
+                    return formatter.Invoke(null, new object[] { text, background }) as string ?? text;
+            }
+            catch (Exception error)
+            {
+                ModLog.Warning("Falha ao formatar tradução: " + error.Message);
+            }
+            return text;
+        }
+
+        private static bool textSetterErrorLogged;
+
         private static void BeforeSetText(ref string __0)
         {
-            __0 = TranslationCatalog.TranslateText(__0);
+            // Harmony executes this inside Unity's IL2CPP Text setter.
+            // NEVER modify font/layout properties here: Unity may be rebuilding
+            // the same text component, causing a native NullReferenceException.
+            // Only rewrite the string, and fail open if the hook misbehaves.
+            string original = __0;
+            try
+            {
+                RuntimeTextExtractor.Observe(original, "ui.text");
+                __0 = TranslationCatalog.TranslateText(original);
+            }
+            catch (Exception error)
+            {
+                __0 = original;
+                if (!textSetterErrorLogged)
+                {
+                    textSetterErrorLogged = true;
+                    ModLog.Warning("Hook de texto falhou; valor original preservado: " +
+                        error.GetType().Name + ": " + error.Message);
+                }
+            }
         }
 
-        // game tool keys têm preferência sobre o texto final.
         private static void AfterGameToolLs(string __0, ref string __result)
         {
-            string translated;
-            if (TranslationCatalog.TryKey(__0, out translated))
-                __result = GameTool.TextToData(translated, 1);
-            else
-                __result = TranslationCatalog.TranslateText(__result);
+            RuntimeTextExtractor.Observe(__result, "GameTool.LS", __0);
+            string value;
+            __result = TranslationCatalog.TryKey(__0, out value)
+                ? FormatText(value, 1)
+                : TranslationCatalog.TranslateText(__result);
         }
 
-        private static void AfterGameToolLsWithBackground(
-            string __0, int __1, ref string __result)
+        private static void AfterGameToolLsWithBackground(string __0, int __1, ref string __result)
         {
-            string translated;
-            if (TranslationCatalog.TryKey(__0, out translated))
-                __result = GameTool.TextToData(translated, __1);
-            else
-                __result = TranslationCatalog.TranslateText(__result);
+            RuntimeTextExtractor.Observe(__result, "GameTool.LS");
+            string value;
+            __result = TranslationCatalog.TryKey(__0, out value)
+                ? FormatText(value, __1)
+                : TranslationCatalog.TranslateText(__result);
         }
 
-        private static void AfterLocalText(ConfLocalTextItem __0, ref string __result)
+        private static void AfterLocalText(object __0, ref string __result)
         {
-            string translated;
-            if (__0 != null && TranslationCatalog.TryKey(__0.key, out translated))
-                __result = GameTool.TextToData(translated, 1);
-            else
-                __result = TranslationCatalog.TranslateText(__result);
+            try
+            {
+                string key = ReadKey(__0) as string;
+                RuntimeTextExtractor.Observe(__result, "ConfLocalTextEx.text", key);
+                string value;
+                __result = TranslationCatalog.TryKey(key, out value)
+                    ? FormatText(value, 1)
+                    : TranslationCatalog.TranslateText(__result);
+            }
+            catch (Exception error)
+            {
+                ModLog.Warning("Falha ao buscar chave local: " + error.Message);
+            }
         }
     }
 }

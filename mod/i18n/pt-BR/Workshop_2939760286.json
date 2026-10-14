@@ -1,0 +1,13 @@
+{
+  "module": {
+    "kind": "mod",
+    "id": "steam:2939760286",
+    "name": "Talismãs semiautomáticos",
+    "workshopId": "2939760286",
+    "sourceAlias": "【大叔自用】半自动画符"
+  },
+  "translations": {
+    "自动画符": "Desenho automático de talismãs"
+  },
+  "keys": {}
+}

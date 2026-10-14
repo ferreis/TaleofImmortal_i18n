@@ -11,7 +11,17 @@
 *.dll
 !*.dll.config
 *.cache
+# Metadados essenciais exportados pelo criador nativo
+!/ModProject_DQKLF9/ModProject/ModData.cache
+!/ModProject_DQKLF9/ModProject/ModProject.cache
 *.log
 
 # Distribution
 dist/
+
+# Generated native Mod Creator staging files (the committed sources remain intact)
+/ModProject_DQKLF9/debug/
+/ModProject_DQKLF9/ModProject/i18n/
+
+# Generated translations staged under ModAssets by build.sh
+/ModProject_DQKLF9/ModProject/ModAssets/i18n/
