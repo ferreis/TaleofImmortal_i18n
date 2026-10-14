@@ -84,6 +84,9 @@ def is_named_item(text):
     plain = match.group(1) if match else text
     if not ITEM_TITLE.fullmatch(plain):
         return False
+    # Mensagens e títulos de receitas não são nomes de itens isolados.
+    if plain.startswith(("Insuficiente ", "Receita ", "Recipe ", "Not Enough ")):
+        return False
     words = plain.split()
     # Spirit Stone(s) é um recurso monetário, não um título de item.
     if plain in {"Spirit Stone", "Spirit Stones"}:
