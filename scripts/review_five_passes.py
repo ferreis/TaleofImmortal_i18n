@@ -38,15 +38,12 @@ ARTIFACT_SOURCE_ALIASES = {
 }
 ARTIFACT_LIST_NAMES = re.compile(r"<color=[^>]*>([^<>]+)</color>")
 
-CANON = {
-    "lightning": "Raio", "Lightning": "Raio", "雷属性": "Raio",
-    "火属性": "Fogo", "水属性": "Água", "木属性": "Madeira", "土属性": "Terra",
-    "Luck": "Sorte", "luck": "Sorte",
-    "移动速度": "Velocidade de movimento",
-    "Movement Speed": "Velocidade de movimento", "movement speed": "Velocidade de movimento",
-    "Move Speed": "Velocidade de movimento", "Skill Range": "Alcance da habilidade",
-    "skill range": "Alcance da habilidade", "技能射程": "Alcance da habilidade",
-}
+# Um único glossário evita divergências entre as duas auditorias.
+# Funciona como módulo (testes) e como script executado diretamente.
+try:
+    from .audit_terminology import CANONICAL as CANON
+except ImportError:
+    from audit_terminology import CANONICAL as CANON
 SUSPICIOUS = re.compile(r"parmeasureiRO|\b(?:nullpointer|undefined)\b", re.I)
 
 
