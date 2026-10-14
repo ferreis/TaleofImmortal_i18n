@@ -40,7 +40,7 @@ ARTIFACT_LIST_NAMES = re.compile(r"<color=[^>]*>([^<>]+)</color>")
 try:
     from .audit_terminology import CANONICAL as CANON, is_named_skill, is_named_item, restore_named_labels, seconds_values
 except ImportError:
-    from audit_terminology import CANONICAL as CANON, is_named_skill, is_named_item, restore_named_labels
+    from audit_terminology import CANONICAL as CANON, is_named_skill, is_named_item, restore_named_labels, seconds_values
 SUSPICIOUS = re.compile(r"parmeasureiRO|\b(?:nullpointer|undefined)\b", re.I)
 
 
