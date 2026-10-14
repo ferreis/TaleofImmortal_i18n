@@ -50,6 +50,22 @@ class FivePassReviewTests(unittest.TestCase):
             result = audit(root / "catalog")
             self.assertNotIn("sprite-mismatch", result["pass_counts"]["1"])
 
+    def test_artifact_spirit_labels_cannot_be_machine_garbled(self):
+        with tempfile.TemporaryDirectory() as temp:
+            folder = Path(temp)
+            original = '<color=#ff630d>Mengyi</color>,<color=#ff630d>Muqing</color>,<color=#14b8ff>Huofa</color>,<color=#14b8ff>Jovem</color>,<color=#cccccc>Yunling</color>,<color=#cccccc>Borda de prata</color>,<color=#cccccc>Pena abrasadora</color>,<color=#cccccc>Feiming</color>'
+            wrong = original.replace('Mengyi', 'homens G um').replace('Muqing', 'Luz UM')
+            (folder / "game.json").write_text(json.dumps({
+                "module": {"kind": "game", "id": "game:tale-of-immortal"},
+                "translations": {"Muqing": "Luz UM", original: wrong},
+                "keys": {}
+            }, ensure_ascii=False), encoding="utf-8")
+            found = audit(folder)
+            self.assertGreater(
+                found["pass_counts"]["3"]["artifact-spirit-name-changed"], 0)
+            self.assertGreater(
+                found["pass_counts"]["3"]["artifact-spirit-roster-corrupted"], 0)
+
     def test_source_keys_check_matches_source_originals(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
