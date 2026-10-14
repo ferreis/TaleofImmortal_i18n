@@ -45,12 +45,23 @@ CANONICAL = {
 # Os nomes ingleses de técnicas/skills permanecem em inglês. Detectar apenas
 # nomes completos e relativamente específicos; não reverter frases inteiras.
 SKILL_NAME = re.compile(
-    r"^[A-Z][A-Za-z-]+(?:'s|’s) [A-Z][\w'-]+"
-    r"(?: [A-Z][\w'-]+){0,4} "
-    r"(?:Firebolt|Groundfire|Thundercall|Palm|Sword|Spear|Fist|"
-    r"Technique|Técnica|Blade|Manual|Celerity Palm)"
-    r"(?: -\d+)?$"
+    r"^(?:[A-Z][A-Za-z-]+(?:'s|’s) "
+    r"(?:Aerial|Blooming|Blooded|Cardinal|Clouded|Deep|Diving|Empty|"
+    r"Flawed|Forceful|Living|Maple|Misty|Nether|Peaked|Powerful|Rear|"
+    r"Signing|Solid|Thundrous|Vesseled|Warring|Wavy|Willful) "
+    r"[^\\n<>.!?]{2,80}|"
+    r"(?:Windseek(?: \\(\\d+\\))?|Dayblaze|Spiritcall))"
+    r"(?: -\\d+)?$"
 )
+COLOR_SKILL = re.compile(r"^<color(?:=[^>]+)>([^<>]+)</color>$")
+
+
+def is_named_skill(text):
+    """Identifica nomes completos, inclusive rótulos com uma tag <color>."""
+    match = COLOR_SKILL.fullmatch(text)
+    return bool(SKILL_NAME.fullmatch(match.group(1) if match else text))
+
+
 HAN = re.compile(r"[\u3400-\u9fff\uf900-\ufaff]")
 CURLY = re.compile(r"\{[^{}\r\n]+\}")
 SPECIAL = re.compile(r"\$s_[A-Za-z0-9_]+\$|&[A-Za-z0-9_|]+&")
@@ -76,7 +87,7 @@ def inspect(original, target):
         issues.append("english-term-remains")
     if OPEN_TAG.findall(original) and not OPEN_TAG.findall(target):
         issues.append("rich-tags-lost")
-    if SKILL_NAME.fullmatch(original) and original != target:
+    if is_named_skill(original) and original != target:
         issues.append("translated-skill-name")
     if original in CANONICAL and target != CANONICAL[original]:
         issues.append("glossary-conflict")
@@ -108,7 +119,7 @@ def audit(folder, apply=False, report=None):
                 summary[reason] += 1
                 file_issues[reason] += 1
             replacement = CANONICAL.get(source)
-            if SKILL_NAME.fullmatch(source):
+            if is_named_skill(source):
                 replacement = source
             if apply and replacement is not None and value != replacement:
                 # Uma normalização nunca modifica a string ORIGINAL da chave.
