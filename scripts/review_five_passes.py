@@ -19,10 +19,7 @@ VAR = re.compile(r"\$s_[^$\r\n]{1,140}\$|&[A-Za-z0-9_/%+|.?:=-]{1,140}&")
 SPRITE = re.compile(r"""<sprite\b[^>]*?\bname=\\?["']([^"\\']+)\\?["']""", re.I)
 TAG = re.compile(r"<(/?)(b|i|u|color|size|link|voffset)\b", re.I)
 EN = re.compile(r"\b(?:luck|looking|lightning|movement speed|skill range)\b", re.I)
-SKILL = re.compile(
-    r"^[A-Z][A-Za-z-]+(?:'s|’s) [A-Z][\w'-]+(?: [A-Z][\w'-]+){0,4} "
-    r"(?:Firebolt|Groundfire|Thundercall|Palm|Sword|Spear|Fist|"
-    r"Technique|Técnica|Blade|Manual|Celerity Palm)(?: -\d+)?$")
+
 REGIONS = {"Yong Ning", "Hua Feng", "Mu Xian", "Yun Mo", "Chi You"}
 ARTIFACT_SPIRITS = {
     "Mengyi", "Cangya", "Jiuchen", "Muqing", "Ningshuang", "Lingge",
@@ -41,9 +38,9 @@ ARTIFACT_LIST_NAMES = re.compile(r"<color=[^>]*>([^<>]+)</color>")
 # Um único glossário evita divergências entre as duas auditorias.
 # Funciona como módulo (testes) e como script executado diretamente.
 try:
-    from .audit_terminology import CANONICAL as CANON
+    from .audit_terminology import CANONICAL as CANON, is_named_skill, is_named_item, restore_named_labels
 except ImportError:
-    from audit_terminology import CANONICAL as CANON
+    from audit_terminology import CANONICAL as CANON, is_named_skill, is_named_item, restore_named_labels
 SUSPICIOUS = re.compile(r"parmeasureiRO|\b(?:nullpointer|undefined)\b", re.I)
 
 
@@ -126,8 +123,12 @@ def audit(folder, extracted=None, report=None):
                     flag(3, filename, key, "protected-name-changed", source, target, "error")
                 if source in REGIONS and source != target:
                     flag(3, filename, key, "region-changed", source, target)
-                if SKILL.fullmatch(source) and source != target:
+                if is_named_skill(source) and source != target:
                     flag(3, filename, key, "skill-name-changed", source, target)
+                if is_named_item(source) and source != target:
+                    flag(3, filename, key, "item-name-changed", source, target)
+                if restore_named_labels(source, target) != target:
+                    flag(3, filename, key, "named-label-changed", source, target)
                 if source in ARTIFACT_SPIRITS and source != target:
                     flag(3, filename, key, "artifact-spirit-name-changed", source, target)
                 if source in ARTIFACT_SOURCE_ALIASES and (
@@ -144,7 +145,9 @@ def audit(folder, extracted=None, report=None):
                 # Pass 4: language, suspicious corruption and line structure.
                 if HAN.search(target) and target != source and target not in protected:
                     flag(4, filename, key, "chinese-remains", source, target)
-                if EN.search(target) and not(SKILL.fullmatch(source) and source == target):
+                if EN.search(target) and not(
+                        (is_named_skill(source) or is_named_item(source))
+                        and source == target):
                     flag(4, filename, key, "english-term-remains", source, target)
                 if SUSPICIOUS.search(target):
                     flag(4, filename, key, "corrupted-word", source, target, "error")
