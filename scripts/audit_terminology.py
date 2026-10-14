@@ -126,6 +126,22 @@ UNTRANSLATED = re.compile(
 )
 
 
+def seconds_values(text):
+    """Lê os segundos após o sprite de recarga, sem confundir com tags.
+
+    1.36s e 1,36s são equivalentes; 1.36s e "1. Espirros" não são.
+    """
+    marker = '<sprite name="jinenglengque">'
+    index = text.rfind(marker)
+    if index < 0:
+        return ()
+    tail = re.sub(r"<[^>]*>", "", text[index + len(marker):])
+    return tuple(
+        number.replace(",", ".")
+        for number in re.findall(r"([+-]?\d+(?:[.,]\d+)?)\s*s\b", tail, re.I)
+    )
+
+
 def inspect(original, target):
     issues = []
     for marker, regex in (("placeholder", CURLY), ("game-variable", SPECIAL),
@@ -135,6 +151,8 @@ def inspect(original, target):
             issues.append(marker)
     if original.count("\n") > 0 and original.count("\n") != target.count("\n"):
         issues.append("linebreak-count")
+    if seconds_values(original) and seconds_values(original) != seconds_values(target):
+        issues.append("seconds-value-mismatch")
     if HAN.search(target):
         issues.append("chinese-remains")
     if UNTRANSLATED.search(target):
