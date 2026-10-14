@@ -127,18 +127,19 @@ UNTRANSLATED = re.compile(
 
 
 def seconds_values(text):
-    """Lê os segundos após o sprite de recarga, sem confundir com tags.
+    """Compara números de segundos em habilidades sem confundir tags Unity.
 
-    1.36s e 1,36s são equivalentes; 1.36s e "1. Espirros" não são.
+    Considera tanto recarga (jinenglengque) quanto duração (chixushijian).
+    Ponto e vírgula decimal representam o mesmo valor, mas palavras
+    inventadas ou horários gerados indevidamente não são aceitos.
     """
-    marker = '<sprite name="jinenglengque">'
-    index = text.rfind(marker)
-    if index < 0:
+    if ('<sprite name="jinenglengque">' not in text
+            and '<sprite name="chixushijian">' not in text):
         return ()
-    tail = re.sub(r"<[^>]*>", "", text[index + len(marker):])
+    plain = re.sub(r"<[^>]*>", "", text)
     return tuple(
-        number.replace(",", ".")
-        for number in re.findall(r"([+-]?\d+(?:[.,]\d+)?)\s*s\b", tail, re.I)
+        match.replace(",", ".")
+        for match in re.findall(r"(?<![\\w])([+-]?\\d+(?:[.,]\\d+)?)s\\b", plain, re.I)
     )
 
 
@@ -149,6 +150,8 @@ def inspect(original, target):
         if collections.Counter(regex.findall(original)) != collections.Counter(
                 regex.findall(target)):
             issues.append(marker)
+    if re.fullmatch(r"\\s*[+-]?\\d+(?:[./]\\d+)*\\s*", original) and target != original:
+        issues.append("numeric-only-label-changed")
     if original.count("\n") > 0 and original.count("\n") != target.count("\n"):
         issues.append("linebreak-count")
     if seconds_values(original) and seconds_values(original) != seconds_values(target):
