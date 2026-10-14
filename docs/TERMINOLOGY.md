@@ -12,28 +12,30 @@ estatística ou o mesmo elemento**.
 | Elemento `Lightning` / `雷属性` | **Raio** | Relâmpago, Trovão para o elemento |
 | Elemento `Fire` / `火属性` | **Fogo** | Flamejante como nome de elemento |
 | Elemento `Water` / `水属性` | **Água** | Aquático como nome de elemento |
-| Elemento `Wood` / `木属性` | **Madeira** | Árvore como nome de elemento |
+| Elemento `Wood` / `木属性` | **Wood** | Madeira, Tábua, Árvore como nome de elemento |
 | Elemento `Earth` / `土属性` | **Terra** | Solo como nome de elemento |
-| Elemento de Vento, quando presente | **Vento** | Variações para o mesmo atributo |
+| Elemento `Wind` / `风属性` | **Vento** | Variações para o mesmo atributo |
 | `Luck` quando representa atributo | **Sorte** | Luck, Fortuna sem critério |
 | `Appearance` / `Looks` como atributo visual | **Aparência** | Sorte |
 | `Movement Speed` | **Velocidade de movimento** | velocidade de deslocamento/andar |
 | `Skill Range` | **Alcance da habilidade** | taxa de habilidade, raio de efeito |
 | `Jianmu` como nome do armazém | **Jianmu** | construção, madeira de construção |
 
-**Não confundir:** `Skill Rate` pode designar cadência, porcentagem,
+**Não confundir:** `Wood` é a grafia fixa do **elemento** e do seu Qi, inclusive em `Wood Qi` e `Aptidão com Wood`. A palavra portuguesa *madeira* permanece válida quando o texto fala do material físico (árvores, móveis, construções), nunca como sinônimo automático do elemento.
+
+`Skill Rate` pode designar cadência, porcentagem,
 taxa ou outro parâmetro do mod. **Não é sinônimo seguro de Skill Range**.
 `Looking` também não equivale a Sorte; pode indicar "procurando" ou
 referir-se a aparência conforme a origem. Essas expressões exigem contexto.
 
 ## Nomes que não devem ser traduzidos automaticamente
 
-- **Regiões:** manter o padrão em inglês do jogo. Exemplos:
+- **Regiões e cidades:** manter o padrão em inglês do jogo. Exemplos:
   `Yong Ning`, `Hua Feng`, `Mu Xian`, `Yun Mo`.
 - **Nomes específicos de habilidades, artes, técnicas e skills:**
   quando o nome original já vem em inglês, mantê-lo em inglês, inclusive
   em títulos de itens, descrições e avisos relacionados.
-- **Nomes próprios de NPCs:** preservar a identidade. Nomes chineses
+- **Nomes próprios de NPCs:** preservar a identidade, mesmo que coincidam com palavras comuns. Nomes chineses
   podem ter homônimos; não fazer substituições globais por traduções
   automáticas nem converter um nome sem relação com sua fonte.
 - **Variáveis:** preservar `{0}`, `{call|B|A}`, `$s_...$`,
